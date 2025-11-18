@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard de Vendas - Imagem Modas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        margin: 0;
+        padding: 16px;
+      }
+      .card {
+        max-width: 480px;
+        margin: 24px auto;
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      }
+      h1 {
+        font-size: 20px;
+        margin-bottom: 4px;
+      }
+      label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 4px;
+      }
+      input {
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+      }
+      button {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        margin-right: 8px;
+      }
+      .primary {
+        background: #000;
+        color: #fff;
+      }
+      .outline {
+        background: #fff;
+        border: 1px solid #000;
+        color: #000;
+      }
+      .meta, .status {
+        margin-top: 12px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <h1>Dashboard Imagem Modas</h1>
+      <p class="status" id="status">Faça login para continuar.</p>
+
+      <label>Nome da vendedora:</label>
+      <input id="nome" value="Allane" />
+
+      <label>Senha:</label>
+      <input id="senha" type="password" value="allane2025" />
+
+      <button class="primary" onclick="login()">Entrar</button>
+      <button class="outline" onclick="buscarMeta()">Buscar meta de hoje</button>
+
+      <p class="meta" id="meta"></p>
+    </div>
+
+    <script>
+      // URL do backend no Render
+      const API = "https://dashboard-vendas1.onrender.com/api";
+
+      async function login() {
+        const nome = document.getElementById("nome").value;
+        const senha = document.getElementById("senha").value;
+
+        document.getElementById("status").innerText = "Conectando...";
+
+        const resp = await fetch(API + "/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nome, senha })
+        });
+
+        if (!resp.ok) {
+          document.getElementById("status").innerText = "Falha no login.";
+          return;
+        }
+
+        const data = await resp.json();
+        localStorage.setItem("token", data.token);
+
+        document.getElementById("status").innerText =
+          "Logada como " + data.vendedora.nome;
+      }
+
+      async function buscarMeta() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          document.getElementById("status").innerText =
+            "Faça login primeiro.";
+          return;
+        }
+
+        const hoje = new Date().toISOString().slice(0, 10);
+        const resp = await fetch(API + "/metas/" + hoje, {
+          headers: { Authorization: "Bearer " + token }
+        });
+
+        const data = await resp.json();
+        const meta = data.valor_meta || data.valorMeta;
+
+        document.getElementById("meta").innerText =
+          "Meta de hoje: R$ " + Number(meta).toFixed(2);
+      }
+    </script>
+  </body>
+</html>
