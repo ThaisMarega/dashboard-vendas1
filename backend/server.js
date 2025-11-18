@@ -343,6 +343,19 @@ app.get('/api/metas/:data', autenticar, async (req, res) => {
 // ===================================
 // INICIALIZAÇÃO DO SERVIDOR
 // ===================================
+// ===================================
+// ROTA PARA EXECUTAR SEED.JS (GRATUITO, SEM SHELL)
+// ===================================
+app.get('/api/run-seed', async (req, res) => {
+  try {
+    console.log("➡️ Executando SEED...");
+    const seed = require('./seed');
+    res.send("SEED executado com sucesso! Vendedoras criadas.");
+  } catch (error) {
+    console.error("❌ Erro ao rodar seed:", error);
+    res.status(500).send("Erro ao rodar seed.");
+  }
+});
 app.listen(PORT, async () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
   await criarTabelas();
