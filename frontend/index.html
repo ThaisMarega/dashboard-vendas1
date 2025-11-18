@@ -5,75 +5,261 @@
     <title>Dashboard de Vendas - Imagem Modas</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
+      :root {
+        --verde-imagem: #5a633a;
+        --dourado-imagem: #d4a362;
+        --bege-fundo: #f5f2ea;
+        --texto: #222222;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: Arial, sans-serif;
-        background: #f5f5f5;
         margin: 0;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: radial-gradient(circle at top, #ffffff 0, var(--bege-fundo) 55%, #e6ddd0 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         padding: 16px;
+        color: var(--texto);
       }
+
       .card {
-        max-width: 480px;
-        margin: 24px auto;
-        background: #fff;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        width: 100%;
+        max-width: 420px;
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 24px 24px 28px;
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12);
+        position: relative;
+        overflow: hidden;
       }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(212, 163, 98, 0.16),
+          transparent 45%,
+          rgba(90, 99, 58, 0.18)
+        );
+        opacity: 0.3;
+        pointer-events: none;
+      }
+
+      .card-inner {
+        position: relative;
+        z-index: 1;
+      }
+
+      .logo-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 18px;
+      }
+
+      .logo-circle {
+        width: 72px;
+        height: 72px;
+        border-radius: 999px;
+        background: var(--verde-imagem);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .logo-circle img {
+        width: 90%;
+        height: 90%;
+        object-fit: contain;
+        display: block;
+      }
+
+      .brand-name {
+        font-size: 15px;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--texto);
+      }
+
+      .brand-sub {
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--dourado-imagem);
+      }
+
       h1 {
-        font-size: 20px;
-        margin-bottom: 4px;
+        font-size: 18px;
+        margin: 10px 0 4px;
+        text-align: center;
       }
+
+      .subtitle {
+        font-size: 13px;
+        text-align: center;
+        color: #666666;
+        margin-bottom: 16px;
+      }
+
       label {
         font-weight: 600;
         display: block;
         margin-bottom: 4px;
+        font-size: 13px;
       }
+
       input {
         width: 100%;
-        padding: 8px 10px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
+        padding: 9px 11px;
+        border-radius: 10px;
+        border: 1px solid #dddddd;
         margin-bottom: 10px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease,
+          background-color 0.15s ease;
+        background-color: #faf8f4;
       }
+
+      input:focus {
+        border-color: var(--dourado-imagem);
+        box-shadow: 0 0 0 1px rgba(212, 163, 98, 0.35);
+        background-color: #ffffff;
+      }
+
+      .buttons {
+        margin-top: 8px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
       button {
-        padding: 8px 12px;
-        border-radius: 8px;
+        padding: 9px 14px;
+        border-radius: 999px;
         border: none;
         cursor: pointer;
         font-weight: 600;
-        margin-right: 8px;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        white-space: nowrap;
       }
+
       .primary {
-        background: #000;
+        background: var(--dourado-imagem);
         color: #fff;
       }
-      .outline {
-        background: #fff;
-        border: 1px solid #000;
-        color: #000;
+
+      .primary:hover {
+        filter: brightness(0.95);
       }
-      .meta, .status {
-        margin-top: 12px;
+
+      .outline {
+        background: #ffffff;
+        border: 1px solid var(--verde-imagem);
+        color: var(--verde-imagem);
+      }
+
+      .outline:hover {
+        background: rgba(90, 99, 58, 0.04);
+      }
+
+      .status {
+        margin-top: 10px;
+        font-size: 13px;
+        min-height: 18px;
+      }
+
+      .status.ok {
+        color: var(--verde-imagem);
+      }
+
+      .status.error {
+        color: #b3261e;
+      }
+
+      .meta {
+        margin-top: 6px;
         font-size: 14px;
+        font-weight: 600;
+        color: var(--texto);
+      }
+
+      .footer {
+        margin-top: 18px;
+        font-size: 11px;
+        text-align: center;
+        color: #888888;
+      }
+
+      @media (max-width: 480px) {
+        .card {
+          padding: 20px 18px 24px;
+        }
+
+        .brand-name {
+          font-size: 14px;
+          letter-spacing: 0.28em;
+        }
+
+        .buttons {
+          flex-direction: column;
+        }
+
+        button {
+          width: 100%;
+        }
       }
     </style>
   </head>
 
   <body>
     <div class="card">
-      <h1>Dashboard Imagem Modas</h1>
-      <p class="status" id="status">Faça login para continuar.</p>
+      <div class="card-inner">
+        <div class="logo-wrap">
+          <div class="logo-circle">
+            <!-- Certifique-se de que o arquivo logo-mg.png está na pasta frontend -->
+            <img src="logo-mg.png" alt="Logo Imagem Modas" />
+          </div>
+          <div class="brand-name">IMAGEM MODAS</div>
+          <div class="brand-sub">dashboard de vendas</div>
+        </div>
 
-      <label>Nome da vendedora:</label>
-      <input id="nome" value="Allane" />
+        <h1>Área das Vendedoras</h1>
+        <p class="subtitle">Acompanhe sua meta diária e desempenho em tempo real.</p>
 
-      <label>Senha:</label>
-      <input id="senha" type="password" value="allane2025" />
+        <label for="nome">Nome da vendedora</label>
+        <input id="nome" value="Allane" />
 
-      <button class="primary" onclick="login()">Entrar</button>
-      <button class="outline" onclick="buscarMeta()">Buscar meta de hoje</button>
+        <label for="senha">Senha</label>
+        <input id="senha" type="password" value="allane2025" />
 
-      <p class="meta" id="meta"></p>
+        <div class="buttons">
+          <button class="primary" onclick="login()">Entrar</button>
+          <button class="outline" onclick="buscarMeta()">Buscar meta de hoje</button>
+        </div>
+
+        <p class="status" id="status">Faça login para continuar.</p>
+        <p class="meta" id="meta"></p>
+
+        <div class="footer">
+          Painel interno Imagem Modas – uso exclusivo da equipe.
+        </div>
+      </div>
     </div>
 
     <script>
@@ -83,45 +269,72 @@
       async function login() {
         const nome = document.getElementById("nome").value;
         const senha = document.getElementById("senha").value;
+        const statusEl = document.getElementById("status");
+        const metaEl = document.getElementById("meta");
 
-        document.getElementById("status").innerText = "Conectando...";
+        statusEl.className = "status";
+        metaEl.textContent = "";
+        statusEl.textContent = "Conectando...";
 
-        const resp = await fetch(API + "/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nome, senha })
-        });
+        try {
+          const resp = await fetch(API + "/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nome, senha }),
+          });
 
-        if (!resp.ok) {
-          document.getElementById("status").innerText = "Falha no login.";
-          return;
+          if (!resp.ok) {
+            statusEl.className = "status error";
+            statusEl.textContent = "Falha no login. Confira nome e senha.";
+            return;
+          }
+
+          const data = await resp.json();
+          localStorage.setItem("token", data.token);
+
+          statusEl.className = "status ok";
+          statusEl.textContent = "Logada como " + data.vendedora.nome;
+        } catch (err) {
+          statusEl.className = "status error";
+          statusEl.textContent = "Erro de conexão com o servidor.";
         }
-
-        const data = await resp.json();
-        localStorage.setItem("token", data.token);
-
-        document.getElementById("status").innerText =
-          "Logada como " + data.vendedora.nome;
       }
 
       async function buscarMeta() {
         const token = localStorage.getItem("token");
+        const statusEl = document.getElementById("status");
+        const metaEl = document.getElementById("meta");
+
         if (!token) {
-          document.getElementById("status").innerText =
-            "Faça login primeiro.";
+          statusEl.className = "status error";
+          statusEl.textContent = "Faça login primeiro.";
           return;
         }
 
         const hoje = new Date().toISOString().slice(0, 10);
-        const resp = await fetch(API + "/metas/" + hoje, {
-          headers: { Authorization: "Bearer " + token }
-        });
 
-        const data = await resp.json();
-        const meta = data.valor_meta || data.valorMeta;
+        try {
+          const resp = await fetch(API + "/metas/" + hoje, {
+            headers: { Authorization: "Bearer " + token },
+          });
 
-        document.getElementById("meta").innerText =
-          "Meta de hoje: R$ " + Number(meta).toFixed(2);
+          if (!resp.ok) {
+            statusEl.className = "status error";
+            statusEl.textContent = "Não foi possível buscar a meta.";
+            return;
+          }
+
+          const data = await resp.json();
+          const meta = data.valor_meta || data.valorMeta || 0;
+
+          metaEl.textContent =
+            "Meta de hoje: R$ " + Number(meta).toFixed(2).replace(".", ",");
+          statusEl.className = "status ok";
+          statusEl.textContent = "Meta carregada com sucesso.";
+        } catch (err) {
+          statusEl.className = "status error";
+          statusEl.textContent = "Erro ao buscar meta.";
+        }
       }
     </script>
   </body>
