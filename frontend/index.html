@@ -4,181 +4,996 @@
     <meta charset="UTF-8" />
     <title>Dashboard de Vendas - Imagem Modas</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
     <style>
+      :root {
+        --verde: #5b6240;
+        --bege: #f4f1ea;
+        --dourado: #c7a15a;
+        --texto: #333333;
+        --bordas: #e0ddd5;
+        --erro: #b3261e;
+        --sucesso: #1b873f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
         margin: 0;
-        background: #f6f6f2;
-        font-family: "Inter", Arial, sans-serif;
-        color: #333;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: radial-gradient(circle at top, #ffffff 0, #ece7dd 45%, #d9d2c4 100%);
+        color: var(--texto);
       }
 
-      .topbar {
+      .layout {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+      }
+
+      header {
         display: flex;
         align-items: center;
-        padding: 16px 32px;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(8px);
-        border-bottom: 1px solid #e6e2da;
+        gap: 16px;
+        margin-bottom: 24px;
       }
 
-      .logo {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .logo img {
-        width: 44px;
-        height: 44px;
+      header img {
+        width: 56px;
+        height: 56px;
         border-radius: 50%;
         object-fit: cover;
+        border: 1px solid rgba(0, 0, 0, 0.08);
       }
 
-      .logo-text {
-        font-size: 15px;
-        font-weight: 600;
-        letter-spacing: 0.6px;
-        color: #4a4a40;
+      header .marca {
+        font-size: 14px;
+        letter-spacing: 0.26em;
+        text-transform: uppercase;
+        color: #555;
       }
 
-      .container {
-        max-width: 980px;
-        margin: 40px auto;
-        padding: 0 20px;
+      header .sub {
+        font-size: 12px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: #888;
+        margin-top: 2px;
+      }
+
+      .status-bar {
+        margin-bottom: 16px;
+        font-size: 13px;
+        padding: 10px 12px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        backdrop-filter: blur(8px);
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--verde);
+      }
+
+      .status-bar.erro {
+        color: var(--erro);
+        border-color: #f4c7c3;
+        background: #fff5f5;
+      }
+
+      .status-bar.erro .status-dot {
+        background: var(--erro);
+      }
+
+      .status-bar.sucesso {
+        color: var(--sucesso);
+      }
+
+      .status-bar.sucesso .status-dot {
+        background: var(--sucesso);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
+        gap: 20px;
+      }
+
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
       }
 
       .card {
-        background: white;
-        padding: 28px;
+        background: rgba(255, 255, 255, 0.92);
         border-radius: 18px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        padding: 18px 18px 20px;
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px);
       }
 
-      h2 {
-        margin-top: 0;
-        font-size: 22px;
-        color: #4a4a40;
+      .card-title {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+
+      .card-subtitle {
+        font-size: 12px;
+        color: #777;
+        margin-bottom: 14px;
       }
 
       label {
-        font-weight: 600;
-        margin-top: 14px;
         display: block;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #555;
       }
 
-      input {
+      input,
+      select,
+      textarea {
         width: 100%;
-        padding: 10px 14px;
-        border: 1px solid #c8c4b8;
+        padding: 8px 10px;
         border-radius: 10px;
-        font-size: 15px;
-        margin-top: 4px;
+        border: 1px solid var(--bordas);
+        font-size: 14px;
+        outline: none;
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--verde);
+        box-shadow: 0 0 0 1px rgba(91, 98, 64, 0.4);
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 60px;
+      }
+
+      .field {
+        margin-bottom: 10px;
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+
+      .row > .field {
+        flex: 1;
       }
 
       button {
-        padding: 10px 18px;
-        border-radius: 10px;
+        padding: 8px 14px;
+        border-radius: 999px;
         border: none;
-        cursor: pointer;
+        font-size: 13px;
         font-weight: 600;
-        margin-top: 16px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
       }
 
-      .primary {
-        background: #4a4a40;
-        color: white;
+      .btn-primary {
+        background: var(--verde);
+        color: #fff;
       }
 
-      .outline {
+      .btn-outline {
         background: transparent;
-        border: 1px solid #4a4a40;
-        color: #4a4a40;
+        border: 1px solid var(--verde);
+        color: var(--verde);
       }
 
-      .status {
-        margin-top: 16px;
-        font-size: 14px;
+      .btn-danger {
+        background: #faf0f0;
+        color: var(--erro);
+        border: 1px solid #f2c7c4;
+        padding: 5px 10px;
+        font-size: 11px;
+      }
+
+      .small {
+        font-size: 12px;
+        color: #777;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      }
+
+      .tab {
+        padding: 8px 12px;
+        border-radius: 999px 999px 0 0;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
         color: #666;
+      }
+
+      .tab.active {
+        background: #ffffff;
+        color: #111;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-bottom-color: #ffffff;
+      }
+
+      .tab-content {
+        padding-top: 4px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+
+      th,
+      td {
+        padding: 6px 4px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        text-align: left;
+      }
+
+      th {
+        font-weight: 600;
+        color: #666;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        background: #f6f3ea;
+        color: #5b4a2a;
+      }
+
+      .meta-chip {
+        font-size: 11px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: #fff9e6;
+        border: 1px solid #f2e0a5;
+        color: #8a6b1f;
+      }
+
+      /* Login x painel */
+      #painel,
+      #areaPrivada {
+        display: none;
+      }
+
+      #loginCard {
+        max-width: 420px;
+      }
+
+      @media (max-width: 600px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .status-bar {
+          width: 100%;
+        }
       }
     </style>
   </head>
 
   <body>
-    
-    <div class="topbar">
-      <div class="logo">
-        <img src="001 LOGO_Prancheta 1 cópia 27.png" alt="Logo IM">
-        <div class="logo-text">IMAGEM MODAS</div>
+    <div class="layout">
+      <header>
+        <img
+          src="001 LOGO_Prancheta 1 cópia 27.png"
+          alt="Logo Imagem Modas"
+        />
+        <div>
+          <div class="marca">IMAGEM MODAS</div>
+          <div class="sub">Dashboard de vendas</div>
+        </div>
+      </header>
+
+      <div id="statusContainer" class="status-bar">
+        <span class="status-dot"></span>
+        <span id="statusText">Faça login para começar o dia.</span>
       </div>
-    </div>
 
-    <div class="container">
-      <div class="card">
-        <h2>Dashboard de Vendas</h2>
-        <p>Acesso exclusivo para vendedoras Imagem Modas.</p>
+      <!-- LOGIN -->
+      <div id="loginCard" class="card">
+        <div class="card-title">Login da vendedora</div>
+        <div class="card-subtitle">
+          Acesso exclusivo para vendedoras Imagem Modas.
+        </div>
 
-        <label>Nome da vendedora:</label>
-        <input id="nome" placeholder="Digite seu nome" />
+        <div class="field">
+          <label for="nome">Nome da vendedora</label>
+          <input id="nome" value="Allane" autocomplete="username" />
+        </div>
 
-        <label>Senha:</label>
-        <input id="senha" type="password" placeholder="Digite sua senha" />
+        <div class="field">
+          <label for="senha">Senha</label>
+          <input
+            id="senha"
+            type="password"
+            value="allane2025"
+            autocomplete="current-password"
+          />
+        </div>
 
-        <button class="primary" onclick="login()">Entrar</button>
-        <button class="outline" onclick="buscarMeta()">Buscar meta de hoje</button>
+        <button class="btn-primary" onclick="login()">Entrar</button>
+      </div>
 
-        <p class="status" id="status">Faça login para continuar.</p>
-        <p class="status" id="meta"></p>
+      <!-- PAINEL APÓS LOGIN -->
+      <div id="painel" class="grid">
+        <!-- Coluna esquerda: resumo + atendimentos/meta -->
+        <div class="card">
+          <div class="card-title" id="bemVindaTitulo">Bom dia</div>
+          <div class="card-subtitle small" id="infoHoje"></div>
+
+          <div class="field">
+            <label>Meta de hoje</label>
+            <div class="row">
+              <div class="field">
+                <input
+                  id="metaValor"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="R$ 0,00"
+                />
+              </div>
+              <button class="btn-outline" onclick="salvarMetaHoje()">
+                Salvar meta
+              </button>
+            </div>
+            <div class="small">
+              Meta atual: <span id="metaAtual" class="meta-chip">—</span>
+            </div>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #eee; margin: 16px 0" />
+
+          <div>
+            <div class="card-title" style="font-size: 13px">Atendimentos</div>
+            <div class="card-subtitle small">
+              Quantos clientes você atendeu hoje (presencial, WhatsApp,
+              Instagram, etc).
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="atendimentosQtd">Atendimentos de hoje</label>
+                <input
+                  id="atendimentosQtd"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                />
+              </div>
+              <button class="btn-outline" onclick="salvarAtendimentosHoje()">
+                Salvar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna direita: abas Vendas / Condicionais -->
+        <div class="card">
+          <div class="tabs">
+            <div
+              class="tab active"
+              id="tabVendas"
+              onclick="abrirAba('vendas')"
+            >
+              Vendas
+            </div>
+            <div
+              class="tab"
+              id="tabCondicionais"
+              onclick="abrirAba('condicionais')"
+            >
+              Condicionais
+            </div>
+          </div>
+
+          <div class="tab-content">
+            <!-- ABA VENDAS -->
+            <div id="abaVendas">
+              <div class="card-subtitle">
+                Lance as vendas de hoje e acompanhe o ticket médio.
+              </div>
+
+              <div class="row">
+                <div class="field">
+                  <label for="valorVenda">Valor (R$)</label>
+                  <input
+                    id="valorVenda"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0,00"
+                  />
+                </div>
+
+                <div class="field">
+                  <label for="formaPagamento">Forma de pagamento</label>
+                  <select id="formaPagamento">
+                    <option value="">Selecione</option>
+                    <option value="avista">À vista</option>
+                    <option value="credito">Crédito</option>
+                    <option value="debito">Débito</option>
+                    <option value="pix">PIX</option>
+                    <option value="outro">Outro</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="field">
+                  <label for="clienteNome">Nome da cliente</label>
+                  <input
+                    id="clienteNome"
+                    type="text"
+                    placeholder="Opcional"
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="obsVenda">Observação</label>
+                <textarea
+                  id="obsVenda"
+                  placeholder="Ex: peça-chave, look completo, quem indicou..."
+                ></textarea>
+              </div>
+
+              <button class="btn-primary" onclick="lançarVenda()">
+                Lançar venda
+              </button>
+
+              <div
+                class="card-subtitle"
+                style="margin-top: 14px; margin-bottom: 6px"
+              >
+                Vendas de hoje
+              </div>
+              <div class="small" id="resumoVendasHoje">Nenhuma venda ainda.</div>
+
+              <div style="max-height: 220px; overflow-y: auto; margin-top: 6px">
+                <table id="tabelaVendas">
+                  <thead>
+                    <tr>
+                      <th>Horário</th>
+                      <th>Cliente</th>
+                      <th>Forma</th>
+                      <th>Valor</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ABA CONDICIONAIS -->
+            <div id="abaCondicionais" style="display: none">
+              <div class="card-subtitle">
+                Controle das peças que saem em condicional.
+              </div>
+
+              <div class="row">
+                <div class="field">
+                  <label for="qtdPecas">Qtd. de peças</label>
+                  <input
+                    id="qtdPecas"
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="0"
+                  />
+                </div>
+
+                <div class="field">
+                  <label for="valorCondicional">Valor total (R$)</label>
+                  <input
+                    id="valorCondicional"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0,00"
+                  />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="field">
+                  <label for="clienteCondicional">Cliente</label>
+                  <input
+                    id="clienteCondicional"
+                    type="text"
+                    placeholder="Nome da cliente"
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="obsCondicional">Observação</label>
+                <textarea
+                  id="obsCondicional"
+                  placeholder="Prazo de retorno, peças principais, etc."
+                ></textarea>
+              </div>
+
+              <button class="btn-primary" onclick="lançarCondicional()">
+                Lançar condicional
+              </button>
+
+              <div
+                class="card-subtitle"
+                style="margin-top: 14px; margin-bottom: 6px"
+              >
+                Condicionais em aberto
+              </div>
+
+              <div style="max-height: 220px; overflow-y: auto; margin-top: 6px">
+                <table id="tabelaCondicionais">
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Cliente</th>
+                      <th>Peças</th>
+                      <th>Valor</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <script>
       const API = "https://dashboard-vendas1.onrender.com/api";
+      let token = null;
+      let nomeVendedora = null;
+
+      function hojeISO() {
+        return new Date().toISOString().slice(0, 10);
+      }
+
+      function setStatus(msg, tipo) {
+        const bar = document.getElementById("statusContainer");
+        const text = document.getElementById("statusText");
+        text.textContent = msg;
+        bar.classList.remove("erro", "sucesso");
+        if (tipo === "erro") bar.classList.add("erro");
+        if (tipo === "sucesso") bar.classList.add("sucesso");
+      }
+
+      function abrirAba(qual) {
+        const abaVendas = document.getElementById("abaVendas");
+        const abaCond = document.getElementById("abaCondicionais");
+        const tabV = document.getElementById("tabVendas");
+        const tabC = document.getElementById("tabCondicionais");
+
+        if (qual === "vendas") {
+          abaVendas.style.display = "block";
+          abaCond.style.display = "none";
+          tabV.classList.add("active");
+          tabC.classList.remove("active");
+        } else {
+          abaVendas.style.display = "none";
+          abaCond.style.display = "block";
+          tabV.classList.remove("active");
+          tabC.classList.add("active");
+        }
+      }
 
       async function login() {
-        const nome = document.getElementById("nome").value;
+        const nome = document.getElementById("nome").value.trim();
         const senha = document.getElementById("senha").value;
 
-        document.getElementById("status").innerText = "Conectando...";
-
-        const resp = await fetch(API + "/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nome, senha })
-        });
-
-        if (!resp.ok) {
-          document.getElementById("status").innerText = "Falha no login.";
+        if (!nome || !senha) {
+          setStatus("Preencha nome e senha para entrar.", "erro");
           return;
         }
 
-        const data = await resp.json();
-        localStorage.setItem("token", data.token);
+        setStatus("Conectando...", null);
 
-        document.getElementById("status").innerText =
-          "Logada como " + data.vendedora.nome;
+        try {
+          const resp = await fetch(API + "/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nome, senha }),
+          });
+
+          if (!resp.ok) {
+            setStatus("Falha no login. Confira nome e senha.", "erro");
+            return;
+          }
+
+          const data = await resp.json();
+          token = data.token;
+          nomeVendedora = data.vendedora?.nome || nome;
+
+          document.getElementById("loginCard").style.display = "none";
+          document.getElementById("painel").style.display = "grid";
+
+          const hoje = new Date().toLocaleDateString("pt-BR", {
+            weekday: "long",
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          });
+
+          document.getElementById("bemVindaTitulo").textContent =
+            "Bom dia, " + nomeVendedora;
+          document.getElementById(
+            "infoHoje"
+          ).textContent = `${hoje.charAt(0).toUpperCase() + hoje.slice(1)}`;
+
+          setStatus(`Logada como ${nomeVendedora}. Bom trabalho!`, "sucesso");
+
+          await Promise.all([
+            carregarMetaHoje(),
+            carregarAtendimentosHoje(),
+            carregarVendasHoje(),
+            carregarCondicionais(),
+          ]);
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao conectar com o servidor.", "erro");
+        }
       }
 
-      async function buscarMeta() {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          document.getElementById("status").innerText =
-            "Faça login primeiro.";
+      function authHeaders() {
+        return {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        };
+      }
+
+      // META
+      async function carregarMetaHoje() {
+        if (!token) return;
+        const data = hojeISO();
+        const resp = await fetch(API + "/metas/" + data, {
+          headers: { Authorization: "Bearer " + token },
+        });
+        const meta = await resp.json();
+        const valor = Number(meta.valor_meta || meta.valorMeta || 0);
+        document.getElementById("metaAtual").textContent =
+          "R$ " + valor.toFixed(2);
+        document.getElementById("metaValor").value =
+          valor > 0 ? valor.toString() : "";
+      }
+
+      async function salvarMetaHoje() {
+        if (!token) return;
+        const valor = Number(
+          (document.getElementById("metaValor").value || "0").replace(",", ".")
+        );
+        const data = hojeISO();
+
+        try {
+          const resp = await fetch(API + "/metas", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({ valorMeta: valor, data }),
+          });
+
+          if (!resp.ok) {
+            setStatus("Não foi possível salvar a meta.", "erro");
+            return;
+          }
+
+          await carregarMetaHoje();
+          setStatus("Meta de hoje atualizada.", "sucesso");
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao salvar meta.", "erro");
+        }
+      }
+
+      // ATENDIMENTOS
+      async function carregarAtendimentosHoje() {
+        if (!token) return;
+        const data = hojeISO();
+        const resp = await fetch(API + "/atendimentos/" + data, {
+          headers: { Authorization: "Bearer " + token },
+        });
+        const dados = await resp.json();
+        document.getElementById("atendimentosQtd").value =
+          dados.quantidade || 0;
+      }
+
+      async function salvarAtendimentosHoje() {
+        if (!token) return;
+        const quantidade = Number(
+          document.getElementById("atendimentosQtd").value || "0"
+        );
+        const data = hojeISO();
+
+        try {
+          const resp = await fetch(API + "/atendimentos", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({ quantidade, data }),
+          });
+
+          if (!resp.ok) {
+            setStatus("Não foi possível salvar atendimentos.", "erro");
+            return;
+          }
+
+          setStatus("Atendimentos salvos para hoje.", "sucesso");
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao salvar atendimentos.", "erro");
+        }
+      }
+
+      // VENDAS
+      async function carregarVendasHoje() {
+        if (!token) return;
+        const hoje = hojeISO();
+        const url =
+          API +
+          `/vendas?dataInicio=${encodeURIComponent(
+            hoje
+          )}&dataFim=${encodeURIComponent(hoje)}`;
+
+        try {
+          const resp = await fetch(url, {
+            headers: { Authorization: "Bearer " + token },
+          });
+          const vendas = await resp.json();
+
+          const tbody = document.querySelector("#tabelaVendas tbody");
+          tbody.innerHTML = "";
+
+          let total = 0;
+
+          vendas.forEach((v) => {
+            const tr = document.createElement("tr");
+            const dataVenda = v.data_venda || v.datavenda || v.data;
+            const hora = dataVenda
+              ? new Date(dataVenda).toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "-";
+
+            total += Number(v.valor || 0);
+
+            tr.innerHTML = `
+              <td>${hora}</td>
+              <td>${v.cliente_nome || v.clienteNome || "-"}</td>
+              <td>${v.forma_pagamento || v.formaPagamento || "-"}</td>
+              <td>R$ ${Number(v.valor || 0).toFixed(2)}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+
+          if (vendas.length === 0) {
+            document.getElementById("resumoVendasHoje").textContent =
+              "Nenhuma venda lançada hoje.";
+          } else {
+            const ticket = total / vendas.length;
+            document.getElementById(
+              "resumoVendasHoje"
+            ).textContent = `${vendas.length} venda(s) • Total R$ ${total.toFixed(
+              2
+            )} • Ticket médio R$ ${ticket.toFixed(2)}`;
+          }
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao buscar vendas de hoje.", "erro");
+        }
+      }
+
+      async function lançarVenda() {
+        if (!token) return;
+
+        const valor = Number(
+          (document.getElementById("valorVenda").value || "0").replace(",", ".")
+        );
+        const formaPagamento = document.getElementById("formaPagamento").value;
+        const clienteNome = document.getElementById("clienteNome").value.trim();
+        const observacao = document.getElementById("obsVenda").value.trim();
+
+        if (!valor || !formaPagamento) {
+          setStatus(
+            "Informe pelo menos o valor e a forma de pagamento.",
+            "erro"
+          );
           return;
         }
 
-        const hoje = new Date().toISOString().slice(0, 10);
-        const resp = await fetch(API + "/metas/" + hoje, {
-          headers: { Authorization: "Bearer " + token }
-        });
+        try {
+          const resp = await fetch(API + "/vendas", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({
+              valor,
+              formaPagamento,
+              clienteNome,
+              observacao,
+            }),
+          });
 
-        const data = await resp.json();
-        const meta = data.valor_meta || data.valorMeta;
+          if (!resp.ok) {
+            setStatus("Não foi possível lançar a venda.", "erro");
+            return;
+          }
 
-        document.getElementById("meta").innerText =
-          "Meta de hoje: R$ " + Number(meta).toFixed(2);
+          document.getElementById("valorVenda").value = "";
+          document.getElementById("formaPagamento").value = "";
+          document.getElementById("clienteNome").value = "";
+          document.getElementById("obsVenda").value = "";
+
+          setStatus("Venda lançada com sucesso.", "sucesso");
+          await carregarVendasHoje();
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao lançar venda.", "erro");
+        }
+      }
+
+      // CONDICIONAIS
+      async function carregarCondicionais() {
+        if (!token) return;
+
+        try {
+          const resp = await fetch(API + "/condicionais", {
+            headers: { Authorization: "Bearer " + token },
+          });
+          const conds = await resp.json();
+
+          const tbody = document.querySelector("#tabelaCondicionais tbody");
+          tbody.innerHTML = "";
+
+          conds.forEach((c) => {
+            const tr = document.createElement("tr");
+            const dataReg = c.data_registro || c.dataRegistro;
+            const data = dataReg
+              ? new Date(dataReg).toLocaleDateString("pt-BR")
+              : "-";
+
+            tr.innerHTML = `
+              <td>${data}</td>
+              <td>${c.cliente_nome || c.clienteNome}</td>
+              <td>${c.quantidade_pecas || c.quantidadePecas}</td>
+              <td>R$ ${Number(
+                c.valor_total || c.valorTotal || 0
+              ).toFixed(2)}</td>
+              <td><button class="btn-danger" onclick="deletarCondicional(${
+                c.id
+              })">Remover</button></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao buscar condicionais.", "erro");
+        }
+      }
+
+      async function lançarCondicional() {
+        if (!token) return;
+
+        const quantidadePecas = Number(
+          document.getElementById("qtdPecas").value || "0"
+        );
+        const valorTotal = Number(
+          (document.getElementById("valorCondicional").value || "0").replace(
+            ",",
+            "."
+          )
+        );
+        const clienteNome = document
+          .getElementById("clienteCondicional")
+          .value.trim();
+        const observacao = document
+          .getElementById("obsCondicional")
+          .value.trim();
+
+        if (!quantidadePecas || !clienteNome) {
+          setStatus(
+            "Informe ao menos a quantidade de peças e o nome da cliente.",
+            "erro"
+          );
+          return;
+        }
+
+        try {
+          const resp = await fetch(API + "/condicionais", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({
+              quantidadePecas,
+              valorTotal,
+              clienteNome,
+              observacao,
+            }),
+          });
+
+          if (!resp.ok) {
+            setStatus("Não foi possível lançar o condicional.", "erro");
+            return;
+          }
+
+          document.getElementById("qtdPecas").value = "";
+          document.getElementById("valorCondicional").value = "";
+          document.getElementById("clienteCondicional").value = "";
+          document.getElementById("obsCondicional").value = "";
+
+          setStatus("Condicional lançado com sucesso.", "sucesso");
+          await carregarCondicionais();
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao lançar condicional.", "erro");
+        }
+      }
+
+      async function deletarCondicional(id) {
+        if (!token) return;
+        if (!confirm("Remover este condicional?")) return;
+
+        try {
+          const resp = await fetch(API + "/condicionais/" + id, {
+            method: "DELETE",
+            headers: { Authorization: "Bearer " + token },
+          });
+
+          if (!resp.ok) {
+            setStatus("Não foi possível remover o condicional.", "erro");
+            return;
+          }
+
+          setStatus("Condicional removido.", "sucesso");
+          await carregarCondicionais();
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao remover condicional.", "erro");
+        }
       }
     </script>
-
   </body>
 </html>
