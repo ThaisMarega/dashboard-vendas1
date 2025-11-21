@@ -656,7 +656,109 @@
         </section>
       </main>
     </div>
+<!-- Botão flutuante + menu -->
+  <button id="fab-main" class="fab-main">+</button>
 
+  <div id="fab-menu" class="fab-menu hidden">
+    <button data-action="venda">
+      Lançar venda
+      <span>Registrar uma venda com valor e forma de pagamento</span>
+    </button>
+    <button data-action="atendimento">
+      Registrar atendimentos
+      <span>Quantidade de atendimentos do dia</span>
+    </button>
+    <button data-action="condicional">
+      Lançar condicional
+      <span>Controle dos consignados em aberto</span>
+    </button>
+  </div>
+
+  <!-- Overlay e modais -->
+  <div id="modal-overlay" class="modal-overlay hidden"></div>
+
+  <!-- Modal Lançar venda -->
+  <div id="modal-venda" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-title">Lançar venda</div>
+      <div class="modal-subtitle">Registre uma venda realizada hoje.</div>
+
+      <div class="modal-row">
+        <div>
+          <label class="modal-label">Valor (R$)</label>
+          <input id="venda-valor" type="number" step="0.01" class="modal-input" />
+        </div>
+        <div>
+          <label class="modal-label">Forma de pagamento</label>
+          <select id="venda-forma" class="modal-select">
+            <option value="">Selecione</option>
+            <option value="avista">À vista</option>
+            <option value="debito">Débito</option>
+            <option value="credito">Crédito</option>
+            <option value="pix">Pix</option>
+            <option value="prazo">Prazo</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="modal-label">Nome da cliente (opcional)</label>
+      <input id="venda-cliente" type="text" class="modal-input" />
+
+      <label class="modal-label">Observação</label>
+      <textarea id="venda-observacao" class="modal-textarea"></textarea>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" data-close-modal>Cancelar</button>
+        <button type="button" class="btn-primary" id="btn-salvar-venda">Salvar venda</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Atendimentos -->
+  <div id="modal-atendimento" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-title">Registrar atendimentos</div>
+      <div class="modal-subtitle">Informe quantos atendimentos você teve hoje.</div>
+
+      <label class="modal-label">Quantidade de atendimentos de hoje</label>
+      <input id="atend-qtd" type="number" class="modal-input" min="0" />
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" data-close-modal>Cancelar</button>
+        <button type="button" class="btn-primary" id="btn-salvar-atendimento">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Condicional -->
+  <div id="modal-condicional" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-title">Lançar condicional</div>
+      <div class="modal-subtitle">Registre um novo condicional em aberto.</div>
+
+      <div class="modal-row">
+        <div>
+          <label class="modal-label">Qtd. de peças</label>
+          <input id="cond-qtd" type="number" class="modal-input" min="1" />
+        </div>
+        <div>
+          <label class="modal-label">Valor total (R$)</label>
+          <input id="cond-valor" type="number" step="0.01" class="modal-input" />
+        </div>
+      </div>
+
+      <label class="modal-label">Nome da cliente</label>
+      <input id="cond-cliente" type="text" class="modal-input" />
+
+      <label class="modal-label">Observação</label>
+      <textarea id="cond-observacao" class="modal-textarea"></textarea>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" data-close-modal>Cancelar</button>
+        <button type="button" class="btn-primary" id="btn-salvar-condicional">Salvar condicional</button>
+      </div>
+    </div>
+  </div>
     <script>
       const API = "https://dashboard-vendas1.onrender.com/api";
 
