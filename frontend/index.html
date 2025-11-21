@@ -4,14 +4,17 @@
     <meta charset="UTF-8" />
     <title>Dashboard de Vendas - Imagem Modas</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <style>
       :root {
-        --gold: #d4a362;
-        --green: #5a633a;
-        --bg: #f5f1ea;
-        --text: #222222;
-        --error: #b00020;
+        --green: #585f3b;
+        --green-soft: #f0f2eb;
+        --gold: #c89a3b;
+        --gold-soft: #f7efe0;
+        --text-main: #333333;
+        --text-soft: #777777;
+        --card-bg: #ffffff;
+        --card-shadow: 0 14px 45px rgba(0, 0, 0, 0.08);
+        --radius-card: 18px;
       }
 
       * {
@@ -20,218 +23,719 @@
 
       body {
         margin: 0;
-        min-height: 100vh;
+        padding: 24px 16px 40px;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: radial-gradient(circle at top, #f9f5ec 0, #f3f3f3 40%, #efefef 100%);
+        color: var(--text-main);
+      }
+
+      .page {
+        max-width: 1040px;
+        margin: 0 auto;
+      }
+
+      /* TOPO COM LOGO */
+
+      .topbar {
         display: flex;
         align-items: center;
-        justify-content: center;
-        padding: 16px;
-        background: radial-gradient(circle at top, #ffffff 0, var(--bg) 55%, #e6dfd2 100%);
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        color: var(--text);
+        gap: 14px;
+        margin-bottom: 32px;
       }
 
-      .wrapper {
-        width: 100%;
-        max-width: 420px;
-      }
-
-     .logo-circle-img {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  margin: 0 auto 8px;
-  display: block;
-  object-fit: cover;
-}
+      .logo-circle-img {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: block;
+        object-fit: cover;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
       }
 
       .logo-text {
         letter-spacing: 0.25em;
         text-transform: uppercase;
+        font-size: 14px;
+        color: var(--text-main);
+      }
+
+      /* CARTÃO CENTRAL (LOGIN / DASHBOARD WRAPPER) */
+
+      .card-shell {
+        background: #ffffffd9;
+        border-radius: 32px;
+        box-shadow: var(--card-shadow);
+        padding: 32px 26px 28px;
+      }
+
+      @media (min-width: 768px) {
+        .card-shell {
+          padding: 40px 40px 32px;
+        }
+      }
+
+      .card-header-line {
         font-size: 13px;
-        color: var(--gold);
-        font-family: "Times New Roman", "Georgia", serif;
-      }
-
-      .card {
-        background: #ffffff;
-        border-radius: 16px;
-        padding: 22px 20px 18px;
-        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(212, 163, 98, 0.25);
-      }
-
-      .card-header {
-        margin-bottom: 16px;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        color: var(--text-soft);
+        margin-bottom: 8px;
       }
 
       .card-title {
-        font-size: 18px;
-        font-weight: 600;
-        letter-spacing: 0.12em;
+        font-size: 22px;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: var(--green);
-        margin: 0 0 4px;
+        margin: 0 0 6px;
       }
 
       .card-subtitle {
-        font-size: 13px;
-        color: #666;
-        margin: 0;
-      }
-
-      .status {
-        font-size: 13px;
-        margin-bottom: 12px;
-        min-height: 18px;
-        color: #777;
-      }
-
-      .status.ok {
-        color: var(--green);
-      }
-
-      .status.err {
-        color: var(--error);
-      }
-
-      label {
-        font-weight: 600;
-        display: block;
-        margin-bottom: 4px;
-        font-size: 13px;
-      }
-
-      input {
-        width: 100%;
-        padding: 9px 11px;
-        border-radius: 10px;
-        border: 1px solid #ddd3c5;
-        margin-bottom: 10px;
+        margin: 0 0 22px;
         font-size: 14px;
-        transition: border-color 0.15s ease, box-shadow 0.15s ease;
-        background: #fbf8f3;
+        color: var(--text-soft);
       }
 
-      input:focus {
-        outline: none;
-        border-color: var(--gold);
-        box-shadow: 0 0 0 1px rgba(212, 163, 98, 0.3);
-        background: #fff;
+      /* LOGIN */
+
+      #login-card label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 4px;
       }
 
-      .actions {
+      #login-card input {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 999px;
+        border: 1px solid #d3d3d3;
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+
+      .actions-row {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 6px;
+        gap: 10px;
+        margin-top: 8px;
       }
 
       button {
-        padding: 9px 14px;
+        cursor: pointer;
         border-radius: 999px;
         border: none;
-        cursor: pointer;
-        font-weight: 600;
+        padding: 9px 18px;
         font-size: 14px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        white-space: nowrap;
-        transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease,
-          color 0.15s ease, border-color 0.15s ease;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
       }
 
-      button:active {
-        transform: translateY(1px);
-        box-shadow: none;
-      }
-
-      button.primary {
-        background: var(--gold);
-        color: #fff;
-        box-shadow: 0 10px 20px rgba(212, 163, 98, 0.35);
-      }
-
-      button.primary:hover {
-        background: #c49045;
-      }
-
-      button.outline {
-        background: transparent;
-        border: 1px solid var(--green);
-        color: var(--green);
-      }
-
-      button.outline:hover {
+      .btn-primary {
         background: var(--green);
         color: #fff;
       }
 
-      button:disabled {
-        opacity: 0.6;
-        cursor: default;
-        box-shadow: none;
+      .btn-secondary {
+        background: transparent;
+        color: var(--green);
+        border: 1px solid var(--green);
       }
 
-      .meta {
-        margin-top: 14px;
-        font-size: 14px;
-        padding-top: 10px;
-        border-top: 1px dashed #e0d5c6;
+      .status {
+        font-size: 13px;
+        color: #c0392b;
+        margin-bottom: 14px;
       }
 
-      .meta strong {
+      /* DASHBOARD */
+
+      #dashboard {
+        display: none; /* é mostrado via JS após login */
+      }
+
+      .dash-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+
+      .dash-hello {
+        font-size: 18px;
         font-weight: 600;
-        color: var(--gold);
       }
 
-      .footer-note {
-        text-align: center;
-        margin-top: 10px;
+      .dash-hello span {
+        color: var(--green);
+      }
+
+      .dash-date {
+        font-size: 13px;
+        color: var(--text-soft);
+      }
+
+      .dash-meta-pill {
+        background: var(--gold-soft);
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #7a5a20;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--gold);
+      }
+
+      /* GRID DE CARDS RESUMO */
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
+        gap: 18px;
+        margin-bottom: 26px;
+      }
+
+      @media (max-width: 880px) {
+        .summary-grid {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        }
+        .summary-grid .card-summary-main {
+          grid-column: 1 / -1;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .summary-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+
+      .card-summary {
+        background: var(--card-bg);
+        border-radius: var(--radius-card);
+        padding: 16px 18px 14px;
+        box-shadow: 0 8px 26px rgba(0, 0, 0, 0.05);
+      }
+
+      .card-summary-main {
+        background: linear-gradient(135deg, #fdf8ed, #f5efe3);
+        border-radius: 22px;
+      }
+
+      .card-summary-title {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--text-soft);
+        margin-bottom: 6px;
+      }
+
+      .card-summary-value-big {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .card-summary-meta-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--text-soft);
+      }
+
+      .chip-positive {
         font-size: 11px;
-        color: #9a8f80;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: rgba(88, 95, 59, 0.08);
+        color: var(--green);
       }
 
-      @media (max-width: 480px) {
-        .card {
-          padding: 18px 16px 16px;
-        }
+      .card-summary-number {
+        font-size: 22px;
+        font-weight: 600;
+      }
 
-        .card-title {
-          font-size: 16px;
-        }
+      .card-summary-caption {
+        font-size: 12px;
+        color: var(--text-soft);
+      }
 
-        .actions {
-          flex-direction: column;
-        }
+      /* VENDAS RECENTES */
 
-        button {
-          width: 100%;
-        }
+      .section-block {
+        background: var(--card-bg);
+        border-radius: var(--radius-card);
+        box-shadow: 0 8px 26px rgba(0, 0, 0, 0.05);
+        padding: 16px 18px 18px;
+      }
+
+      .section-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .section-title {
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--text-soft);
+      }
+
+      .section-sub {
+        font-size: 12px;
+        color: var(--text-soft);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      th,
+      td {
+        padding: 6px 4px;
+        text-align: left;
+      }
+
+      th {
+        font-weight: 600;
+        color: var(--text-soft);
+        border-bottom: 1px solid #ececec;
+      }
+
+      tr + tr td {
+        border-top: 1px solid #f2f2f2;
+      }
+
+      .text-right {
+        text-align: right;
+      }
+
+      .badge-pill {
+        font-size: 11px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        border: 1px solid #e0e0e0;
+        background: #fafafa;
+      }
+
+      .muted {
+        color: var(--text-soft);
+      }
+
+      .hidden {
+        display: none !important;
       }
     </style>
   </head>
 
   <body>
-    <div class="wrapper">
-      <div class="logo-area">
-  <img
-    src="001 LOGO_Prancheta 1 cópia 27.png"
-    alt="Imagem Modas - monograma IMG"
-    class="logo-circle-img"
-  />
-  <div class="logo-text">IMAGEM&nbsp;&nbsp;MODAS</div>
-</div>
+    <div class="page">
+      <!-- TOPO COM LOGO -->
+      <header class="topbar">
+        <img
+          src="001 LOGO_Prancheta 1 cópia 27.png"
+          alt="Imagem Modas - monograma IMG"
+          class="logo-circle-img"
+        />
+        <div class="logo-text">IMAGEM&nbsp;&nbsp;MODAS</div>
+      </header>
 
-      <div class="card">
-        <div class="card-header">
-          <h1 class="card-title">Dashboard de vendas</h1>
-          <p class="card-subtitle">Acesso exclusivo para vendedoras Imagem Modas.</p>
+      <!-- CARTÃO PRINCIPAL (LOGIN + DASHBOARD) -->
+      <main class="card-shell">
+        <!-- CABECALHO COM TITULO -->
+        <div id="login-header">
+          <div class="card-header-line">Dashboard de vendas</div>
+          <h1 class="card-title">Acesso exclusivo para vendedoras</h1>
+          <p class="card-subtitle">
+            Faça login para acompanhar sua meta diária, vendas e condicionais em tempo real.
+          </p>
         </div>
 
-        <p class="status" id="status">Faça login para continuar.</p>
+        <!-- LOGIN -->
+        <section id="login-card">
+          <p id="status" class="status"></p>
 
-        <label for="nome">Nome da vendedora</label>
-        <input id="nome
+          <label for="nome">Nome da vendedora</label>
+          <input id="nome" placeholder="Ex: Allane" />
+
+          <label for="senha">Senha</label>
+          <input id="senha" type="password" placeholder="Digite sua senha" />
+
+          <div class="actions-row">
+            <button class="btn-primary" onclick="login()">Entrar</button>
+            <button class="btn-secondary" onclick="buscarMetaSemLogin()">
+              Buscar meta de hoje
+            </button>
+          </div>
+        </section>
+
+        <!-- DASHBOARD (APÓS LOGIN) -->
+        <section id="dashboard">
+          <div class="dash-header">
+            <div>
+              <div class="dash-hello">
+                Bom dia, <span id="nomeVendedoraSpan">Vendedora</span>
+              </div>
+              <div class="dash-date" id="dash-date"></div>
+            </div>
+            <div>
+              <span class="dash-meta-pill">
+                <span class="dot"></span>
+                Meta do dia: <strong id="meta-dia-pill">–</strong>
+              </span>
+            </div>
+          </div>
+
+          <!-- RESUMO EM CARDS -->
+          <div class="summary-grid">
+            <!-- META / REALIZADO -->
+            <div class="card-summary card-summary-main">
+              <div class="card-summary-title">Meta diária</div>
+              <div class="card-summary-value-big" id="valor-realizado-hoje">
+                R$ 0,00
+              </div>
+              <div class="card-summary-meta-row">
+                <div>
+                  Meta: <strong id="meta-dia">R$ 0,00</strong><br />
+                  <span class="muted">
+                    Falta: <span id="falta-meta">R$ 0,00</span>
+                  </span>
+                </div>
+                <div class="chip-positive" id="meta-percent">
+                  0% da meta
+                </div>
+              </div>
+            </div>
+
+            <!-- VENDAS E TICKET -->
+            <div class="card-summary">
+              <div class="card-summary-title">Vendas de hoje</div>
+              <div class="card-summary-number" id="qtd-vendas">0</div>
+              <div class="card-summary-caption">
+                Ticket médio: <span id="ticket-medio">R$ 0,00</span>
+              </div>
+            </div>
+
+            <!-- ATENDIMENTOS / CONVERSÃO -->
+            <div class="card-summary">
+              <div class="card-summary-title">Atendimentos</div>
+              <div class="card-summary-number" id="qtd-atendimentos">0</div>
+              <div class="card-summary-caption">
+                Taxa de conversão:
+                <span id="taxa-conversao">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONDICIONAIS & LISTA DE VENDAS -->
+          <div class="summary-grid" style="margin-bottom: 0;">
+            <!-- CARD CONDICIONAIS -->
+            <div class="card-summary">
+              <div class="card-summary-title">Condicionais em aberto</div>
+              <div class="card-summary-number" id="qtd-condicionais">0</div>
+              <div class="card-summary-caption">
+                Valor total aproximado:
+                <span id="valor-condicionais">R$ 0,00</span>
+              </div>
+            </div>
+
+            <!-- TABELA DE VENDAS (OCUPA 2 COLUNAS EM TELAS GRANDES) -->
+            <div class="summary-grid" style="grid-template-columns: 1fr; gap:0;">
+              <div class="section-block">
+                <div class="section-title-row">
+                  <div>
+                    <div class="section-title">Vendas recentes</div>
+                    <div class="section-sub">
+                      Últimas vendas lançadas hoje
+                    </div>
+                  </div>
+                  <button class="btn-secondary" onclick="logout()">
+                    Sair
+                  </button>
+                </div>
+
+                <div id="sem-vendas" class="section-sub">
+                  Nenhuma venda lançada ainda hoje.
+                </div>
+
+                <table id="tabela-vendas" class="hidden">
+                  <thead>
+                    <tr>
+                      <th>Horário</th>
+                      <th>Cliente</th>
+                      <th class="text-right">Valor</th>
+                      <th>Forma</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-vendas"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const API = "https://dashboard-vendas1.onrender.com/api";
+
+      function formatMoney(v) {
+        const num = Number(v || 0);
+        return num.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+          minimumFractionDigits: 2,
+        });
+      }
+
+      function formatPercent(v) {
+        const num = Number(v || 0);
+        return num.toLocaleString("pt-BR", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 1,
+        }) + "%";
+      }
+
+      function hojeISO() {
+        return new Date().toISOString().slice(0, 10);
+      }
+
+      function setStatus(msg, isError = true) {
+        const el = document.getElementById("status");
+        el.textContent = msg || "";
+        el.style.color = isError ? "#c0392b" : "#2e7d32";
+      }
+
+      function mostrarLogin() {
+        document.getElementById("login-card").style.display = "block";
+        document.getElementById("login-header").style.display = "block";
+        document.getElementById("dashboard").style.display = "none";
+      }
+
+      function mostrarDashboard() {
+        document.getElementById("login-card").style.display = "none";
+        document.getElementById("login-header").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+      }
+
+      async function login() {
+        const nome = document.getElementById("nome").value.trim();
+        const senha = document.getElementById("senha").value.trim();
+
+        if (!nome || !senha) {
+          setStatus("Preencha nome e senha.");
+          return;
+        }
+
+        setStatus("Conectando...", false);
+
+        try {
+          const resp = await fetch(API + "/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nome, senha }),
+          });
+
+          if (!resp.ok) {
+            setStatus("Falha no login. Confira o nome e a senha.");
+            return;
+          }
+
+          const data = await resp.json();
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("vendedoraNome", data.vendedora.nome);
+
+          setStatus("");
+          iniciarDashboard();
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao conectar com o servidor.");
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("vendedoraNome");
+        location.reload();
+      }
+
+      async function buscarMetaSemLogin() {
+        setStatus(
+          "Para usar o sistema completo é necessário login, mas a meta será buscada pelo sistema em breve.",
+          false
+        );
+      }
+
+      function preencherCabecalhoDashboard() {
+        const nome = localStorage.getItem("vendedoraNome") || "Vendedora";
+        document.getElementById("nomeVendedoraSpan").textContent = nome;
+
+        const hoje = new Date();
+        const formatado = hoje.toLocaleDateString("pt-BR", {
+          weekday: "long",
+          day: "2-digit",
+          month: "long",
+        });
+        document.getElementById("dash-date").textContent =
+          formatado.charAt(0).toUpperCase() + formatado.slice(1);
+      }
+
+      async function carregarResumo() {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const headers = { Authorization: "Bearer " + token };
+        const hoje = hojeISO();
+
+        try {
+          const [metaResp, vendasResp, atendResp, condResp] = await Promise.all([
+            fetch(API + "/metas/" + hoje, { headers }),
+            fetch(API + "/vendas?dataInicio=" + hoje + "&dataFim=" + hoje, {
+              headers,
+            }),
+            fetch(API + "/atendimentos/" + hoje, { headers }),
+            fetch(API + "/condicionais", { headers }),
+          ]);
+
+          const meta = await metaResp.json();
+          const vendas = await vendasResp.json();
+          const atendimentos = await atendResp.json();
+          const condicionais = await condResp.json();
+
+          const valorMeta = Number(meta.valor_meta || meta.valorMeta || 0);
+          const totalVendas = (vendas || []).reduce(
+            (acc, v) => acc + Number(v.valor || 0),
+            0
+          );
+          const qtdVendas = (vendas || []).length;
+          const qtdAtend = Number(atendimentos.quantidade || 0);
+          const ticketMedio = qtdVendas ? totalVendas / qtdVendas : 0;
+          const conversao =
+            qtdAtend > 0 ? (qtdVendas / qtdAtend) * 100 : 0;
+          const qtdCond = (condicionais || []).length;
+          const valorCond = (condicionais || []).reduce(
+            (acc, c) => acc + Number(c.valor_total || 0),
+            0
+          );
+          const faltaMeta = valorMeta - totalVendas;
+          const percMeta = valorMeta > 0 ? (totalVendas / valorMeta) * 100 : 0;
+
+          // Atualiza cards
+          document.getElementById("meta-dia").textContent =
+            formatMoney(valorMeta);
+          document.getElementById("meta-dia-pill").textContent =
+            formatMoney(valorMeta);
+          document.getElementById("valor-realizado-hoje").textContent =
+            formatMoney(totalVendas);
+          document.getElementById("falta-meta").textContent =
+            formatMoney(Math.max(faltaMeta, 0));
+          document.getElementById("meta-percent").textContent =
+            formatPercent(percMeta) + " da meta";
+
+          document.getElementById("qtd-vendas").textContent = qtdVendas;
+          document.getElementById("ticket-medio").textContent =
+            formatMoney(ticketMedio);
+
+          document.getElementById("qtd-atendimentos").textContent = qtdAtend;
+          document.getElementById("taxa-conversao").textContent =
+            formatPercent(conversao);
+
+          document.getElementById("qtd-condicionais").textContent = qtdCond;
+          document.getElementById("valor-condicionais").textContent =
+            formatMoney(valorCond);
+
+          // Tabela de vendas
+          const semVendasEl = document.getElementById("sem-vendas");
+          const tabelaVendas = document.getElementById("tabela-vendas");
+          const tbody = document.getElementById("tbody-vendas");
+
+          if (!vendas || vendas.length === 0) {
+            semVendasEl.classList.remove("hidden");
+            tabelaVendas.classList.add("hidden");
+          } else {
+            semVendasEl.classList.add("hidden");
+            tabelaVendas.classList.remove("hidden");
+            tbody.innerHTML = "";
+
+            vendas
+              .slice(0, 8)
+              .forEach((v) => {
+                const tr = document.createElement("tr");
+
+                const dataVenda = v.data_venda
+                  ? new Date(v.data_venda)
+                  : null;
+                const hora =
+                  dataVenda != null
+                    ? dataVenda.toLocaleTimeString("pt-BR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : "-";
+
+                const tdHora = document.createElement("td");
+                tdHora.textContent = hora;
+
+                const tdCliente = document.createElement("td");
+                tdCliente.textContent = v.cliente_nome || "Cliente";
+
+                const tdValor = document.createElement("td");
+                tdValor.textContent = formatMoney(v.valor);
+                tdValor.className = "text-right";
+
+                const tdForma = document.createElement("td");
+                tdForma.innerHTML =
+                  '<span class="badge-pill">' +
+                  (v.forma_pagamento || "").toUpperCase() +
+                  "</span>";
+
+                tr.appendChild(tdHora);
+                tr.appendChild(tdCliente);
+                tr.appendChild(tdValor);
+                tr.appendChild(tdForma);
+
+                tbody.appendChild(tr);
+              });
+          }
+        } catch (e) {
+          console.error(e);
+          setStatus("Não foi possível carregar o resumo agora.", true);
+        }
+      }
+
+      function iniciarDashboard() {
+        mostrarDashboard();
+        preencherCabecalhoDashboard();
+        carregarResumo();
+      }
+
+      // Ao carregar a página, se já tiver token, pula direto pro dashboard
+      window.addEventListener("DOMContentLoaded", () => {
+        const token = localStorage.getItem("token");
+        if (token) {
+          setStatus("");
+          iniciarDashboard();
+        } else {
+          mostrarLogin();
+        }
+      });
+    </script>
+  </body>
+</html>
