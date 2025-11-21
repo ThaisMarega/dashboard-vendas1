@@ -25,7 +25,12 @@
         padding: 0;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
           sans-serif;
-        background: radial-gradient(circle at top, #ffffff 0, #ece7dd 45%, #d9d2c4 100%);
+        background: radial-gradient(
+            circle at top,
+            #ffffff 0,
+            #ece7dd 45%,
+            #d9d2c4 100%
+          );
         color: var(--texto);
       }
 
@@ -291,8 +296,7 @@
       }
 
       /* Login x painel */
-      #painel,
-      #areaPrivada {
+      #painel {
         display: none;
       }
 
@@ -434,7 +438,7 @@
             <!-- ABA VENDAS -->
             <div id="abaVendas">
               <div class="card-subtitle">
-                Lance as vendas de hoje e acompanhe o ticket médio.
+                Lance as vendas de hoje e acompanhe ticket médio e conversão.
               </div>
 
               <div class="row">
@@ -453,11 +457,54 @@
                   <label for="formaPagamento">Forma de pagamento</label>
                   <select id="formaPagamento">
                     <option value="">Selecione</option>
-                    <option value="avista">À vista</option>
-                    <option value="credito">Crédito</option>
-                    <option value="debito">Débito</option>
-                    <option value="pix">PIX</option>
-                    <option value="outro">Outro</option>
+
+                    <optgroup label="À vista">
+                      <option value="dinheiro">Dinheiro</option>
+                      <option value="pix">PIX</option>
+                      <option value="debito">Débito</option>
+                    </optgroup>
+
+                    <optgroup label="Crédito">
+                      <option value="credito_1x">Crédito 1x</option>
+                      <option value="credito_2x">Crédito 2x</option>
+                      <option value="credito_3x">Crédito 3x</option>
+                      <option value="credito_4x">Crédito 4x</option>
+                      <option value="credito_5x">Crédito 5x</option>
+                      <option value="credito_6x">Crédito 6x</option>
+                      <option value="credito_7x">Crédito 7x</option>
+                      <option value="credito_8x">Crédito 8x</option>
+                      <option value="credito_9x">Crédito 9x</option>
+                      <option value="credito_10x">Crédito 10x</option>
+                    </optgroup>
+
+                    <optgroup label="Crediário">
+                      <option value="crediario_1x">Crediário 1x</option>
+                      <option value="crediario_2x">Crediário 2x</option>
+                      <option value="crediario_3x">Crediário 3x</option>
+                      <option value="crediario_4x">Crediário 4x</option>
+                      <option value="crediario_5x">Crediário 5x</option>
+                      <option value="crediario_6x">Crediário 6x</option>
+                    </optgroup>
+
+                    <optgroup label="Boleto">
+                      <option value="boleto_1x">Boleto 1x</option>
+                      <option value="boleto_2x">Boleto 2x</option>
+                      <option value="boleto_3x">Boleto 3x</option>
+                      <option value="boleto_4x">Boleto 4x</option>
+                      <option value="boleto_5x">Boleto 5x</option>
+                      <option value="boleto_6x">Boleto 6x</option>
+                      <option value="boleto_7x">Boleto 7x</option>
+                      <option value="boleto_8x">Boleto 8x</option>
+                    </optgroup>
+
+                    <optgroup label="Cheque pré">
+                      <option value="cheque_1x">Cheque pré 1x</option>
+                      <option value="cheque_2x">Cheque pré 2x</option>
+                      <option value="cheque_3x">Cheque pré 3x</option>
+                      <option value="cheque_4x">Cheque pré 4x</option>
+                      <option value="cheque_5x">Cheque pré 5x</option>
+                      <option value="cheque_6x">Cheque pré 6x</option>
+                    </optgroup>
                   </select>
                 </div>
               </div>
@@ -477,7 +524,7 @@
                 <label for="obsVenda">Observação</label>
                 <textarea
                   id="obsVenda"
-                  placeholder="Ex: peça-chave, look completo, quem indicou..."
+                  placeholder="Ex: look completo, quem indicou, peça-chave..."
                 ></textarea>
               </div>
 
@@ -492,6 +539,12 @@
                 Vendas de hoje
               </div>
               <div class="small" id="resumoVendasHoje">Nenhuma venda ainda.</div>
+              <div class="small" id="ticketMedioLinha">
+                Ticket médio: R$ 0,00
+              </div>
+              <div class="small" id="taxaConversaoLinha">
+                Taxa de conversão: 0%
+              </div>
 
               <div style="max-height: 220px; overflow-y: auto; margin-top: 6px">
                 <table id="tabelaVendas">
@@ -593,6 +646,11 @@
       let token = null;
       let nomeVendedora = null;
 
+      // variáveis para indicadores
+      let vendasHojeQtd = 0;
+      let vendasHojeTotal = 0;
+      let atendimentosHojeQtd = 0;
+
       function hojeISO() {
         return new Date().toISOString().slice(0, 10);
       }
@@ -622,6 +680,25 @@
           abaCond.style.display = "block";
           tabV.classList.remove("active");
           tabC.classList.add("active");
+        }
+      }
+
+      function atualizarIndicadoresVenda() {
+        const ticketSpan = document.getElementById("ticketMedioLinha");
+        const taxaSpan = document.getElementById("taxaConversaoLinha");
+
+        const ticket = vendasHojeQtd ? vendasHojeTotal / vendasHojeQtd : 0;
+        if (ticketSpan) {
+          ticketSpan.textContent = "Ticket médio: R$ " + ticket.toFixed(2);
+        }
+
+        let taxa = 0;
+        if (atendimentosHojeQtd && vendasHojeQtd) {
+          taxa = (vendasHojeQtd / atendimentosHojeQtd) * 100;
+        }
+        if (taxaSpan) {
+          taxaSpan.textContent =
+            "Taxa de conversão: " + taxa.toFixed(1).replace(".", ",") + "%";
         }
       }
 
@@ -664,9 +741,8 @@
 
           document.getElementById("bemVindaTitulo").textContent =
             "Bom dia, " + nomeVendedora;
-          document.getElementById(
-            "infoHoje"
-          ).textContent = `${hoje.charAt(0).toUpperCase() + hoje.slice(1)}`;
+          document.getElementById("infoHoje").textContent =
+            hoje.charAt(0).toUpperCase() + hoje.slice(1);
 
           setStatus(`Logada como ${nomeVendedora}. Bom trabalho!`, "sucesso");
 
@@ -739,8 +815,10 @@
           headers: { Authorization: "Bearer " + token },
         });
         const dados = await resp.json();
-        document.getElementById("atendimentosQtd").value =
-          dados.quantidade || 0;
+        const qtd = Number(dados.quantidade || 0);
+        document.getElementById("atendimentosQtd").value = qtd;
+        atendimentosHojeQtd = qtd;
+        atualizarIndicadoresVenda();
       }
 
       async function salvarAtendimentosHoje() {
@@ -762,6 +840,7 @@
             return;
           }
 
+          await carregarAtendimentosHoje();
           setStatus("Atendimentos salvos para hoje.", "sucesso");
         } catch (e) {
           console.error(e);
@@ -811,17 +890,21 @@
             tbody.appendChild(tr);
           });
 
+          vendasHojeQtd = vendas.length;
+          vendasHojeTotal = total;
+
           if (vendas.length === 0) {
             document.getElementById("resumoVendasHoje").textContent =
               "Nenhuma venda lançada hoje.";
           } else {
-            const ticket = total / vendas.length;
             document.getElementById(
               "resumoVendasHoje"
             ).textContent = `${vendas.length} venda(s) • Total R$ ${total.toFixed(
               2
-            )} • Ticket médio R$ ${ticket.toFixed(2)}`;
+            )}`;
           }
+
+          atualizarIndicadoresVenda();
         } catch (e) {
           console.error(e);
           setStatus("Erro ao buscar vendas de hoje.", "erro");
