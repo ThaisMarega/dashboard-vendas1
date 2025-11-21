@@ -342,6 +342,170 @@
       .hidden {
         display: none !important;
       }
+/* ===== Botão flutuante (+) ===== */
+.fab-main {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 32px;
+  line-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #525739; /* verde Imagem */
+  color: #f5e5c7;      /* dourado claro */
+  box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+  z-index: 40;
+}
+
+.fab-main:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.3);
+}
+
+/* Menu do botão flutuante */
+.fab-menu {
+  position: fixed;
+  right: 24px;
+  bottom: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 35;
+}
+
+.fab-menu button {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: #ffffff;
+  color: #333;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  text-align: left;
+}
+
+.fab-menu button span {
+  font-size: 11px;
+  font-weight: 400;
+  color: #777;
+  display: block;
+}
+
+/* Overlay escuro atrás do modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.28);
+  backdrop-filter: blur(2px);
+  z-index: 45;
+}
+
+/* Janela modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fdfbf6;
+  border-radius: 18px;
+  padding: 20px 22px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.22);
+  border: 1px solid rgba(82,87,57,0.15);
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #3e4328;
+}
+
+.modal-subtitle {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 16px;
+}
+
+.modal-row {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-row > div {
+  flex: 1;
+}
+
+.modal-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.modal-input,
+.modal-select,
+.modal-textarea {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.modal-textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.btn-secondary {
+  border-radius: 999px;
+  border: 1px solid #ccc;
+  background: #fff;
+  padding: 7px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  border-radius: 999px;
+  border: none;
+  background: #525739;
+  color: #f5e5c7;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* util */
+.hidden {
+  display: none !important;
+}
     </style>
   </head>
 
