@@ -1,9 +1,8 @@
 // ===================================
-// BACKEND - API Node.js + Express
+// BACKEND - API Imagem Modas
 // ===================================
-// Arquivo: server.js
 
-require('dotenv').config(); // carrega variáveis .env em local
+require('dotenv').config();
 
 process.on('unhandledRejection', err => {
   console.error('UNHANDLED REJECTION:', err);
@@ -22,36 +21,37 @@ const { Pool } = require('pg');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const JWT_SECRET =
-  process.env.JWT_SECRET || 'seu-secret-key-aqui-mude-em-producao';
+const JWT_SECRET = process.env.JWT_SECRET || 'troque-essa-chave-em-producao';
 
-// Middlewares
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || '*'
-  })
-);
+// =============================
+// MIDDLEWARES
+// =============================
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*'
+}));
 app.use(express.json());
 
-// ✅ ROTA DE SAÚDE (teste rápido no navegador)
-app.get('/', (_, res) => res.send('API OK'));
-
-// ===================================
-// CONFIGURAÇÃO DO BANCO DE DADOS
-// ===================================
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl:
-    process.env.NODE_ENV === 'production'
-      ? { rejectUnauthorized: false }
-      : false
+// Rota de saúde (teste rápido)
+app.get('/', (req, res) => {
+  res.send('API Imagem Modas OK');
 });
 
-// ===================================
-// CRIAÇÃO DAS TABELAS + SEED VENDEDORAS
-// ===================================
+// =============================
+// CONFIG BANCO DE DADOS
+// =============================
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production'
+    ? { rejectUnauthorized: false }
+    : false
+});
+
+// =============================
+// CRIAÇÃO / AJUSTE DE TABELAS
+// =============================
 const criarTabelas = async () => {
   try {
+    // Vendedoras
     await pool.query(`
       CREATE TABLE IF NOT EXISTS vendedoras (
         id SERIAL PRIMARY KEY,
@@ -62,17 +62,29 @@ const criarTabelas = async () => {
         ativo BOOLEAN DEFAULT true,
         criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
 
+    // Vendas
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS vendas (
         id SERIAL PRIMARY KEY,
         vendedora_id INTEGER REFERENCES vendedoras(id),
         valor DECIMAL(10,2) NOT NULL,
-        forma_pagamento VARCHAR(50) NOT NULL,
+        forma_pagamento VARCHAR(100) NOT NULL,
         cliente_nome VARCHAR(100),
         observacao TEXT,
         data_venda TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
 
+    // Garante coluna quantidade_pecas (para novas métricas)
+    await pool.query(`
+      ALTER TABLE vendas
+      ADD COLUMN IF NOT EXISTS quantidade_pecas INTEGER;
+    `);
+
+    // Condicionais
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS condicionais (
         id SERIAL PRIMARY KEY,
         vendedora_id INTEGER REFERENCES vendedoras(id),
@@ -82,73 +94,45 @@ const criarTabelas = async () => {
         observacao TEXT,
         data_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
 
+    // Atendimentos
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS atendimentos (
         id SERIAL PRIMARY KEY,
         vendedora_id INTEGER REFERENCES vendedoras(id),
         quantidade INTEGER NOT NULL,
         data_registro DATE NOT NULL,
-        UNIQUE(vendedora_id, data_registro)
+        UNIQUE (vendedora_id, data_registro)
       );
+    `);
 
+    // Metas
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS metas (
         id SERIAL PRIMARY KEY,
         vendedora_id INTEGER REFERENCES vendedoras(id),
         valor_meta DECIMAL(10,2) NOT NULL,
         data_meta DATE NOT NULL,
         criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(vendedora_id, data_meta)
+        UNIQUE (vendedora_id, data_meta)
       );
     `);
 
-    console.log('✅ Tabelas criadas/verificadas com sucesso!');
-
-    // 🔐 Seed de vendedoras (Allane, Ana, Julia)
-    const vendedoras = [
-      {
-        nome: 'Allane',
-        senha: 'allane2025',
-        email: 'allane@imagemmodas.com.br',
-        meta: 15000
-      },
-      {
-        nome: 'Ana',
-        senha: 'ana2025',
-        email: 'ana@imagemmodas.com.br',
-        meta: 15000
-      },
-      {
-        nome: 'Julia',
-        senha: 'julia2025',
-        email: 'julia@imagemmodas.com.br',
-        meta: 15000
-      }
-    ];
-
-    for (const v of vendedoras) {
-      const hash = await bcrypt.hash(v.senha, 10);
-      await pool.query(
-        `
-        INSERT INTO vendedoras (nome, senha_hash, email, meta_padrao, ativo)
-        VALUES ($1, $2, $3, $4, true)
-        ON CONFLICT (nome) DO NOTHING
-      `,
-        [v.nome, hash, v.email, v.meta]
-      );
-    }
-
-    console.log('✅ Seed de vendedoras aplicado com sucesso.');
-  } catch (error) {
-    console.error('❌ Erro ao criar tabelas / seed:', error);
+    console.log('✅ Tabelas verificadas/criadas com sucesso');
+  } catch (err) {
+    console.error('❌ Erro ao criar/ajustar tabelas:', err);
   }
 };
 
-// ===================================
+// =============================
 // MIDDLEWARE DE AUTENTICAÇÃO
-// ===================================
+// =============================
 const autenticar = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    const header = req.headers.authorization || '';
+    const token = header.split(' ')[1];
+
     if (!token) {
       return res.status(401).json({ erro: 'Token não fornecido' });
     }
@@ -156,19 +140,24 @@ const autenticar = async (req, res, next) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.vendedoraId = decoded.id;
     next();
-  } catch (error) {
+  } catch (err) {
+    console.error('Erro autenticação:', err);
     return res.status(401).json({ erro: 'Token inválido' });
   }
 };
 
-// ===================================
+// =============================
 // ROTAS DE AUTENTICAÇÃO
-// ===================================
+// =============================
 
 // Login
 app.post('/api/login', async (req, res) => {
   try {
     const { nome, senha } = req.body;
+
+    if (!nome || !senha) {
+      return res.status(400).json({ erro: 'Informe nome e senha' });
+    }
 
     const result = await pool.query(
       'SELECT * FROM vendedoras WHERE nome = $1 AND ativo = true',
@@ -199,46 +188,58 @@ app.post('/api/login', async (req, res) => {
         metaPadrao: parseFloat(vendedora.meta_padrao)
       }
     });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error('Erro no login:', err);
     res.status(500).json({ erro: 'Erro no servidor' });
   }
 });
 
-// Cadastrar vendedora (rota admin opcional)
+// Cadastrar nova vendedora (se quiser usar depois, dá pra proteger como admin)
 app.post('/api/vendedoras', async (req, res) => {
   try {
     const { nome, senha, email, metaPadrao } = req.body;
 
+    if (!nome || !senha) {
+      return res.status(400).json({ erro: 'Nome e senha são obrigatórios' });
+    }
+
     const senhaHash = await bcrypt.hash(senha, 10);
 
     const result = await pool.query(
-      'INSERT INTO vendedoras (nome, senha_hash, email, meta_padrao) VALUES ($1, $2, $3, $4) RETURNING id, nome, email, meta_padrao',
-      [nome, senhaHash, email, metaPadrao || 15000]
+      `INSERT INTO vendedoras (nome, senha_hash, email, meta_padrao)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, nome, email, meta_padrao`,
+      [nome, senhaHash, email || null, metaPadrao || 15000]
     );
 
     res.status(201).json(result.rows[0]);
-  } catch (error) {
-    if (error.code === '23505') {
+  } catch (err) {
+    if (err.code === '23505') {
       return res.status(400).json({ erro: 'Vendedora já cadastrada' });
     }
-    console.error(error);
+    console.error('Erro ao cadastrar vendedora:', err);
     res.status(500).json({ erro: 'Erro no servidor' });
   }
 });
 
-// ===================================
+// =============================
 // ROTAS DE VENDAS
-// ===================================
+// =============================
+
+// Listar vendas (com filtro por data opcional)
 app.get('/api/vendas', autenticar, async (req, res) => {
   try {
     const { dataInicio, dataFim } = req.query;
-
-    let query = 'SELECT * FROM vendas WHERE vendedora_id = $1';
     const params = [req.vendedoraId];
+    let query = `
+      SELECT id, vendedora_id, valor, forma_pagamento, cliente_nome,
+             observacao, quantidade_pecas, data_venda
+      FROM vendas
+      WHERE vendedora_id = $1
+    `;
 
     if (dataInicio && dataFim) {
-      query += ' AND data_venda BETWEEN $2 AND $3';
+      query += ' AND data_venda::date BETWEEN $2 AND $3';
       params.push(dataInicio, dataFim);
     }
 
@@ -246,28 +247,57 @@ app.get('/api/vendas', autenticar, async (req, res) => {
 
     const result = await pool.query(query, params);
     res.json(result.rows);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error('Erro ao buscar vendas:', err);
     res.status(500).json({ erro: 'Erro ao buscar vendas' });
   }
 });
 
+// Adicionar venda
 app.post('/api/vendas', autenticar, async (req, res) => {
   try {
-    const { valor, formaPagamento, clienteNome, observacao } = req.body;
+    const {
+      valor,
+      formaPagamento,
+      clienteNome,
+      observacao,
+      quantidadePecas
+    } = req.body;
+
+    if (!valor || !formaPagamento) {
+      return res.status(400).json({
+        erro: 'Valor e forma de pagamento são obrigatórios'
+      });
+    }
+
+    const qtd = quantidadePecas
+      ? parseInt(quantidadePecas, 10)
+      : null;
 
     const result = await pool.query(
-      'INSERT INTO vendas (vendedora_id, valor, forma_pagamento, cliente_nome, observacao) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [req.vendedoraId, valor, formaPagamento, clienteNome, observacao]
+      `INSERT INTO vendas
+       (vendedora_id, valor, forma_pagamento, cliente_nome, observacao, quantidade_pecas)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, vendedora_id, valor, forma_pagamento,
+                 cliente_nome, observacao, quantidade_pecas, data_venda`,
+      [
+        req.vendedoraId,
+        valor,
+        formaPagamento,
+        clienteNome || null,
+        observacao || null,
+        qtd
+      ]
     );
 
     res.status(201).json(result.rows[0]);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error('Erro ao adicionar venda:', err);
     res.status(500).json({ erro: 'Erro ao adicionar venda' });
   }
 });
 
+// Deletar venda
 app.delete('/api/vendas/:id', autenticar, async (req, res) => {
   try {
     const { id } = req.params;
@@ -278,45 +308,74 @@ app.delete('/api/vendas/:id', autenticar, async (req, res) => {
     );
 
     res.json({ mensagem: 'Venda deletada com sucesso' });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error('Erro ao deletar venda:', err);
     res.status(500).json({ erro: 'Erro ao deletar venda' });
   }
 });
 
-// ===================================
+// =============================
 // ROTAS DE CONDICIONAIS
-// ===================================
+// =============================
+
+// Listar condicionais
 app.get('/api/condicionais', autenticar, async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT * FROM condicionais WHERE vendedora_id = $1 ORDER BY data_registro DESC',
+      `SELECT id, vendedora_id, quantidade_pecas, valor_total,
+              cliente_nome, observacao, data_registro
+       FROM condicionais
+       WHERE vendedora_id = $1
+       ORDER BY data_registro DESC`,
       [req.vendedoraId]
     );
 
     res.json(result.rows);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error('Erro ao buscar condicionais:', err);
     res.status(500).json({ erro: 'Erro ao buscar condicionais' });
   }
 });
 
+// Adicionar condicional
 app.post('/api/condicionais', autenticar, async (req, res) => {
   try {
-    const { quantidadePecas, valorTotal, clienteNome, observacao } = req.body;
+    const {
+      quantidadePecas,
+      valorTotal,
+      clienteNome,
+      observacao
+    } = req.body;
+
+    if (!quantidadePecas || !clienteNome) {
+      return res.status(400).json({
+        erro: 'Quantidade de peças e nome da cliente são obrigatórios'
+      });
+    }
 
     const result = await pool.query(
-      'INSERT INTO condicionais (vendedora_id, quantidade_pecas, valor_total, cliente_nome, observacao) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [req.vendedoraId, quantidadePecas, valorTotal, clienteNome, observacao]
+      `INSERT INTO condicionais
+       (vendedora_id, quantidade_pecas, valor_total, cliente_nome, observacao)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, vendedora_id, quantidade_pecas, valor_total,
+                 cliente_nome, observacao, data_registro`,
+      [
+        req.vendedoraId,
+        quantidadePecas,
+        valorTotal || 0,
+        clienteNome,
+        observacao || null
+      ]
     );
 
     res.status(201).json(result.rows[0]);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error('Erro ao adicionar condicional:', err);
     res.status(500).json({ erro: 'Erro ao adicionar condicional' });
   }
 });
 
+// Deletar condicional
 app.delete('/api/condicionais/:id', autenticar, async (req, res) => {
   try {
     const { id } = req.params;
@@ -327,111 +386,130 @@ app.delete('/api/condicionais/:id', autenticar, async (req, res) => {
     );
 
     res.json({ mensagem: 'Condicional deletado com sucesso' });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error('Erro ao deletar condicional:', err);
     res.status(500).json({ erro: 'Erro ao deletar condicional' });
   }
 });
 
-// ===================================
+// =============================
 // ROTAS DE ATENDIMENTOS
-// ===================================
+// =============================
+
+// Salvar atendimentos do dia
 app.post('/api/atendimentos', autenticar, async (req, res) => {
   try {
     const { quantidade, data } = req.body;
 
+    if (quantidade == null || !data) {
+      return res.status(400).json({
+        erro: 'Quantidade e data são obrigatórias'
+      });
+    }
+
     const result = await pool.query(
-      `
-      INSERT INTO atendimentos (vendedora_id, quantidade, data_registro)
-      VALUES ($1, $2, $3)
-      ON CONFLICT (vendedora_id, data_registro)
-      DO UPDATE SET quantidade = $2
-      RETURNING *
-    `,
+      `INSERT INTO atendimentos (vendedora_id, quantidade, data_registro)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (vendedora_id, data_registro)
+       DO UPDATE SET quantidade = EXCLUDED.quantidade
+       RETURNING *`,
       [req.vendedoraId, quantidade, data]
     );
 
     res.json(result.rows[0]);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error('Erro ao salvar atendimentos:', err);
     res.status(500).json({ erro: 'Erro ao salvar atendimentos' });
   }
 });
 
+// Buscar atendimentos do dia
 app.get('/api/atendimentos/:data', autenticar, async (req, res) => {
   try {
     const { data } = req.params;
 
     const result = await pool.query(
-      'SELECT * FROM atendimentos WHERE vendedora_id = $1 AND data_registro = $2',
+      `SELECT * FROM atendimentos
+       WHERE vendedora_id = $1 AND data_registro = $2`,
       [req.vendedoraId, data]
     );
 
-    res.json(result.rows[0] || { quantidade: 0 });
-  } catch (error) {
-    console.error(error);
+    if (result.rows.length === 0) {
+      return res.json({ quantidade: 0 });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Erro ao buscar atendimentos:', err);
     res.status(500).json({ erro: 'Erro ao buscar atendimentos' });
   }
 });
 
-// ===================================
+// =============================
 // ROTAS DE METAS
-// ===================================
+// =============================
+
+// Salvar meta do dia
 app.post('/api/metas', autenticar, async (req, res) => {
   try {
     const { valorMeta, data } = req.body;
 
+    if (valorMeta == null || !data) {
+      return res.status(400).json({ erro: 'Valor da meta e data são obrigatórios' });
+    }
+
     const result = await pool.query(
-      `
-      INSERT INTO metas (vendedora_id, valor_meta, data_meta)
-      VALUES ($1, $2, $3)
-      ON CONFLICT (vendedora_id, data_meta)
-      DO UPDATE SET valor_meta = $2
-      RETURNING *
-    `,
+      `INSERT INTO metas (vendedora_id, valor_meta, data_meta)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (vendedora_id, data_meta)
+       DO UPDATE SET valor_meta = EXCLUDED.valor_meta
+       RETURNING *`,
       [req.vendedoraId, valorMeta, data]
     );
 
     res.json(result.rows[0]);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error('Erro ao salvar meta:', err);
     res.status(500).json({ erro: 'Erro ao salvar meta' });
   }
 });
 
+// Buscar meta do dia
 app.get('/api/metas/:data', autenticar, async (req, res) => {
   try {
     const { data } = req.params;
 
     const result = await pool.query(
-      'SELECT * FROM metas WHERE vendedora_id = $1 AND data_meta = $2',
+      `SELECT * FROM metas
+       WHERE vendedora_id = $1 AND data_meta = $2`,
       [req.vendedoraId, data]
     );
 
     if (result.rows.length === 0) {
-      const vendedora = await pool.query(
+      // Se não tem meta do dia, devolve meta padrão da vendedora
+      const vend = await pool.query(
         'SELECT meta_padrao FROM vendedoras WHERE id = $1',
         [req.vendedoraId]
       );
-      return res.json({
-        valor_meta: vendedora.rows[0]?.meta_padrao ?? 15000
-      });
+
+      const metaPadrao = vend.rows[0]
+        ? parseFloat(vend.rows[0].meta_padrao)
+        : 15000;
+
+      return res.json({ valor_meta: metaPadrao });
     }
 
     res.json(result.rows[0]);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error('Erro ao buscar meta:', err);
     res.status(500).json({ erro: 'Erro ao buscar meta' });
   }
 });
 
-// ===================================
-// INICIALIZAÇÃO DO SERVIDOR
-// ===================================
+// =============================
+// INICIO DO SERVIDOR
+// =============================
 app.listen(PORT, async () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
   await criarTabelas();
 });
-
-// Exportar para testes
-module.exports = app;
