@@ -1002,6 +1002,189 @@
           mostrarLogin();
         }
       });
+      // =============== FUNÇÕES AUXILIARES ===============
+function getToken() {
+  return localStorage.getItem('token');
+}
+
+function hojeISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// Mostra / esconde overlay e modais
+function abrirModal(id) {
+  const overlay = document.getElementById('modal-overlay');
+  const modal = document.getElementById(id);
+  if (!overlay || !modal) return;
+  overlay.classList.remove('hidden');
+  modal.classList.remove('hidden');
+}
+
+function fecharTodosModais() {
+  const overlay = document.getElementById('modal-overlay');
+  const modais = document.querySelectorAll('.modal');
+  overlay && overlay.classList.add('hidden');
+  modais.forEach(m => m.classList.add('hidden'));
+}
+
+// =============== INICIALIZAÇÃO DOS BOTÕES ===============
+document.addEventListener('DOMContentLoaded', () => {
+  const fabMain = document.getElementById('fab-main');
+  const fabMenu = document.getElementById('fab-menu');
+  const overlay = document.getElementById('modal-overlay');
+
+  if (!fabMain || !fabMenu) return;
+
+  // abre/fecha menu do botão +
+  fabMain.addEventListener('click', () => {
+    fabMenu.classList.toggle('hidden');
+  });
+
+  // clique nas opções do menu
+  fabMenu.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+
+    const action = btn.getAttribute('data-action');
+    fabMenu.classList.add('hidden');
+
+    if (action === 'venda') abrirModal('modal-venda');
+    if (action === 'atendimento') abrirModal('modal-atendimento');
+    if (action === 'condicional') abrirModal('modal-condicional');
+  });
+
+  // fechar modais ao clicar no overlay
+  if (overlay) {
+    overlay.addEventListener('click', fecharTodosModais);
+  }
+
+  // fechar modais nos botões "Cancelar"
+  document.querySelectorAll('[data-close-modal]').forEach(btn => {
+    btn.addEventListener('click', fecharTodosModais);
+  });
+
+  // ========== SALVAR VENDA ==========
+  const btnVenda = document.getElementById('btn-salvar-venda');
+  if (btnVenda) {
+    btnVenda.addEventListener('click', async () => {
+      const token = getToken();
+      if (!token) {
+        alert('Faça login novamente.');
+        return;
+      }
+
+      const valor = parseFloat(document.getElementById('venda-valor').value || '0');
+      const formaPagamento = document.getElementById('venda-forma').value;
+      const clienteNome = document.getElementById('venda-cliente').value || '';
+      const observacao = document.getElementById('venda-observacao').value || '';
+
+      if (!valor || !formaPagamento) {
+        alert('Informe o valor e a forma de pagamento.');
+        return;
+      }
+
+      try {
+        const resp = await fetch(API + '/vendas', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ valor, formaPagamento, clienteNome, observacao })
+        });
+
+        if (!resp.ok) throw new Error('Erro ao salvar venda');
+
+        alert('Venda lançada com sucesso! 🎉');
+        fecharTodosModais();
+        location.reload();
+      } catch (e) {
+        console.error(e);
+        alert('Não foi possível salvar a venda.');
+      }
+    });
+  }
+
+  // ========== SALVAR ATENDIMENTO ==========
+  const btnAtend = document.getElementById('btn-salvar-atendimento');
+  if (btnAtend) {
+    btnAtend.addEventListener('click', async () => {
+      const token = getToken();
+      if (!token) {
+        alert('Faça login novamente.');
+        return;
+      }
+
+      const quantidade = parseInt(document.getElementById('atend-qtd').value || '0', 10);
+      if (!quantidade && quantidade !== 0) {
+        alert('Informe a quantidade de atendimentos.');
+        return;
+      }
+
+      try {
+        const resp = await fetch(API + '/atendimentos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ quantidade, data: hojeISO() })
+        });
+
+        if (!resp.ok) throw new Error('Erro ao salvar atendimentos');
+
+        alert('Atendimentos salvos! ✅');
+        fecharTodosModais();
+        location.reload();
+      } catch (e) {
+        console.error(e);
+        alert('Não foi possível salvar os atendimentos.');
+      }
+    });
+  }
+
+  // ========== SALVAR CONDICIONAL ==========
+  const btnCond = document.getElementById('btn-salvar-condicional');
+  if (btnCond) {
+    btnCond.addEventListener('click', async () => {
+      const token = getToken();
+      if (!token) {
+        alert('Faça login novamente.');
+        return;
+      }
+
+      const quantidadePecas = parseInt(document.getElementById('cond-qtd').value || '0', 10);
+      const valorTotal = parseFloat(document.getElementById('cond-valor').value || '0');
+      const clienteNome = document.getElementById('cond-cliente').value || '';
+      const observacao = document.getElementById('cond-observacao').value || '';
+
+      if (!quantidadePecas || !valorTotal || !clienteNome) {
+        alert('Preencha quantidade, valor e nome da cliente.');
+        return;
+      }
+
+      try {
+        const resp = await fetch(API + '/condicionais', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({ quantidadePecas, valorTotal, clienteNome, observacao })
+        });
+
+        if (!resp.ok) throw new Error('Erro ao salvar condicional');
+
+        alert('Condicional lançado com sucesso! 📦');
+        fecharTodosModais();
+        location.reload();
+      } catch (e) {
+        console.error(e);
+        alert('Não foi possível salvar o condicional.');
+      }
+    });
+  }
+});
     </script>
   </body>
 </html>
