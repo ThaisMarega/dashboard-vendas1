@@ -2,876 +2,183 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Dashboard de Vendas • Imagem Modas</title>
+    <title>Dashboard de Vendas - Imagem Modas</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <!-- Fontes elegantes -->
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap"
-    />
-
+    
     <style>
-      :root {
-        --img-olive: #4f5b34;
-        --img-olive-soft: #f3f1ec;
-        --img-gold: #cda362;
-        --img-gold-soft: #f6eee1;
-        --img-text: #252525;
-        --img-muted: #868686;
-        --img-border: #e0d8ca;
-        --radius-card: 18px;
-        --shadow-soft: 0 14px 40px rgba(0, 0, 0, 0.07);
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
       body {
         margin: 0;
-        padding: 24px 16px 40px;
-        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
-          "Segoe UI", sans-serif;
-        background: radial-gradient(
-            circle at top left,
-            rgba(205, 163, 98, 0.13),
-            transparent 55%
-          ),
-          #f4f2ee;
-        color: var(--img-text);
+        background: #f6f6f2;
+        font-family: "Inter", Arial, sans-serif;
+        color: #333;
       }
 
-      .page {
-        max-width: 1120px;
-        margin: 0 auto;
-      }
-
-      /* HEADER */
-
-      .header {
+      .topbar {
         display: flex;
         align-items: center;
-        gap: 14px;
-        margin-bottom: 24px;
+        padding: 16px 32px;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid #e6e2da;
       }
 
-      .brand-mark {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: var(--img-olive);
+      .logo {
         display: flex;
         align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-      }
-
-      .brand-mark img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-      }
-
-      .brand-text {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-      }
-
-      .brand-title {
-        font-family: "Playfair Display", serif;
-        letter-spacing: 0.26em;
-        font-size: 15px;
-        text-transform: uppercase;
-      }
-
-      .brand-sub {
-        font-size: 11px;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: var(--img-muted);
-      }
-
-      .header-right {
-        margin-left: auto;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 12px;
-        color: var(--img-muted);
-      }
-
-      .logout-btn {
-        border: none;
-        background: transparent;
-        color: var(--img-olive);
-        font-size: 12px;
-        cursor: pointer;
-        padding: 6px 10px;
-        border-radius: 999px;
-        border: 1px solid rgba(79, 91, 52, 0.28);
-        font-weight: 500;
-      }
-
-      /* SEÇÕES */
-
-      .card-shell {
-        background: #fbfaf7;
-        border-radius: 26px;
-        padding: 18px 18px 22px;
-        box-shadow: var(--shadow-soft);
-        border: 1px solid rgba(255, 255, 255, 0.9);
-      }
-
-      #login-section,
-      #dashboard-section {
-        display: none;
-      }
-
-      #login-section.active,
-      #dashboard-section.active {
-        display: block;
-      }
-
-      /* LOGIN */
-
-      .login-wrapper {
-        max-width: 420px;
-        margin: 40px auto 0;
-        padding: 26px 24px 24px;
-        border-radius: var(--radius-card);
-        background: #ffffff;
-        box-shadow: var(--shadow-soft);
-        border: 1px solid var(--img-border);
-      }
-
-      .login-title {
-        font-family: "Playfair Display", serif;
-        font-size: 22px;
-        margin: 0 0 6px;
-      }
-
-      .login-sub {
-        font-size: 13px;
-        color: var(--img-muted);
-        margin-bottom: 18px;
-      }
-
-      .field {
-        margin-bottom: 12px;
-      }
-
-      .field label {
-        display: block;
-        font-size: 13px;
-        font-weight: 500;
-        margin-bottom: 4px;
-      }
-
-      .input {
-        width: 100%;
-        border-radius: 10px;
-        border: 1px solid #ddd3c3;
-        padding: 8px 10px;
-        font-size: 14px;
-        outline: none;
-        background: #fdfcf9;
-      }
-
-      .input:focus {
-        border-color: var(--img-olive);
-        box-shadow: 0 0 0 1px rgba(79, 91, 52, 0.18);
-        background: #ffffff;
-      }
-
-      .primary-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 9px 18px;
-        border-radius: 999px;
-        border: none;
-        background: linear-gradient(
-          135deg,
-          #2f3520,
-          var(--img-olive)
-        );
-        color: white;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        margin-top: 4px;
-      }
-
-      .primary-btn:disabled {
-        opacity: 0.65;
-        cursor: default;
-      }
-
-      .login-status {
-        margin-top: 10px;
-        font-size: 13px;
-        color: var(--img-muted);
-      }
-
-      .login-status.error {
-        color: #b84242;
-      }
-
-      /* DASHBOARD */
-
-      .top-row {
-        display: flex;
-        align-items: flex-start;
-        gap: 16px;
-        margin-bottom: 14px;
-        padding: 2px;
-      }
-
-      .greeting {
-        font-size: 14px;
-      }
-
-      .greeting-name {
-        font-weight: 600;
-      }
-
-      .greeting-day {
-        font-size: 12px;
-        color: var(--img-muted);
-        margin-top: 2px;
-      }
-
-      .meta-pill {
-        margin-left: auto;
-        background: var(--img-gold-soft);
-        border-radius: 999px;
-        padding: 8px 14px;
-        font-size: 12px;
-        color: #7a5a25;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        border: 1px solid rgba(205, 163, 98, 0.7);
-        white-space: nowrap;
-      }
-
-      .meta-pill-label {
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        font-size: 11px;
-      }
-
-      .meta-pill-value {
-        font-weight: 600;
-      }
-
-      .grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-        gap: 14px;
-      }
-
-      .grid-secondary {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px;
-        margin-top: 12px;
+      }
+
+      .logo img {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .logo-text {
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.6px;
+        color: #4a4a40;
+      }
+
+      .container {
+        max-width: 980px;
+        margin: 40px auto;
+        padding: 0 20px;
       }
 
       .card {
-        background: #ffffff;
-        border-radius: var(--radius-card);
-        padding: 14px 14px 16px;
-        border: 1px solid var(--img-border);
+        background: white;
+        padding: 28px;
+        border-radius: 18px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
       }
 
-      .card.destaque {
-        background: linear-gradient(
-            135deg,
-            rgba(205, 163, 98, 0.06),
-            transparent
-          ),
-          #fcfaf7;
+      h2 {
+        margin-top: 0;
+        font-size: 22px;
+        color: #4a4a40;
       }
 
-      .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-      }
-
-      .card-title {
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.18em;
-        color: var(--img-muted);
-      }
-
-      .card-tag {
-        font-size: 11px;
-        padding: 3px 9px;
-        border-radius: 999px;
-        border: 1px solid rgba(0, 0, 0, 0.06);
-        color: var(--img-muted);
-      }
-
-      .card-main {
-        display: flex;
-        align-items: baseline;
-        gap: 6px;
-        margin-bottom: 6px;
-      }
-
-      .card-main-value {
-        font-size: 24px;
+      label {
         font-weight: 600;
+        margin-top: 14px;
+        display: block;
       }
 
-      .card-main-helper {
-        font-size: 13px;
-        color: var(--img-muted);
+      input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #c8c4b8;
+        border-radius: 10px;
+        font-size: 15px;
+        margin-top: 4px;
       }
 
-      .card-footer {
-        font-size: 11px;
-        color: var(--img-muted);
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-      }
-
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 3px 7px;
-        border-radius: 999px;
-        font-size: 11px;
-        background: #f4f0e7;
-        color: #71502a;
-        margin-top: 2px;
-      }
-
-      .badge-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #9bb35a;
-      }
-
-      /* VENDAS RECENTES */
-
-      .recent-list {
-        margin: 8px 0 0;
-        padding: 0;
-        list-style: none;
-        max-height: 120px;
-        overflow-y: auto;
-      }
-
-      .recent-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 12px;
-        padding: 4px 0;
-        border-bottom: 1px dashed rgba(0, 0, 0, 0.04);
-      }
-
-      .recent-item:last-child {
-        border-bottom: none;
-      }
-
-      .recent-client {
-        font-weight: 500;
-      }
-
-      .recent-meta {
-        color: var(--img-muted);
-        font-size: 11px;
-      }
-
-      .recent-value {
+      button {
+        padding: 10px 18px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
         font-weight: 600;
+        margin-top: 16px;
       }
 
-      /* RESPONSIVO */
+      .primary {
+        background: #4a4a40;
+        color: white;
+      }
 
-      @media (max-width: 860px) {
-        .card-shell {
-          padding: 16px 14px 18px;
-        }
+      .outline {
+        background: transparent;
+        border: 1px solid #4a4a40;
+        color: #4a4a40;
+      }
 
-        .grid {
-          grid-template-columns: minmax(0, 1fr);
-        }
-
-        .grid-secondary {
-          grid-template-columns: minmax(0, 1fr);
-        }
-
-        .meta-pill {
-          margin-left: 0;
-        }
-
-        .header {
-          flex-wrap: wrap;
-        }
+      .status {
+        margin-top: 16px;
+        font-size: 14px;
+        color: #666;
       }
     </style>
   </head>
 
   <body>
-    <div class="page">
-      <!-- HEADER -->
-      <header class="header">
-        <div class="brand-mark">
-          <!-- Usa a logo redonda oficial -->
-          <img src="001 LOGO_Prancheta 1 cópia 27.png" alt="Imagem Modas" />
-        </div>
-        <div class="brand-text">
-          <div class="brand-title">Imagem Modas</div>
-          <div class="brand-sub">Dashboard de Vendas</div>
-        </div>
+    
+    <div class="topbar">
+      <div class="logo">
+        <img src="001 LOGO_Prancheta 1 cópia 27.png" alt="Logo IM">
+        <div class="logo-text">IMAGEM MODAS</div>
+      </div>
+    </div>
 
-        <div class="header-right" id="header-user" style="display:none;">
-          <span id="header-user-name"></span>
-          <button class="logout-btn" id="btn-logout">Sair</button>
-        </div>
-      </header>
+    <div class="container">
+      <div class="card">
+        <h2>Dashboard de Vendas</h2>
+        <p>Acesso exclusivo para vendedoras Imagem Modas.</p>
 
-      <!-- LOGIN -->
-      <section id="login-section" class="active">
-        <div class="login-wrapper">
-          <h1 class="login-title">Acesso exclusivo</h1>
-          <p class="login-sub">
-            Faça login com seu usuário de vendedora Imagem Modas.
-          </p>
+        <label>Nome da vendedora:</label>
+        <input id="nome" placeholder="Digite seu nome" />
 
-          <form id="login-form">
-            <div class="field">
-              <label for="nome">Nome da vendedora</label>
-              <input
-                id="nome"
-                class="input"
-                name="nome"
-                value="Allane"
-                autocomplete="username"
-              />
-            </div>
+        <label>Senha:</label>
+        <input id="senha" type="password" placeholder="Digite sua senha" />
 
-            <div class="field">
-              <label for="senha">Senha</label>
-              <input
-                id="senha"
-                class="input"
-                name="senha"
-                type="password"
-                value="allane2025"
-                autocomplete="current-password"
-              />
-            </div>
+        <button class="primary" onclick="login()">Entrar</button>
+        <button class="outline" onclick="buscarMeta()">Buscar meta de hoje</button>
 
-            <button type="submit" class="primary-btn" id="btn-login">
-              Entrar no dashboard
-            </button>
-
-            <div class="login-status" id="login-status">
-              Digite seu nome e senha para entrar.
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <!-- DASHBOARD -->
-      <section id="dashboard-section">
-        <div class="card-shell">
-          <div class="top-row">
-            <div>
-              <div class="greeting">
-                Bom dia, <span class="greeting-name" id="dash-nome"></span>
-              </div>
-              <div class="greeting-day" id="dash-data"></div>
-            </div>
-
-            <div class="meta-pill">
-              <span class="meta-pill-label">Meta do dia</span>
-              <span class="meta-pill-value" id="meta-dia-pill">R$ 0,00</span>
-            </div>
-          </div>
-
-          <div class="grid">
-            <!-- META DIÁRIA -->
-            <div class="card destaque">
-              <div class="card-header">
-                <div class="card-title">Meta diária</div>
-                <div class="card-tag" id="meta-percentual-tag">0% da meta</div>
-              </div>
-              <div class="card-main">
-                <span class="card-main-value" id="meta-dia">R$ 0,00</span>
-              </div>
-              <div class="card-footer">
-                <span id="meta-info-linha">Meta restante: R$ 0,00</span>
-                <span id="meta-info-linha2">Nenhuma venda lançada hoje ainda.</span>
-              </div>
-            </div>
-
-            <!-- VENDAS DE HOJE -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Vendas de hoje</div>
-              </div>
-              <div class="card-main">
-                <span class="card-main-value" id="vendas-hoje-total"
-                  >R$ 0,00</span
-                >
-              </div>
-              <div class="card-footer">
-                <span id="vendas-hoje-qtd">0 vendas lançadas hoje.</span>
-                <span id="ticket-medio">Ticket médio: R$ 0,00</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid-secondary">
-            <!-- ATENDIMENTOS -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Atendimentos</div>
-              </div>
-              <div class="card-main">
-                <span class="card-main-value" id="atendimentos-qtd">0</span>
-              </div>
-              <div class="card-footer">
-                <span id="taxa-conversao">Taxa de conversão: 0%</span>
-                <span class="badge">
-                  <span class="badge-dot"></span>
-                  Quanto maior essa taxa, mais próxima da meta.
-                </span>
-              </div>
-            </div>
-
-            <!-- CONDICIONAIS -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Condicionais em aberto</div>
-              </div>
-              <div class="card-main">
-                <span class="card-main-value" id="condicionais-qtd">0</span>
-              </div>
-              <div class="card-footer">
-                <span id="condicionais-total">
-                  Valor total aproximado: R$ 0,00
-                </span>
-              </div>
-            </div>
-
-            <!-- VENDAS RECENTES -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Vendas recentes</div>
-              </div>
-              <ul class="recent-list" id="lista-recentes">
-                <li class="recent-item">
-                  <span class="recent-meta">Nenhuma venda lançada ainda hoje.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
+        <p class="status" id="status">Faça login para continuar.</p>
+        <p class="status" id="meta"></p>
+      </div>
     </div>
 
     <script>
-      const API_BASE = "https://dashboard-vendas1.onrender.com/api";
+      const API = "https://dashboard-vendas1.onrender.com/api";
 
-      const loginSection = document.getElementById("login-section");
-      const dashboardSection = document.getElementById("dashboard-section");
-      const loginForm = document.getElementById("login-form");
-      const loginStatus = document.getElementById("login-status");
-      const btnLogin = document.getElementById("btn-login");
-      const headerUser = document.getElementById("header-user");
-      const headerUserName = document.getElementById("header-user-name");
-      const btnLogout = document.getElementById("btn-logout");
+      async function login() {
+        const nome = document.getElementById("nome").value;
+        const senha = document.getElementById("senha").value;
 
-      const spanDashNome = document.getElementById("dash-nome");
-      const spanDashData = document.getElementById("dash-data");
+        document.getElementById("status").innerText = "Conectando...";
 
-      const spanMetaDia = document.getElementById("meta-dia");
-      const spanMetaDiaPill = document.getElementById("meta-dia-pill");
-      const spanMetaPercentualTag = document.getElementById(
-        "meta-percentual-tag"
-      );
-      const spanMetaInfoLinha = document.getElementById("meta-info-linha");
-      const spanMetaInfoLinha2 = document.getElementById("meta-info-linha2");
-
-      const spanVendasHojeTotal = document.getElementById("vendas-hoje-total");
-      const spanVendasHojeQtd = document.getElementById("vendas-hoje-qtd");
-      const spanTicketMedio = document.getElementById("ticket-medio");
-
-      const spanAtendimentosQtd = document.getElementById(
-        "atendimentos-qtd"
-      );
-      const spanTaxaConversao = document.getElementById("taxa-conversao");
-
-      const spanCondQtd = document.getElementById("condicionais-qtd");
-      const spanCondTotal = document.getElementById("condicionais-total");
-
-      const listaRecentes = document.getElementById("lista-recentes");
-
-      function formatCurrency(value) {
-        const v = Number(value || 0);
-        return v.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-          minimumFractionDigits: 2,
+        const resp = await fetch(API + "/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nome, senha })
         });
-      }
-
-      function hojeISO() {
-        return new Date().toISOString().slice(0, 10);
-      }
-
-      function formatarDataLonga() {
-        const hoje = new Date();
-        return hoje.toLocaleDateString("pt-BR", {
-          weekday: "long",
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-        });
-      }
-
-      function setLoginMode() {
-        loginSection.classList.add("active");
-        dashboardSection.classList.remove("active");
-        headerUser.style.display = "none";
-      }
-
-      function setDashboardMode(nome) {
-        loginSection.classList.remove("active");
-        dashboardSection.classList.add("active");
-        headerUser.style.display = "flex";
-        headerUserName.textContent = nome;
-        spanDashNome.textContent = nome;
-        spanDashData.textContent = formatarDataLonga();
-      }
-
-      async function apiFetch(path, options = {}) {
-        const token = localStorage.getItem("token");
-        const headers = options.headers || {};
-
-        if (token) {
-          headers["Authorization"] = "Bearer " + token;
-        }
-        headers["Content-Type"] = "application/json";
-
-        const resp = await fetch(API_BASE + path, {
-          ...options,
-          headers,
-        });
-
-        if (resp.status === 401) {
-          // token expirou
-          localStorage.removeItem("token");
-          localStorage.removeItem("vendedoraNome");
-          setLoginMode();
-          throw new Error("Sessão expirada. Faça login novamente.");
-        }
 
         if (!resp.ok) {
-          const text = await resp.text();
-          throw new Error(text || "Erro na API");
-        }
-
-        return resp.json();
-      }
-
-      async function carregarDadosDoDia() {
-        const hoje = hojeISO();
-
-        try {
-          // Meta
-          const meta = await apiFetch("/metas/" + hoje);
-          const valorMeta = Number(meta.valor_meta || meta.valorMeta || 0);
-          spanMetaDia.textContent = formatCurrency(valorMeta);
-          spanMetaDiaPill.textContent = formatCurrency(valorMeta);
-
-          // Vendas do dia
-          const vendas = await apiFetch(
-            `/vendas?dataInicio=${hoje}&dataFim=${hoje}`
-          );
-
-          let totalVendas = 0;
-          vendas.forEach((v) => {
-            totalVendas += Number(v.valor || 0);
-          });
-
-          spanVendasHojeTotal.textContent = formatCurrency(totalVendas);
-          spanVendasHojeQtd.textContent =
-            vendas.length === 0
-              ? "Nenhuma venda lançada hoje."
-              : `${vendas.length} venda(s) lançada(s) hoje.`;
-
-          const ticketMedio = vendas.length
-            ? totalVendas / vendas.length
-            : 0;
-          spanTicketMedio.textContent =
-            "Ticket médio: " + formatCurrency(ticketMedio);
-
-          // Percentual de meta
-          const percMeta = valorMeta
-            ? Math.min(100, (totalVendas / valorMeta) * 100)
-            : 0;
-          spanMetaPercentualTag.textContent =
-            percMeta.toFixed(1).replace(".", ",") + "% da meta";
-
-          const restante = Math.max(0, valorMeta - totalVendas);
-          spanMetaInfoLinha.textContent =
-            "Meta restante: " + formatCurrency(restante);
-          spanMetaInfoLinha2.textContent =
-            totalVendas === 0
-              ? "Nenhuma venda lançada hoje ainda."
-              : "Continue! Você já avançou bem em direção à meta.";
-
-          // Atendimentos
-          const atend = await apiFetch("/atendimentos/" + hoje);
-          const qtdAtend = Number(atend.quantidade || 0);
-          spanAtendimentosQtd.textContent = qtdAtend;
-
-          const taxa =
-            qtdAtend && vendas.length
-              ? (vendas.length / qtdAtend) * 100
-              : 0;
-          spanTaxaConversao.textContent =
-            "Taxa de conversão: " + taxa.toFixed(1).replace(".", ",") + "%";
-
-          // Condicionais
-          const conds = await apiFetch("/condicionais");
-          let totalCond = 0;
-          conds.forEach((c) => {
-            totalCond += Number(c.valor_total || c.valorTotal || 0);
-          });
-          spanCondQtd.textContent = conds.length;
-          spanCondTotal.textContent =
-            "Valor total aproximado: " + formatCurrency(totalCond);
-
-          // Vendas recentes (limita a 5)
-          listaRecentes.innerHTML = "";
-          if (vendas.length === 0) {
-            const li = document.createElement("li");
-            li.className = "recent-item";
-            li.innerHTML =
-              '<span class="recent-meta">Nenhuma venda lançada ainda hoje.</span>';
-            listaRecentes.appendChild(li);
-          } else {
-            vendas
-              .slice(0, 5)
-              .forEach((v) => {
-                const li = document.createElement("li");
-                li.className = "recent-item";
-                const cliente = v.cliente_nome || v.clienteNome || "Cliente";
-                const data = new Date(v.data_venda || v.dataVenda);
-                const hora = isNaN(data.getTime())
-                  ? ""
-                  : data.toLocaleTimeString("pt-BR", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    });
-
-                li.innerHTML = `
-                  <div>
-                    <div class="recent-client">${cliente}</div>
-                    <div class="recent-meta">${hora}</div>
-                  </div>
-                  <div class="recent-value">${formatCurrency(
-                    v.valor || 0
-                  )}</div>
-                `;
-                listaRecentes.appendChild(li);
-              });
-          }
-        } catch (err) {
-          console.error(err);
-          // Mensagem suave no rodapé da meta
-          spanMetaInfoLinha2.textContent =
-            "Não foi possível atualizar todos os dados agora. Tente recarregar em alguns instantes.";
-        }
-      }
-
-      loginForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const nome = document.getElementById("nome").value.trim();
-        const senha = document.getElementById("senha").value.trim();
-
-        if (!nome || !senha) {
-          loginStatus.textContent = "Preencha nome e senha.";
-          loginStatus.classList.add("error");
+          document.getElementById("status").innerText = "Falha no login.";
           return;
         }
 
-        loginStatus.textContent = "Conectando...";
-        loginStatus.classList.remove("error");
-        btnLogin.disabled = true;
+        const data = await resp.json();
+        localStorage.setItem("token", data.token);
 
-        try {
-          const resp = await fetch(API_BASE + "/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nome, senha }),
-          });
+        document.getElementById("status").innerText =
+          "Logada como " + data.vendedora.nome;
+      }
 
-          if (!resp.ok) {
-            loginStatus.textContent = "Falha no login. Confira os dados.";
-            loginStatus.classList.add("error");
-            btnLogin.disabled = false;
-            return;
-          }
-
-          const data = await resp.json();
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("vendedoraNome", data.vendedora.nome);
-
-          setDashboardMode(data.vendedora.nome);
-          await carregarDadosDoDia();
-        } catch (err) {
-          console.error(err);
-          loginStatus.textContent =
-            "Erro ao conectar. Verifique sua internet e tente novamente.";
-          loginStatus.classList.add("error");
-        } finally {
-          btnLogin.disabled = false;
-        }
-      });
-
-      btnLogout.addEventListener("click", () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("vendedoraNome");
-        setLoginMode();
-      });
-
-      // Ao carregar a página, tenta já entrar direto se tiver token salvo
-      window.addEventListener("load", async () => {
+      async function buscarMeta() {
         const token = localStorage.getItem("token");
-        const nome = localStorage.getItem("vendedoraNome");
-
-        if (token && nome) {
-          try {
-            setDashboardMode(nome);
-            await carregarDadosDoDia();
-          } catch {
-            setLoginMode();
-          }
-        } else {
-          setLoginMode();
+        if (!token) {
+          document.getElementById("status").innerText =
+            "Faça login primeiro.";
+          return;
         }
-      });
+
+        const hoje = new Date().toISOString().slice(0, 10);
+        const resp = await fetch(API + "/metas/" + hoje, {
+          headers: { Authorization: "Bearer " + token }
+        });
+
+        const data = await resp.json();
+        const meta = data.valor_meta || data.valorMeta;
+
+        document.getElementById("meta").innerText =
+          "Meta de hoje: R$ " + Number(meta).toFixed(2);
+      }
     </script>
+
   </body>
 </html>
-<!-- update cache -->
