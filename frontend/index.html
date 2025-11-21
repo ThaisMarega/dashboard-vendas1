@@ -2,19 +2,26 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Dashboard de Vendas - Imagem Modas</title>
+    <title>Dashboard de Vendas • Imagem Modas</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Fontes elegantes -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap"
+    />
+
     <style>
       :root {
-        --green: #585f3b;
-        --green-soft: #f0f2eb;
-        --gold: #c89a3b;
-        --gold-soft: #f7efe0;
-        --text-main: #333333;
-        --text-soft: #777777;
-        --card-bg: #ffffff;
-        --card-shadow: 0 14px 45px rgba(0, 0, 0, 0.08);
+        --img-olive: #4f5b34;
+        --img-olive-soft: #f3f1ec;
+        --img-gold: #cda362;
+        --img-gold-soft: #f6eee1;
+        --img-text: #252525;
+        --img-muted: #868686;
+        --img-border: #e0d8ca;
         --radius-card: 18px;
+        --shadow-soft: 0 14px 40px rgba(0, 0, 0, 0.07);
       }
 
       * {
@@ -24,803 +31,805 @@
       body {
         margin: 0;
         padding: 24px 16px 40px;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          sans-serif;
-        background: radial-gradient(circle at top, #f9f5ec 0, #f3f3f3 40%, #efefef 100%);
-        color: var(--text-main);
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        background: radial-gradient(
+            circle at top left,
+            rgba(205, 163, 98, 0.13),
+            transparent 55%
+          ),
+          #f4f2ee;
+        color: var(--img-text);
       }
 
       .page {
-        max-width: 1040px;
+        max-width: 1120px;
         margin: 0 auto;
       }
 
-      /* TOPO COM LOGO */
+      /* HEADER */
 
-      .topbar {
+      .header {
         display: flex;
         align-items: center;
         gap: 14px;
-        margin-bottom: 32px;
+        margin-bottom: 24px;
       }
 
-      .logo-circle-img {
-        width: 64px;
-        height: 64px;
+      .brand-mark {
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
-        display: block;
+        background: var(--img-olive);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+      }
+
+      .brand-mark img {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+        display: block;
       }
 
-      .logo-text {
-        letter-spacing: 0.25em;
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .brand-title {
+        font-family: "Playfair Display", serif;
+        letter-spacing: 0.26em;
+        font-size: 15px;
         text-transform: uppercase;
-        font-size: 14px;
-        color: var(--text-main);
       }
 
-      /* CARTÃO CENTRAL (LOGIN / DASHBOARD WRAPPER) */
+      .brand-sub {
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--img-muted);
+      }
+
+      .header-right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+        color: var(--img-muted);
+      }
+
+      .logout-btn {
+        border: none;
+        background: transparent;
+        color: var(--img-olive);
+        font-size: 12px;
+        cursor: pointer;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(79, 91, 52, 0.28);
+        font-weight: 500;
+      }
+
+      /* SEÇÕES */
 
       .card-shell {
-        background: #ffffffd9;
-        border-radius: 32px;
-        box-shadow: var(--card-shadow);
-        padding: 32px 26px 28px;
+        background: #fbfaf7;
+        border-radius: 26px;
+        padding: 18px 18px 22px;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(255, 255, 255, 0.9);
       }
 
-      @media (min-width: 768px) {
-        .card-shell {
-          padding: 40px 40px 32px;
-        }
+      #login-section,
+      #dashboard-section {
+        display: none;
       }
 
-      .card-header-line {
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 0.22em;
-        color: var(--text-soft);
-        margin-bottom: 8px;
-      }
-
-      .card-title {
-        font-size: 22px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        margin: 0 0 6px;
-      }
-
-      .card-subtitle {
-        margin: 0 0 22px;
-        font-size: 14px;
-        color: var(--text-soft);
+      #login-section.active,
+      #dashboard-section.active {
+        display: block;
       }
 
       /* LOGIN */
 
-      #login-card label {
-        display: block;
-        font-size: 13px;
-        font-weight: 600;
-        margin-bottom: 4px;
+      .login-wrapper {
+        max-width: 420px;
+        margin: 40px auto 0;
+        padding: 26px 24px 24px;
+        border-radius: var(--radius-card);
+        background: #ffffff;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid var(--img-border);
       }
 
-      #login-card input {
-        width: 100%;
-        padding: 10px 12px;
-        border-radius: 999px;
-        border: 1px solid #d3d3d3;
-        font-size: 14px;
+      .login-title {
+        font-family: "Playfair Display", serif;
+        font-size: 22px;
+        margin: 0 0 6px;
+      }
+
+      .login-sub {
+        font-size: 13px;
+        color: var(--img-muted);
+        margin-bottom: 18px;
+      }
+
+      .field {
         margin-bottom: 12px;
       }
 
-      .actions-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 8px;
+      .field label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 4px;
       }
 
-      button {
-        cursor: pointer;
+      .input {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid #ddd3c3;
+        padding: 8px 10px;
+        font-size: 14px;
+        outline: none;
+        background: #fdfcf9;
+      }
+
+      .input:focus {
+        border-color: var(--img-olive);
+        box-shadow: 0 0 0 1px rgba(79, 91, 52, 0.18);
+        background: #ffffff;
+      }
+
+      .primary-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 9px 18px;
         border-radius: 999px;
         border: none;
-        padding: 9px 18px;
+        background: linear-gradient(
+          135deg,
+          #2f3520,
+          var(--img-olive)
+        );
+        color: white;
         font-size: 14px;
-        font-weight: 600;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
+        font-weight: 500;
+        cursor: pointer;
+        margin-top: 4px;
       }
 
-      .btn-primary {
-        background: var(--green);
-        color: #fff;
+      .primary-btn:disabled {
+        opacity: 0.65;
+        cursor: default;
       }
 
-      .btn-secondary {
-        background: transparent;
-        color: var(--green);
-        border: 1px solid var(--green);
-      }
-
-      .status {
+      .login-status {
+        margin-top: 10px;
         font-size: 13px;
-        color: #c0392b;
-        margin-bottom: 14px;
+        color: var(--img-muted);
+      }
+
+      .login-status.error {
+        color: #b84242;
       }
 
       /* DASHBOARD */
 
-      #dashboard {
-        display: none; /* é mostrado via JS após login */
-      }
-
-      .dash-header {
+      .top-row {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 24px;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 14px;
+        padding: 2px;
       }
 
-      .dash-hello {
-        font-size: 18px;
+      .greeting {
+        font-size: 14px;
+      }
+
+      .greeting-name {
         font-weight: 600;
       }
 
-      .dash-hello span {
-        color: var(--green);
-      }
-
-      .dash-date {
-        font-size: 13px;
-        color: var(--text-soft);
-      }
-
-      .dash-meta-pill {
-        background: var(--gold-soft);
-        border-radius: 999px;
-        padding: 6px 14px;
+      .greeting-day {
         font-size: 12px;
+        color: var(--img-muted);
+        margin-top: 2px;
+      }
+
+      .meta-pill {
+        margin-left: auto;
+        background: var(--img-gold-soft);
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-size: 12px;
+        color: #7a5a25;
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        color: #7a5a20;
+        border: 1px solid rgba(205, 163, 98, 0.7);
+        white-space: nowrap;
       }
 
-      .dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--gold);
-      }
-
-      /* GRID DE CARDS RESUMO */
-
-      .summary-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
-        gap: 18px;
-        margin-bottom: 26px;
-      }
-
-      @media (max-width: 880px) {
-        .summary-grid {
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        }
-        .summary-grid .card-summary-main {
-          grid-column: 1 / -1;
-        }
-      }
-
-      @media (max-width: 600px) {
-        .summary-grid {
-          grid-template-columns: minmax(0, 1fr);
-        }
-      }
-
-      .card-summary {
-        background: var(--card-bg);
-        border-radius: var(--radius-card);
-        padding: 16px 18px 14px;
-        box-shadow: 0 8px 26px rgba(0, 0, 0, 0.05);
-      }
-
-      .card-summary-main {
-        background: linear-gradient(135deg, #fdf8ed, #f5efe3);
-        border-radius: 22px;
-      }
-
-      .card-summary-title {
-        font-size: 13px;
+      .meta-pill-label {
         text-transform: uppercase;
-        letter-spacing: 0.16em;
-        color: var(--text-soft);
-        margin-bottom: 6px;
-      }
-
-      .card-summary-value-big {
-        font-size: 24px;
-        font-weight: 700;
-        margin-bottom: 4px;
-      }
-
-      .card-summary-meta-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        gap: 8px;
-        font-size: 13px;
-        color: var(--text-soft);
-      }
-
-      .chip-positive {
+        letter-spacing: 0.12em;
         font-size: 11px;
-        padding: 3px 8px;
-        border-radius: 999px;
-        background: rgba(88, 95, 59, 0.08);
-        color: var(--green);
       }
 
-      .card-summary-number {
-        font-size: 22px;
+      .meta-pill-value {
         font-weight: 600;
       }
 
-      .card-summary-caption {
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+        gap: 14px;
+      }
+
+      .grid-secondary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .card {
+        background: #ffffff;
+        border-radius: var(--radius-card);
+        padding: 14px 14px 16px;
+        border: 1px solid var(--img-border);
+      }
+
+      .card.destaque {
+        background: linear-gradient(
+            135deg,
+            rgba(205, 163, 98, 0.06),
+            transparent
+          ),
+          #fcfaf7;
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .card-title {
         font-size: 12px;
-        color: var(--text-soft);
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--img-muted);
+      }
+
+      .card-tag {
+        font-size: 11px;
+        padding: 3px 9px;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        color: var(--img-muted);
+      }
+
+      .card-main {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+
+      .card-main-value {
+        font-size: 24px;
+        font-weight: 600;
+      }
+
+      .card-main-helper {
+        font-size: 13px;
+        color: var(--img-muted);
+      }
+
+      .card-footer {
+        font-size: 11px;
+        color: var(--img-muted);
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 7px;
+        border-radius: 999px;
+        font-size: 11px;
+        background: #f4f0e7;
+        color: #71502a;
+        margin-top: 2px;
+      }
+
+      .badge-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #9bb35a;
       }
 
       /* VENDAS RECENTES */
 
-      .section-block {
-        background: var(--card-bg);
-        border-radius: var(--radius-card);
-        box-shadow: 0 8px 26px rgba(0, 0, 0, 0.05);
-        padding: 16px 18px 18px;
+      .recent-list {
+        margin: 8px 0 0;
+        padding: 0;
+        list-style: none;
+        max-height: 120px;
+        overflow-y: auto;
       }
 
-      .section-title-row {
+      .recent-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
-      }
-
-      .section-title {
-        font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: var(--text-soft);
-      }
-
-      .section-sub {
         font-size: 12px;
-        color: var(--text-soft);
+        padding: 4px 0;
+        border-bottom: 1px dashed rgba(0, 0, 0, 0.04);
       }
 
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 13px;
+      .recent-item:last-child {
+        border-bottom: none;
       }
 
-      th,
-      td {
-        padding: 6px 4px;
-        text-align: left;
+      .recent-client {
+        font-weight: 500;
       }
 
-      th {
-        font-weight: 600;
-        color: var(--text-soft);
-        border-bottom: 1px solid #ececec;
-      }
-
-      tr + tr td {
-        border-top: 1px solid #f2f2f2;
-      }
-
-      .text-right {
-        text-align: right;
-      }
-
-      .badge-pill {
+      .recent-meta {
+        color: var(--img-muted);
         font-size: 11px;
-        padding: 2px 7px;
-        border-radius: 999px;
-        border: 1px solid #e0e0e0;
-        background: #fafafa;
       }
 
-      .muted {
-        color: var(--text-soft);
+      .recent-value {
+        font-weight: 600;
       }
 
-      .hidden {
-        display: none !important;
+      /* RESPONSIVO */
+
+      @media (max-width: 860px) {
+        .card-shell {
+          padding: 16px 14px 18px;
+        }
+
+        .grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .grid-secondary {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .meta-pill {
+          margin-left: 0;
+        }
+
+        .header {
+          flex-wrap: wrap;
+        }
       }
-/* ===== Botão flutuante (+) ===== */
-.fab-main {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  font-size: 32px;
-  line-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #525739; /* verde Imagem */
-  color: #f5e5c7;      /* dourado claro */
-  box-shadow: 0 8px 18px rgba(0,0,0,0.25);
-  z-index: 40;
-}
-
-.fab-main:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(0,0,0,0.3);
-}
-
-/* Menu do botão flutuante */
-.fab-menu {
-  position: fixed;
-  right: 24px;
-  bottom: 90px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 35;
-}
-
-.fab-menu button {
-  border: none;
-  border-radius: 999px;
-  padding: 8px 14px;
-  background: #ffffff;
-  color: #333;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-  text-align: left;
-}
-
-.fab-menu button span {
-  font-size: 11px;
-  font-weight: 400;
-  color: #777;
-  display: block;
-}
-
-/* Overlay escuro atrás do modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.28);
-  backdrop-filter: blur(2px);
-  z-index: 45;
-}
-
-/* Janela modal */
-.modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-}
-
-.modal-card {
-  width: 100%;
-  max-width: 420px;
-  background: #fdfbf6;
-  border-radius: 18px;
-  padding: 20px 22px;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.22);
-  border: 1px solid rgba(82,87,57,0.15);
-}
-
-.modal-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #3e4328;
-}
-
-.modal-subtitle {
-  font-size: 12px;
-  color: #777;
-  margin-bottom: 16px;
-}
-
-.modal-row {
-  display: flex;
-  gap: 10px;
-}
-
-.modal-row > div {
-  flex: 1;
-}
-
-.modal-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #555;
-  margin-bottom: 4px;
-  display: block;
-}
-
-.modal-input,
-.modal-select,
-.modal-textarea {
-  width: 100%;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  padding: 8px 10px;
-  font-size: 14px;
-  font-family: inherit;
-  box-sizing: border-box;
-}
-
-.modal-textarea {
-  resize: vertical;
-  min-height: 60px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.btn-secondary {
-  border-radius: 999px;
-  border: 1px solid #ccc;
-  background: #fff;
-  padding: 7px 14px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.btn-primary {
-  border-radius: 999px;
-  border: none;
-  background: #525739;
-  color: #f5e5c7;
-  padding: 7px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* util */
-.hidden {
-  display: none !important;
-}
     </style>
   </head>
 
   <body>
     <div class="page">
-      <!-- TOPO COM LOGO -->
-      <header class="topbar">
-        <img
-          src="001 LOGO_Prancheta 1 cópia 27.png"
-          alt="Imagem Modas - monograma IMG"
-          class="logo-circle-img"
-        />
-        <div class="logo-text">IMAGEM&nbsp;&nbsp;MODAS</div>
+      <!-- HEADER -->
+      <header class="header">
+        <div class="brand-mark">
+          <!-- Usa a logo redonda oficial -->
+          <img src="001 LOGO_Prancheta 1 cópia 27.png" alt="Imagem Modas" />
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">Imagem Modas</div>
+          <div class="brand-sub">Dashboard de Vendas</div>
+        </div>
+
+        <div class="header-right" id="header-user" style="display:none;">
+          <span id="header-user-name"></span>
+          <button class="logout-btn" id="btn-logout">Sair</button>
+        </div>
       </header>
 
-      <!-- CARTÃO PRINCIPAL (LOGIN + DASHBOARD) -->
-      <main class="card-shell">
-        <!-- CABECALHO COM TITULO -->
-        <div id="login-header">
-          <div class="card-header-line">Dashboard de vendas</div>
-          <h1 class="card-title">Acesso exclusivo para vendedoras</h1>
-          <p class="card-subtitle">
-            Faça login para acompanhar sua meta diária, vendas e condicionais em tempo real.
+      <!-- LOGIN -->
+      <section id="login-section" class="active">
+        <div class="login-wrapper">
+          <h1 class="login-title">Acesso exclusivo</h1>
+          <p class="login-sub">
+            Faça login com seu usuário de vendedora Imagem Modas.
           </p>
-        </div>
 
-        <!-- LOGIN -->
-        <section id="login-card">
-          <p id="status" class="status"></p>
+          <form id="login-form">
+            <div class="field">
+              <label for="nome">Nome da vendedora</label>
+              <input
+                id="nome"
+                class="input"
+                name="nome"
+                value="Allane"
+                autocomplete="username"
+              />
+            </div>
 
-          <label for="nome">Nome da vendedora</label>
-          <input id="nome" placeholder="Ex: Allane" />
+            <div class="field">
+              <label for="senha">Senha</label>
+              <input
+                id="senha"
+                class="input"
+                name="senha"
+                type="password"
+                value="allane2025"
+                autocomplete="current-password"
+              />
+            </div>
 
-          <label for="senha">Senha</label>
-          <input id="senha" type="password" placeholder="Digite sua senha" />
-
-          <div class="actions-row">
-            <button class="btn-primary" onclick="login()">Entrar</button>
-            <button class="btn-secondary" onclick="buscarMetaSemLogin()">
-              Buscar meta de hoje
+            <button type="submit" class="primary-btn" id="btn-login">
+              Entrar no dashboard
             </button>
-          </div>
-        </section>
 
-        <!-- DASHBOARD (APÓS LOGIN) -->
-        <section id="dashboard">
-          <div class="dash-header">
+            <div class="login-status" id="login-status">
+              Digite seu nome e senha para entrar.
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section id="dashboard-section">
+        <div class="card-shell">
+          <div class="top-row">
             <div>
-              <div class="dash-hello">
-                Bom dia, <span id="nomeVendedoraSpan">Vendedora</span>
+              <div class="greeting">
+                Bom dia, <span class="greeting-name" id="dash-nome"></span>
               </div>
-              <div class="dash-date" id="dash-date"></div>
+              <div class="greeting-day" id="dash-data"></div>
             </div>
-            <div>
-              <span class="dash-meta-pill">
-                <span class="dot"></span>
-                Meta do dia: <strong id="meta-dia-pill">–</strong>
-              </span>
+
+            <div class="meta-pill">
+              <span class="meta-pill-label">Meta do dia</span>
+              <span class="meta-pill-value" id="meta-dia-pill">R$ 0,00</span>
             </div>
           </div>
 
-          <!-- RESUMO EM CARDS -->
-          <div class="summary-grid">
-            <!-- META / REALIZADO -->
-            <div class="card-summary card-summary-main">
-              <div class="card-summary-title">Meta diária</div>
-              <div class="card-summary-value-big" id="valor-realizado-hoje">
-                R$ 0,00
+          <div class="grid">
+            <!-- META DIÁRIA -->
+            <div class="card destaque">
+              <div class="card-header">
+                <div class="card-title">Meta diária</div>
+                <div class="card-tag" id="meta-percentual-tag">0% da meta</div>
               </div>
-              <div class="card-summary-meta-row">
-                <div>
-                  Meta: <strong id="meta-dia">R$ 0,00</strong><br />
-                  <span class="muted">
-                    Falta: <span id="falta-meta">R$ 0,00</span>
-                  </span>
-                </div>
-                <div class="chip-positive" id="meta-percent">
-                  0% da meta
-                </div>
+              <div class="card-main">
+                <span class="card-main-value" id="meta-dia">R$ 0,00</span>
+              </div>
+              <div class="card-footer">
+                <span id="meta-info-linha">Meta restante: R$ 0,00</span>
+                <span id="meta-info-linha2">Nenhuma venda lançada hoje ainda.</span>
               </div>
             </div>
 
-            <!-- VENDAS E TICKET -->
-            <div class="card-summary">
-              <div class="card-summary-title">Vendas de hoje</div>
-              <div class="card-summary-number" id="qtd-vendas">0</div>
-              <div class="card-summary-caption">
-                Ticket médio: <span id="ticket-medio">R$ 0,00</span>
+            <!-- VENDAS DE HOJE -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Vendas de hoje</div>
               </div>
-            </div>
-
-            <!-- ATENDIMENTOS / CONVERSÃO -->
-            <div class="card-summary">
-              <div class="card-summary-title">Atendimentos</div>
-              <div class="card-summary-number" id="qtd-atendimentos">0</div>
-              <div class="card-summary-caption">
-                Taxa de conversão:
-                <span id="taxa-conversao">0%</span>
+              <div class="card-main">
+                <span class="card-main-value" id="vendas-hoje-total"
+                  >R$ 0,00</span
+                >
+              </div>
+              <div class="card-footer">
+                <span id="vendas-hoje-qtd">0 vendas lançadas hoje.</span>
+                <span id="ticket-medio">Ticket médio: R$ 0,00</span>
               </div>
             </div>
           </div>
 
-          <!-- CONDICIONAIS & LISTA DE VENDAS -->
-          <div class="summary-grid" style="margin-bottom: 0;">
-            <!-- CARD CONDICIONAIS -->
-            <div class="card-summary">
-              <div class="card-summary-title">Condicionais em aberto</div>
-              <div class="card-summary-number" id="qtd-condicionais">0</div>
-              <div class="card-summary-caption">
-                Valor total aproximado:
-                <span id="valor-condicionais">R$ 0,00</span>
+          <div class="grid-secondary">
+            <!-- ATENDIMENTOS -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Atendimentos</div>
+              </div>
+              <div class="card-main">
+                <span class="card-main-value" id="atendimentos-qtd">0</span>
+              </div>
+              <div class="card-footer">
+                <span id="taxa-conversao">Taxa de conversão: 0%</span>
+                <span class="badge">
+                  <span class="badge-dot"></span>
+                  Quanto maior essa taxa, mais próxima da meta.
+                </span>
               </div>
             </div>
 
-            <!-- TABELA DE VENDAS (OCUPA 2 COLUNAS EM TELAS GRANDES) -->
-            <div class="summary-grid" style="grid-template-columns: 1fr; gap:0;">
-              <div class="section-block">
-                <div class="section-title-row">
-                  <div>
-                    <div class="section-title">Vendas recentes</div>
-                    <div class="section-sub">
-                      Últimas vendas lançadas hoje
-                    </div>
-                  </div>
-                  <button class="btn-secondary" onclick="logout()">
-                    Sair
-                  </button>
-                </div>
-
-                <div id="sem-vendas" class="section-sub">
-                  Nenhuma venda lançada ainda hoje.
-                </div>
-
-                <table id="tabela-vendas" class="hidden">
-                  <thead>
-                    <tr>
-                      <th>Horário</th>
-                      <th>Cliente</th>
-                      <th class="text-right">Valor</th>
-                      <th>Forma</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tbody-vendas"></tbody>
-                </table>
+            <!-- CONDICIONAIS -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Condicionais em aberto</div>
               </div>
+              <div class="card-main">
+                <span class="card-main-value" id="condicionais-qtd">0</span>
+              </div>
+              <div class="card-footer">
+                <span id="condicionais-total">
+                  Valor total aproximado: R$ 0,00
+                </span>
+              </div>
+            </div>
+
+            <!-- VENDAS RECENTES -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Vendas recentes</div>
+              </div>
+              <ul class="recent-list" id="lista-recentes">
+                <li class="recent-item">
+                  <span class="recent-meta">Nenhuma venda lançada ainda hoje.</span>
+                </li>
+              </ul>
             </div>
           </div>
-        </section>
-      </main>
-    </div>
-<!-- Botão flutuante + menu -->
-  <button id="fab-main" class="fab-main">+</button>
-
-  <div id="fab-menu" class="fab-menu hidden">
-    <button data-action="venda">
-      Lançar venda
-      <span>Registrar uma venda com valor e forma de pagamento</span>
-    </button>
-    <button data-action="atendimento">
-      Registrar atendimentos
-      <span>Quantidade de atendimentos do dia</span>
-    </button>
-    <button data-action="condicional">
-      Lançar condicional
-      <span>Controle dos consignados em aberto</span>
-    </button>
-  </div>
-
-  <!-- Overlay e modais -->
-  <div id="modal-overlay" class="modal-overlay hidden"></div>
-
-  <!-- Modal Lançar venda -->
-  <div id="modal-venda" class="modal hidden">
-    <div class="modal-card">
-      <div class="modal-title">Lançar venda</div>
-      <div class="modal-subtitle">Registre uma venda realizada hoje.</div>
-
-      <div class="modal-row">
-        <div>
-          <label class="modal-label">Valor (R$)</label>
-          <input id="venda-valor" type="number" step="0.01" class="modal-input" />
         </div>
-        <div>
-          <label class="modal-label">Forma de pagamento</label>
-          <select id="venda-forma" class="modal-select">
-            <option value="">Selecione</option>
-            <option value="avista">À vista</option>
-            <option value="debito">Débito</option>
-            <option value="credito">Crédito</option>
-            <option value="pix">Pix</option>
-            <option value="prazo">Prazo</option>
-          </select>
-        </div>
-      </div>
-
-      <label class="modal-label">Nome da cliente (opcional)</label>
-      <input id="venda-cliente" type="text" class="modal-input" />
-
-      <label class="modal-label">Observação</label>
-      <textarea id="venda-observacao" class="modal-textarea"></textarea>
-
-      <div class="modal-actions">
-        <button type="button" class="btn-secondary" data-close-modal>Cancelar</button>
-        <button type="button" class="btn-primary" id="btn-salvar-venda">Salvar venda</button>
-      </div>
+      </section>
     </div>
-  </div>
 
-  <!-- Modal Atendimentos -->
-  <div id="modal-atendimento" class="modal hidden">
-    <div class="modal-card">
-      <div class="modal-title">Registrar atendimentos</div>
-      <div class="modal-subtitle">Informe quantos atendimentos você teve hoje.</div>
-
-      <label class="modal-label">Quantidade de atendimentos de hoje</label>
-      <input id="atend-qtd" type="number" class="modal-input" min="0" />
-
-      <div class="modal-actions">
-        <button type="button" class="btn-secondary" data-close-modal>Cancelar</button>
-        <button type="button" class="btn-primary" id="btn-salvar-atendimento">Salvar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Condicional -->
-  <div id="modal-condicional" class="modal hidden">
-    <div class="modal-card">
-      <div class="modal-title">Lançar condicional</div>
-      <div class="modal-subtitle">Registre um novo condicional em aberto.</div>
-
-      <div class="modal-row">
-        <div>
-          <label class="modal-label">Qtd. de peças</label>
-          <input id="cond-qtd" type="number" class="modal-input" min="1" />
-        </div>
-        <div>
-          <label class="modal-label">Valor total (R$)</label>
-          <input id="cond-valor" type="number" step="0.01" class="modal-input" />
-        </div>
-      </div>
-
-      <label class="modal-label">Nome da cliente</label>
-      <input id="cond-cliente" type="text" class="modal-input" />
-
-      <label class="modal-label">Observação</label>
-      <textarea id="cond-observacao" class="modal-textarea"></textarea>
-
-      <div class="modal-actions">
-        <button type="button" class="btn-secondary" data-close-modal>Cancelar</button>
-        <button type="button" class="btn-primary" id="btn-salvar-condicional">Salvar condicional</button>
-      </div>
-    </div>
-  </div>
     <script>
-      const API = "https://dashboard-vendas1.onrender.com/api";
+      const API_BASE = "https://dashboard-vendas1.onrender.com/api";
 
-      function formatMoney(v) {
-        const num = Number(v || 0);
-        return num.toLocaleString("pt-BR", {
+      const loginSection = document.getElementById("login-section");
+      const dashboardSection = document.getElementById("dashboard-section");
+      const loginForm = document.getElementById("login-form");
+      const loginStatus = document.getElementById("login-status");
+      const btnLogin = document.getElementById("btn-login");
+      const headerUser = document.getElementById("header-user");
+      const headerUserName = document.getElementById("header-user-name");
+      const btnLogout = document.getElementById("btn-logout");
+
+      const spanDashNome = document.getElementById("dash-nome");
+      const spanDashData = document.getElementById("dash-data");
+
+      const spanMetaDia = document.getElementById("meta-dia");
+      const spanMetaDiaPill = document.getElementById("meta-dia-pill");
+      const spanMetaPercentualTag = document.getElementById(
+        "meta-percentual-tag"
+      );
+      const spanMetaInfoLinha = document.getElementById("meta-info-linha");
+      const spanMetaInfoLinha2 = document.getElementById("meta-info-linha2");
+
+      const spanVendasHojeTotal = document.getElementById("vendas-hoje-total");
+      const spanVendasHojeQtd = document.getElementById("vendas-hoje-qtd");
+      const spanTicketMedio = document.getElementById("ticket-medio");
+
+      const spanAtendimentosQtd = document.getElementById(
+        "atendimentos-qtd"
+      );
+      const spanTaxaConversao = document.getElementById("taxa-conversao");
+
+      const spanCondQtd = document.getElementById("condicionais-qtd");
+      const spanCondTotal = document.getElementById("condicionais-total");
+
+      const listaRecentes = document.getElementById("lista-recentes");
+
+      function formatCurrency(value) {
+        const v = Number(value || 0);
+        return v.toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
           minimumFractionDigits: 2,
         });
       }
 
-      function formatPercent(v) {
-        const num = Number(v || 0);
-        return num.toLocaleString("pt-BR", {
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 1,
-        }) + "%";
-      }
-
       function hojeISO() {
         return new Date().toISOString().slice(0, 10);
       }
 
-      function setStatus(msg, isError = true) {
-        const el = document.getElementById("status");
-        el.textContent = msg || "";
-        el.style.color = isError ? "#c0392b" : "#2e7d32";
+      function formatarDataLonga() {
+        const hoje = new Date();
+        return hoje.toLocaleDateString("pt-BR", {
+          weekday: "long",
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
       }
 
-      function mostrarLogin() {
-        document.getElementById("login-card").style.display = "block";
-        document.getElementById("login-header").style.display = "block";
-        document.getElementById("dashboard").style.display = "none";
+      function setLoginMode() {
+        loginSection.classList.add("active");
+        dashboardSection.classList.remove("active");
+        headerUser.style.display = "none";
       }
 
-      function mostrarDashboard() {
-        document.getElementById("login-card").style.display = "none";
-        document.getElementById("login-header").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
+      function setDashboardMode(nome) {
+        loginSection.classList.remove("active");
+        dashboardSection.classList.add("active");
+        headerUser.style.display = "flex";
+        headerUserName.textContent = nome;
+        spanDashNome.textContent = nome;
+        spanDashData.textContent = formatarDataLonga();
       }
 
-      async function login() {
+      async function apiFetch(path, options = {}) {
+        const token = localStorage.getItem("token");
+        const headers = options.headers || {};
+
+        if (token) {
+          headers["Authorization"] = "Bearer " + token;
+        }
+        headers["Content-Type"] = "application/json";
+
+        const resp = await fetch(API_BASE + path, {
+          ...options,
+          headers,
+        });
+
+        if (resp.status === 401) {
+          // token expirou
+          localStorage.removeItem("token");
+          localStorage.removeItem("vendedoraNome");
+          setLoginMode();
+          throw new Error("Sessão expirada. Faça login novamente.");
+        }
+
+        if (!resp.ok) {
+          const text = await resp.text();
+          throw new Error(text || "Erro na API");
+        }
+
+        return resp.json();
+      }
+
+      async function carregarDadosDoDia() {
+        const hoje = hojeISO();
+
+        try {
+          // Meta
+          const meta = await apiFetch("/metas/" + hoje);
+          const valorMeta = Number(meta.valor_meta || meta.valorMeta || 0);
+          spanMetaDia.textContent = formatCurrency(valorMeta);
+          spanMetaDiaPill.textContent = formatCurrency(valorMeta);
+
+          // Vendas do dia
+          const vendas = await apiFetch(
+            `/vendas?dataInicio=${hoje}&dataFim=${hoje}`
+          );
+
+          let totalVendas = 0;
+          vendas.forEach((v) => {
+            totalVendas += Number(v.valor || 0);
+          });
+
+          spanVendasHojeTotal.textContent = formatCurrency(totalVendas);
+          spanVendasHojeQtd.textContent =
+            vendas.length === 0
+              ? "Nenhuma venda lançada hoje."
+              : `${vendas.length} venda(s) lançada(s) hoje.`;
+
+          const ticketMedio = vendas.length
+            ? totalVendas / vendas.length
+            : 0;
+          spanTicketMedio.textContent =
+            "Ticket médio: " + formatCurrency(ticketMedio);
+
+          // Percentual de meta
+          const percMeta = valorMeta
+            ? Math.min(100, (totalVendas / valorMeta) * 100)
+            : 0;
+          spanMetaPercentualTag.textContent =
+            percMeta.toFixed(1).replace(".", ",") + "% da meta";
+
+          const restante = Math.max(0, valorMeta - totalVendas);
+          spanMetaInfoLinha.textContent =
+            "Meta restante: " + formatCurrency(restante);
+          spanMetaInfoLinha2.textContent =
+            totalVendas === 0
+              ? "Nenhuma venda lançada hoje ainda."
+              : "Continue! Você já avançou bem em direção à meta.";
+
+          // Atendimentos
+          const atend = await apiFetch("/atendimentos/" + hoje);
+          const qtdAtend = Number(atend.quantidade || 0);
+          spanAtendimentosQtd.textContent = qtdAtend;
+
+          const taxa =
+            qtdAtend && vendas.length
+              ? (vendas.length / qtdAtend) * 100
+              : 0;
+          spanTaxaConversao.textContent =
+            "Taxa de conversão: " + taxa.toFixed(1).replace(".", ",") + "%";
+
+          // Condicionais
+          const conds = await apiFetch("/condicionais");
+          let totalCond = 0;
+          conds.forEach((c) => {
+            totalCond += Number(c.valor_total || c.valorTotal || 0);
+          });
+          spanCondQtd.textContent = conds.length;
+          spanCondTotal.textContent =
+            "Valor total aproximado: " + formatCurrency(totalCond);
+
+          // Vendas recentes (limita a 5)
+          listaRecentes.innerHTML = "";
+          if (vendas.length === 0) {
+            const li = document.createElement("li");
+            li.className = "recent-item";
+            li.innerHTML =
+              '<span class="recent-meta">Nenhuma venda lançada ainda hoje.</span>';
+            listaRecentes.appendChild(li);
+          } else {
+            vendas
+              .slice(0, 5)
+              .forEach((v) => {
+                const li = document.createElement("li");
+                li.className = "recent-item";
+                const cliente = v.cliente_nome || v.clienteNome || "Cliente";
+                const data = new Date(v.data_venda || v.dataVenda);
+                const hora = isNaN(data.getTime())
+                  ? ""
+                  : data.toLocaleTimeString("pt-BR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+
+                li.innerHTML = `
+                  <div>
+                    <div class="recent-client">${cliente}</div>
+                    <div class="recent-meta">${hora}</div>
+                  </div>
+                  <div class="recent-value">${formatCurrency(
+                    v.valor || 0
+                  )}</div>
+                `;
+                listaRecentes.appendChild(li);
+              });
+          }
+        } catch (err) {
+          console.error(err);
+          // Mensagem suave no rodapé da meta
+          spanMetaInfoLinha2.textContent =
+            "Não foi possível atualizar todos os dados agora. Tente recarregar em alguns instantes.";
+        }
+      }
+
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
         const nome = document.getElementById("nome").value.trim();
         const senha = document.getElementById("senha").value.trim();
 
         if (!nome || !senha) {
-          setStatus("Preencha nome e senha.");
+          loginStatus.textContent = "Preencha nome e senha.";
+          loginStatus.classList.add("error");
           return;
         }
 
-        setStatus("Conectando...", false);
+        loginStatus.textContent = "Conectando...";
+        loginStatus.classList.remove("error");
+        btnLogin.disabled = true;
 
         try {
-          const resp = await fetch(API + "/login", {
+          const resp = await fetch(API_BASE + "/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ nome, senha }),
           });
 
           if (!resp.ok) {
-            setStatus("Falha no login. Confira o nome e a senha.");
+            loginStatus.textContent = "Falha no login. Confira os dados.";
+            loginStatus.classList.add("error");
+            btnLogin.disabled = false;
             return;
           }
 
@@ -828,363 +837,40 @@
           localStorage.setItem("token", data.token);
           localStorage.setItem("vendedoraNome", data.vendedora.nome);
 
-          setStatus("");
-          iniciarDashboard();
-        } catch (e) {
-          console.error(e);
-          setStatus("Erro ao conectar com o servidor.");
-        }
-      }
-
-      function logout() {
-        localStorage.removeItem("token");
-        localStorage.removeItem("vendedoraNome");
-        location.reload();
-      }
-
-      async function buscarMetaSemLogin() {
-        setStatus(
-          "Para usar o sistema completo é necessário login, mas a meta será buscada pelo sistema em breve.",
-          false
-        );
-      }
-
-      function preencherCabecalhoDashboard() {
-        const nome = localStorage.getItem("vendedoraNome") || "Vendedora";
-        document.getElementById("nomeVendedoraSpan").textContent = nome;
-
-        const hoje = new Date();
-        const formatado = hoje.toLocaleDateString("pt-BR", {
-          weekday: "long",
-          day: "2-digit",
-          month: "long",
-        });
-        document.getElementById("dash-date").textContent =
-          formatado.charAt(0).toUpperCase() + formatado.slice(1);
-      }
-
-      async function carregarResumo() {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        const headers = { Authorization: "Bearer " + token };
-        const hoje = hojeISO();
-
-        try {
-          const [metaResp, vendasResp, atendResp, condResp] = await Promise.all([
-            fetch(API + "/metas/" + hoje, { headers }),
-            fetch(API + "/vendas?dataInicio=" + hoje + "&dataFim=" + hoje, {
-              headers,
-            }),
-            fetch(API + "/atendimentos/" + hoje, { headers }),
-            fetch(API + "/condicionais", { headers }),
-          ]);
-
-          const meta = await metaResp.json();
-          const vendas = await vendasResp.json();
-          const atendimentos = await atendResp.json();
-          const condicionais = await condResp.json();
-
-          const valorMeta = Number(meta.valor_meta || meta.valorMeta || 0);
-          const totalVendas = (vendas || []).reduce(
-            (acc, v) => acc + Number(v.valor || 0),
-            0
-          );
-          const qtdVendas = (vendas || []).length;
-          const qtdAtend = Number(atendimentos.quantidade || 0);
-          const ticketMedio = qtdVendas ? totalVendas / qtdVendas : 0;
-          const conversao =
-            qtdAtend > 0 ? (qtdVendas / qtdAtend) * 100 : 0;
-          const qtdCond = (condicionais || []).length;
-          const valorCond = (condicionais || []).reduce(
-            (acc, c) => acc + Number(c.valor_total || 0),
-            0
-          );
-          const faltaMeta = valorMeta - totalVendas;
-          const percMeta = valorMeta > 0 ? (totalVendas / valorMeta) * 100 : 0;
-
-          // Atualiza cards
-          document.getElementById("meta-dia").textContent =
-            formatMoney(valorMeta);
-          document.getElementById("meta-dia-pill").textContent =
-            formatMoney(valorMeta);
-          document.getElementById("valor-realizado-hoje").textContent =
-            formatMoney(totalVendas);
-          document.getElementById("falta-meta").textContent =
-            formatMoney(Math.max(faltaMeta, 0));
-          document.getElementById("meta-percent").textContent =
-            formatPercent(percMeta) + " da meta";
-
-          document.getElementById("qtd-vendas").textContent = qtdVendas;
-          document.getElementById("ticket-medio").textContent =
-            formatMoney(ticketMedio);
-
-          document.getElementById("qtd-atendimentos").textContent = qtdAtend;
-          document.getElementById("taxa-conversao").textContent =
-            formatPercent(conversao);
-
-          document.getElementById("qtd-condicionais").textContent = qtdCond;
-          document.getElementById("valor-condicionais").textContent =
-            formatMoney(valorCond);
-
-          // Tabela de vendas
-          const semVendasEl = document.getElementById("sem-vendas");
-          const tabelaVendas = document.getElementById("tabela-vendas");
-          const tbody = document.getElementById("tbody-vendas");
-
-          if (!vendas || vendas.length === 0) {
-            semVendasEl.classList.remove("hidden");
-            tabelaVendas.classList.add("hidden");
-          } else {
-            semVendasEl.classList.add("hidden");
-            tabelaVendas.classList.remove("hidden");
-            tbody.innerHTML = "";
-
-            vendas
-              .slice(0, 8)
-              .forEach((v) => {
-                const tr = document.createElement("tr");
-
-                const dataVenda = v.data_venda
-                  ? new Date(v.data_venda)
-                  : null;
-                const hora =
-                  dataVenda != null
-                    ? dataVenda.toLocaleTimeString("pt-BR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : "-";
-
-                const tdHora = document.createElement("td");
-                tdHora.textContent = hora;
-
-                const tdCliente = document.createElement("td");
-                tdCliente.textContent = v.cliente_nome || "Cliente";
-
-                const tdValor = document.createElement("td");
-                tdValor.textContent = formatMoney(v.valor);
-                tdValor.className = "text-right";
-
-                const tdForma = document.createElement("td");
-                tdForma.innerHTML =
-                  '<span class="badge-pill">' +
-                  (v.forma_pagamento || "").toUpperCase() +
-                  "</span>";
-
-                tr.appendChild(tdHora);
-                tr.appendChild(tdCliente);
-                tr.appendChild(tdValor);
-                tr.appendChild(tdForma);
-
-                tbody.appendChild(tr);
-              });
-          }
-        } catch (e) {
-          console.error(e);
-          setStatus("Não foi possível carregar o resumo agora.", true);
-        }
-      }
-
-      function iniciarDashboard() {
-        mostrarDashboard();
-        preencherCabecalhoDashboard();
-        carregarResumo();
-      }
-
-      // Ao carregar a página, se já tiver token, pula direto pro dashboard
-      window.addEventListener("DOMContentLoaded", () => {
-        const token = localStorage.getItem("token");
-        if (token) {
-          setStatus("");
-          iniciarDashboard();
-        } else {
-          mostrarLogin();
+          setDashboardMode(data.vendedora.nome);
+          await carregarDadosDoDia();
+        } catch (err) {
+          console.error(err);
+          loginStatus.textContent =
+            "Erro ao conectar. Verifique sua internet e tente novamente.";
+          loginStatus.classList.add("error");
+        } finally {
+          btnLogin.disabled = false;
         }
       });
-      // =============== FUNÇÕES AUXILIARES ===============
-function getToken() {
-  return localStorage.getItem('token');
-}
 
-function hojeISO() {
-  return new Date().toISOString().slice(0, 10);
-}
+      btnLogout.addEventListener("click", () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("vendedoraNome");
+        setLoginMode();
+      });
 
-// Mostra / esconde overlay e modais
-function abrirModal(id) {
-  const overlay = document.getElementById('modal-overlay');
-  const modal = document.getElementById(id);
-  if (!overlay || !modal) return;
-  overlay.classList.remove('hidden');
-  modal.classList.remove('hidden');
-}
+      // Ao carregar a página, tenta já entrar direto se tiver token salvo
+      window.addEventListener("load", async () => {
+        const token = localStorage.getItem("token");
+        const nome = localStorage.getItem("vendedoraNome");
 
-function fecharTodosModais() {
-  const overlay = document.getElementById('modal-overlay');
-  const modais = document.querySelectorAll('.modal');
-  overlay && overlay.classList.add('hidden');
-  modais.forEach(m => m.classList.add('hidden'));
-}
-
-// =============== INICIALIZAÇÃO DOS BOTÕES ===============
-document.addEventListener('DOMContentLoaded', () => {
-  const fabMain = document.getElementById('fab-main');
-  const fabMenu = document.getElementById('fab-menu');
-  const overlay = document.getElementById('modal-overlay');
-
-  if (!fabMain || !fabMenu) return;
-
-  // abre/fecha menu do botão +
-  fabMain.addEventListener('click', () => {
-    fabMenu.classList.toggle('hidden');
-  });
-
-  // clique nas opções do menu
-  fabMenu.addEventListener('click', (e) => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
-
-    const action = btn.getAttribute('data-action');
-    fabMenu.classList.add('hidden');
-
-    if (action === 'venda') abrirModal('modal-venda');
-    if (action === 'atendimento') abrirModal('modal-atendimento');
-    if (action === 'condicional') abrirModal('modal-condicional');
-  });
-
-  // fechar modais ao clicar no overlay
-  if (overlay) {
-    overlay.addEventListener('click', fecharTodosModais);
-  }
-
-  // fechar modais nos botões "Cancelar"
-  document.querySelectorAll('[data-close-modal]').forEach(btn => {
-    btn.addEventListener('click', fecharTodosModais);
-  });
-
-  // ========== SALVAR VENDA ==========
-  const btnVenda = document.getElementById('btn-salvar-venda');
-  if (btnVenda) {
-    btnVenda.addEventListener('click', async () => {
-      const token = getToken();
-      if (!token) {
-        alert('Faça login novamente.');
-        return;
-      }
-
-      const valor = parseFloat(document.getElementById('venda-valor').value || '0');
-      const formaPagamento = document.getElementById('venda-forma').value;
-      const clienteNome = document.getElementById('venda-cliente').value || '';
-      const observacao = document.getElementById('venda-observacao').value || '';
-
-      if (!valor || !formaPagamento) {
-        alert('Informe o valor e a forma de pagamento.');
-        return;
-      }
-
-      try {
-        const resp = await fetch(API + '/vendas', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-          },
-          body: JSON.stringify({ valor, formaPagamento, clienteNome, observacao })
-        });
-
-        if (!resp.ok) throw new Error('Erro ao salvar venda');
-
-        alert('Venda lançada com sucesso! 🎉');
-        fecharTodosModais();
-        location.reload();
-      } catch (e) {
-        console.error(e);
-        alert('Não foi possível salvar a venda.');
-      }
-    });
-  }
-
-  // ========== SALVAR ATENDIMENTO ==========
-  const btnAtend = document.getElementById('btn-salvar-atendimento');
-  if (btnAtend) {
-    btnAtend.addEventListener('click', async () => {
-      const token = getToken();
-      if (!token) {
-        alert('Faça login novamente.');
-        return;
-      }
-
-      const quantidade = parseInt(document.getElementById('atend-qtd').value || '0', 10);
-      if (!quantidade && quantidade !== 0) {
-        alert('Informe a quantidade de atendimentos.');
-        return;
-      }
-
-      try {
-        const resp = await fetch(API + '/atendimentos', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-          },
-          body: JSON.stringify({ quantidade, data: hojeISO() })
-        });
-
-        if (!resp.ok) throw new Error('Erro ao salvar atendimentos');
-
-        alert('Atendimentos salvos! ✅');
-        fecharTodosModais();
-        location.reload();
-      } catch (e) {
-        console.error(e);
-        alert('Não foi possível salvar os atendimentos.');
-      }
-    });
-  }
-
-  // ========== SALVAR CONDICIONAL ==========
-  const btnCond = document.getElementById('btn-salvar-condicional');
-  if (btnCond) {
-    btnCond.addEventListener('click', async () => {
-      const token = getToken();
-      if (!token) {
-        alert('Faça login novamente.');
-        return;
-      }
-
-      const quantidadePecas = parseInt(document.getElementById('cond-qtd').value || '0', 10);
-      const valorTotal = parseFloat(document.getElementById('cond-valor').value || '0');
-      const clienteNome = document.getElementById('cond-cliente').value || '';
-      const observacao = document.getElementById('cond-observacao').value || '';
-
-      if (!quantidadePecas || !valorTotal || !clienteNome) {
-        alert('Preencha quantidade, valor e nome da cliente.');
-        return;
-      }
-
-      try {
-        const resp = await fetch(API + '/condicionais', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-          },
-          body: JSON.stringify({ quantidadePecas, valorTotal, clienteNome, observacao })
-        });
-
-        if (!resp.ok) throw new Error('Erro ao salvar condicional');
-
-        alert('Condicional lançado com sucesso! 📦');
-        fecharTodosModais();
-        location.reload();
-      } catch (e) {
-        console.error(e);
-        alert('Não foi possível salvar o condicional.');
-      }
-    });
-  }
-});
+        if (token && nome) {
+          try {
+            setDashboardMode(nome);
+            await carregarDadosDoDia();
+          } catch {
+            setLoginMode();
+          }
+        } else {
+          setLoginMode();
+        }
+      });
     </script>
   </body>
 </html>
