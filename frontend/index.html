@@ -410,6 +410,7 @@
           <div class="card-title" id="bemVindaTitulo">Bom dia</div>
           <div class="card-subtitle small" id="infoHoje"></div>
 
+          <!-- META DIÁRIA -->
           <div class="field">
             <label>Meta de hoje</label>
             <div class="row">
@@ -439,6 +440,29 @@
                 Aguardando vendas para calcular a meta.
               </div>
             </div>
+          </div>
+
+          <!-- META MENSAL -->
+          <div class="field" style="margin-top: 16px">
+            <label>Meta mensal</label>
+            <div class="row">
+              <div class="field">
+                <input
+                  id="metaMensalValor"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="R$ 0,00"
+                />
+              </div>
+              <button class="btn-outline" onclick="salvarMetaMensal()">
+                Salvar meta mensal
+              </button>
+            </div>
+            <div class="small" id="metaMensalResumo">
+              Nenhuma meta mensal definida.
+            </div>
+            <div class="small" id="metaMensalSugestao"></div>
           </div>
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 16px 0" />
@@ -638,6 +662,7 @@
                       <th>Forma</th>
                       <th>Peças</th>
                       <th>Valor</th>
+                      <th>Ações</th>
                     </tr>
                   </thead>
                   <tbody></tbody>
@@ -794,6 +819,10 @@
       let vendasHojePecasTotal = 0;
       let atendimentosHojeQtd = 0;
       let metaHojeValor = 0;
+      let metaMensalValor = 0;
+
+      let vendasHojeDados = [];
+      let vendaEditandoId = null;
 
       function hojeISO() {
         return new Date().toISOString().slice(0, 10);
@@ -840,7 +869,8 @@
 
         if (!metaHojeValor || metaHojeValor <= 0) {
           inner.style.width = "0%";
-          linha.textContent = "Defina uma meta para acompanhar o progresso.";
+          linha.textContent =
+            "Defina uma meta diária para acompanhar o progresso.";
           return;
         }
 
@@ -858,15 +888,15 @@
             vendasHojeTotal.toFixed(2) +
             " — faltam R$ " +
             falta.toFixed(2) +
-            " para bater a meta.";
+            " para bater a meta de hoje.";
         } else if (falta === 0) {
           linha.textContent =
-            "Meta batida em cheio! R$ " +
+            "Meta diária batida em cheio! R$ " +
             vendasHojeTotal.toFixed(2) +
             " no dia. 🎉";
         } else {
           linha.textContent =
-            "Você passou da meta em R$ " +
+            "Você passou da meta diária em R$ " +
             Math.abs(falta).toFixed(2) +
             "! Total do dia: R$ " +
             vendasHojeTotal.toFixed(2) +
@@ -877,9 +907,12 @@
       function atualizarIndicadoresVenda() {
         const ticketSpan = document.getElementById("ticketMedioLinha");
         const taxaSpan = document.getElementById("taxaConversaoLinha");
-        const pecasVendaSpan = document.getElementById("pecasPorVendaLinha");
-        const pecasAtendSpan =
-          document.getElementById("pecasPorAtendimentoLinha");
+        const pecasVendaSpan = document.getElementById(
+          "pecasPorVendaLinha"
+        );
+        const pecasAtendSpan = document.getElementById(
+          "pecasPorAtendimentoLinha"
+        );
 
         const ticket = vendasHojeQtd
           ? vendasHojeTotal / vendasHojeQtd
@@ -978,19 +1011,25 @@
             setStatus(`Logada como ${nomeVendedora}.`, "sucesso");
           }
 
+          // carregar meta mensal salva no navegador
+          carregarMetaMensalLocal();
+
           await Promise.all([
             carregarMetaHoje(),
             carregarAtendimentosHoje(),
             carregarVendasHoje(),
             carregarCondicionais(),
           ]);
+
+          // calcular resumo mensal depois de carregar vendas
+          calcularResumoMetaMensal().catch(() => {});
         } catch (e) {
           console.error(e);
           setStatus("Erro ao conectar com o servidor.", "erro");
         }
       }
 
-      // META
+      // META DIÁRIA
       async function carregarMetaHoje() {
         if (!token) return;
         const data = hojeISO();
@@ -1025,7 +1064,7 @@
           });
 
           if (!resp.ok) {
-            setStatus("Não foi possível salvar a meta.", "erro");
+            setStatus("Não foi possível salvar a meta diária.", "erro");
             return;
           }
 
@@ -1033,7 +1072,125 @@
           setStatus("Meta de hoje atualizada.", "sucesso");
         } catch (e) {
           console.error(e);
-          setStatus("Erro ao salvar meta.", "erro");
+          setStatus("Erro ao salvar meta diária.", "erro");
+        }
+      }
+
+      // META MENSAL (apenas no frontend, salva no localStorage)
+      function carregarMetaMensalLocal() {
+        const salvo = localStorage.getItem("metaMensalDashboardIMG");
+        if (salvo) {
+          const v = Number(salvo);
+          if (!isNaN(v) && v > 0) {
+            metaMensalValor = v;
+            const input = document.getElementById("metaMensalValor");
+            if (input) input.value = v.toString();
+          }
+        }
+      }
+
+      function salvarMetaMensal() {
+        const v = Number(
+          (document.getElementById("metaMensalValor").value || "0").replace(
+            ",",
+            "."
+          )
+        );
+        metaMensalValor = v > 0 ? v : 0;
+        localStorage.setItem("metaMensalDashboardIMG", metaMensalValor);
+        setStatus("Meta mensal atualizada no painel.", "sucesso");
+        calcularResumoMetaMensal().catch(() => {});
+      }
+
+      function contarDiasUteisRestantes(hoje) {
+        const ano = hoje.getFullYear();
+        const mes = hoje.getMonth();
+        // começa amanhã
+        let dt = new Date(ano, mes, hoje.getDate() + 1);
+        const last = new Date(ano, mes + 1, 0);
+        let count = 0;
+        while (dt <= last) {
+          const dow = dt.getDay(); // 0=domingo, 6=sábado
+          if (dow !== 0) {
+            // trabalhamos de segunda a sábado, então só exclui domingo
+            count++;
+          }
+          dt.setDate(dt.getDate() + 1);
+        }
+        return count;
+      }
+
+      async function calcularResumoMetaMensal() {
+        const resumoEl = document.getElementById("metaMensalResumo");
+        const sugestaoEl = document.getElementById("metaMensalSugestao");
+
+        if (!metaMensalValor || metaMensalValor <= 0) {
+          resumoEl.textContent = "Nenhuma meta mensal definida.";
+          sugestaoEl.textContent = "";
+          return;
+        }
+
+        if (!token) {
+          resumoEl.textContent = "Faça login para calcular a meta mensal.";
+          sugestaoEl.textContent = "";
+          return;
+        }
+
+        const hoje = new Date();
+        const ano = hoje.getFullYear();
+        const mes = hoje.getMonth();
+        const inicio = new Date(ano, mes, 1).toISOString().slice(0, 10);
+        const fim = new Date(ano, mes + 1, 0).toISOString().slice(0, 10);
+
+        try {
+          const url =
+            API +
+            `/vendas?dataInicio=${encodeURIComponent(
+              inicio
+            )}&dataFim=${encodeURIComponent(fim)}`;
+          const resp = await fetch(url, {
+            headers: { Authorization: "Bearer " + token },
+          });
+          const vendas = await resp.json();
+
+          let totalMes = 0;
+          vendas.forEach((v) => {
+            totalMes += Number(v.valor || 0);
+          });
+
+          const falta = metaMensalValor - totalMes;
+
+          resumoEl.textContent =
+            "Meta mensal: R$ " +
+            metaMensalValor.toFixed(2) +
+            " • Vendido no mês: R$ " +
+            totalMes.toFixed(2) +
+            " • Diferença: R$ " +
+            falta.toFixed(2);
+
+          const diasRest = contarDiasUteisRestantes(hoje);
+
+          if (falta <= 0) {
+            sugestaoEl.textContent =
+              "Meta mensal já batida! Sobra de R$ " +
+              Math.abs(falta).toFixed(2) +
+              " no mês.";
+          } else if (diasRest <= 0) {
+            sugestaoEl.textContent =
+              "Não há mais dias úteis no mês para dividir a diferença.";
+          } else {
+            const metaDia = falta / diasRest;
+            sugestaoEl.textContent =
+              "Para bater a meta mensal, precisa vender em média R$ " +
+              metaDia.toFixed(2) +
+              " por dia útil até o fim do mês (" +
+              diasRest +
+              " dia(s)).";
+          }
+        } catch (e) {
+          console.error(e);
+          resumoEl.textContent = "Erro ao calcular meta mensal.";
+          sugestaoEl.textContent = "";
         }
       }
 
@@ -1093,6 +1250,7 @@
             headers: { Authorization: "Bearer " + token },
           });
           const vendas = await resp.json();
+          vendasHojeDados = vendas;
 
           const tbody = document.querySelector("#tabelaVendas tbody");
           tbody.innerHTML = "";
@@ -1129,6 +1287,22 @@
               <td>${forma}</td>
               <td>${pecas || "-"}</td>
               <td>R$ ${valor.toFixed(2)}</td>
+              <td>
+                <button
+                  class="btn-outline"
+                  style="padding:4px 8px;font-size:10px"
+                  onclick="prepararEdicaoVenda(${v.id})"
+                >
+                  Editar
+                </button>
+                <button
+                  class="btn-danger"
+                  style="padding:4px 8px;font-size:10px;margin-left:4px"
+                  onclick="deletarVenda(${v.id})"
+                >
+                  Excluir
+                </button>
+              </td>
             `;
             tbody.appendChild(tr);
           });
@@ -1201,21 +1375,31 @@
           return;
         }
 
+        const body = {
+          valor,
+          formaPagamento,
+          clienteNome,
+          observacao,
+          quantidadePecas,
+        };
+
+        let url = API + "/vendas";
+        let method = "POST";
+
+        if (vendaEditandoId) {
+          url = API + "/vendas/" + vendaEditandoId;
+          method = "PUT";
+        }
+
         try {
-          const resp = await fetch(API + "/vendas", {
-            method: "POST",
+          const resp = await fetch(url, {
+            method,
             headers: authHeaders(),
-            body: JSON.stringify({
-              valor,
-              formaPagamento,
-              clienteNome,
-              observacao,
-              quantidadePecas,
-            }),
+            body: JSON.stringify(body),
           });
 
           if (!resp.ok) {
-            setStatus("Não foi possível lançar a venda.", "erro");
+            setStatus("Não foi possível salvar a venda.", "erro");
             return;
           }
 
@@ -1224,12 +1408,63 @@
           document.getElementById("formaPagamento").value = "";
           document.getElementById("clienteNome").value = "";
           document.getElementById("obsVenda").value = "";
+          vendaEditandoId = null;
 
-          setStatus("Venda lançada com sucesso.", "sucesso");
+          setStatus("Venda salva com sucesso.", "sucesso");
           await carregarVendasHoje();
+          calcularResumoMetaMensal().catch(() => {});
         } catch (e) {
           console.error(e);
-          setStatus("Erro ao lançar venda.", "erro");
+          setStatus("Erro ao salvar venda.", "erro");
+        }
+      }
+
+      function prepararEdicaoVenda(id) {
+        const v = vendasHojeDados.find((x) => x.id === id);
+        if (!v) return;
+
+        vendaEditandoId = id;
+
+        document.getElementById("valorVenda").value = Number(
+          v.valor || 0
+        ).toString();
+        document.getElementById("qtdPecasVenda").value = v.quantidade_pecas
+          ? Number(v.quantidade_pecas).toString()
+          : "";
+        document.getElementById("formaPagamento").value =
+          v.forma_pagamento || v.formaPagamento || "";
+        document.getElementById("clienteNome").value =
+          v.cliente_nome || v.clienteNome || "";
+        document.getElementById("obsVenda").value = v.observacao || "";
+
+        setStatus(
+          "Editando venda selecionada. Ajuste os dados e clique em 'Lançar venda' para salvar.",
+          "sucesso"
+        );
+      }
+
+      async function deletarVenda(id) {
+        if (!token) return;
+        if (!confirm("Deseja remover esta venda?")) return;
+
+        try {
+          const resp = await fetch(API + "/vendas/" + id, {
+            method: "DELETE",
+            headers: { Authorization: "Bearer " + token },
+          });
+
+          if (!resp.ok) {
+            setStatus("Não foi possível remover a venda.", "erro");
+            return;
+          }
+
+          setStatus("Venda removida.", "sucesso");
+          if (vendaEditandoId === id) vendaEditandoId = null;
+          await carregarVendasHoje();
+          calcularResumoMetaMensal().catch(() => {});
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao remover venda.", "erro");
         }
       }
 
@@ -1440,6 +1675,11 @@
           setStatus("Erro ao cadastrar vendedora.", "erro");
         }
       }
+
+      // Carrega meta mensal do localStorage ao abrir a página
+      document.addEventListener("DOMContentLoaded", () => {
+        carregarMetaMensalLocal();
+      });
     </script>
   </body>
 </html>
