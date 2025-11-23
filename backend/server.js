@@ -584,9 +584,47 @@ app.get("/api/metas/:data", autenticar, async (req, res) => {
 });
 
 // ===================================
+// CRIAR GERENTE PADRÃO (caso não exista)
+// ===================================
+async function criarGerenteDefault() {
+  try {
+    // verifica se já existe alguma gerente
+    const result = await pool.query(
+      "SELECT id FROM vendedoras WHERE is_gerente = true LIMIT 1"
+    );
+
+    if (result.rows.length > 0) {
+      console.log("Gerente já existe, não vou criar outra.");
+      return;
+    }
+
+    // cria gerente padrão
+    const hash = await bcrypt.hash("imagem2025", 10);
+
+    const r2 = await pool.query(
+      `
+      INSERT INTO vendedoras (nome, senha_hash, is_gerente)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (nome) DO NOTHING
+      RETURNING id;
+      `,
+      ["Gerente", hash, true]
+    );
+
+    console.log(
+      "Gerente padrão criada (ou já existia). ID:",
+      r2.rows[0]?.id || "(já existia)"
+    );
+  } catch (e) {
+    console.error("Erro ao criar gerente default:", e);
+  }
+}
+
+// ===================================
 // START
 // ===================================
 app.listen(PORT, async () => {
   await criarTabelas();
+  await criarGerenteDefault(); // garante que exista pelo menos uma gerente
   console.log(`🔥 API rodando na porta ${PORT}`);
 });
