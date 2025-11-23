@@ -89,284 +89,13 @@
         border-radius: 50%;
         background: var(--verde);
       }
-
-      .status-bar.erro {
-        color: var(--erro);
-        border-color: #f4c7c3;
-        background: #fff5f5;
-      }
-
-      .status-bar.erro .status-dot {
-        background: var(--erro);
-      }
-
-      .status-bar.sucesso {
-        color: var(--sucesso);
-      }
-
-      .status-bar.sucesso .status-dot {
-        background: var(--sucesso);
-      }
-
-      .grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
-        gap: 20px;
-      }
-
-      @media (max-width: 900px) {
-        .grid {
-          grid-template-columns: minmax(0, 1fr);
-        }
-      }
-
-      .card {
-        background: rgba(255, 255, 255, 0.92);
-        border-radius: 18px;
-        padding: 18px 18px 20px;
-        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(20px);
-      }
-
-      .card-title {
-        font-size: 15px;
-        font-weight: 600;
-        margin-bottom: 4px;
-        letter-spacing: 0.07em;
-        text-transform: uppercase;
-      }
-
-      .card-subtitle {
-        font-size: 12px;
-        color: #777;
-        margin-bottom: 14px;
-      }
-
-      label {
-        display: block;
-        font-size: 12px;
-        font-weight: 600;
-        margin-bottom: 4px;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: #555;
-      }
-
-      input,
-      select,
-      textarea {
-        width: 100%;
-        padding: 8px 10px;
-        border-radius: 10px;
-        border: 1px solid var(--bordas);
-        font-size: 14px;
-        outline: none;
-        background: rgba(255, 255, 255, 0.9);
-      }
-
-      input:focus,
-      select:focus,
-      textarea:focus {
-        border-color: var(--verde);
-        box-shadow: 0 0 0 1px rgba(91, 98, 64, 0.4);
-      }
-
-      textarea {
-        resize: vertical;
-        min-height: 60px;
-      }
-
-      .field {
-        margin-bottom: 10px;
-      }
-
-      .row {
-        display: flex;
-        gap: 10px;
-      }
-
-      .row > .field {
-        flex: 1;
-      }
-
-      button {
-        padding: 8px 14px;
-        border-radius: 999px;
-        border: none;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-      }
-
-      .btn-primary {
-        background: var(--verde);
-        color: #fff;
-      }
-
-      .btn-outline {
-        background: transparent;
-        border: 1px solid var(--verde);
-        color: var(--verde);
-      }
-
-      .btn-danger {
-        background: #faf0f0;
-        color: var(--erro);
-        border: 1px solid #f2c7c4;
-        padding: 5px 10px;
-        font-size: 11px;
-      }
-
-      .small {
-        font-size: 12px;
-        color: #777;
-      }
-
-      .tabs {
-        display: flex;
-        gap: 6px;
-        margin-bottom: 12px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-      }
-
-      .tab {
-        padding: 8px 12px;
-        border-radius: 999px 999px 0 0;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        color: #666;
-      }
-
-      .tab.active {
-        background: #ffffff;
-        color: #111;
-        border: 1px solid rgba(0, 0, 0, 0.06);
-        border-bottom-color: #ffffff;
-      }
-
-      .tab-content {
-        padding-top: 4px;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 12px;
-      }
-
-      th,
-      td {
-        padding: 6px 4px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-        text-align: left;
-      }
-
-      th {
-        font-weight: 600;
-        color: #666;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-      }
-
-      .pill {
-        display: inline-flex;
-        align-items: center;
-        padding: 3px 8px;
-        border-radius: 999px;
-        font-size: 11px;
-        background: #f6f3ea;
-        color: #5b4a2a;
-      }
-
-      .meta-chip {
-        font-size: 11px;
-        padding: 4px 9px;
-        border-radius: 999px;
-        background: #fff9e6;
-        border: 1px solid #f2e0a5;
-        color: #8a6b1f;
-      }
-
-      /* Login x painel */
-      #painel {
-        display: none;
-      }
-
-      #loginCard {
-        max-width: 420px;
-      }
-
-      /* Barra de progresso da meta */
-      .progress-container {
-        margin-top: 8px;
-      }
-
-      .progress-bar {
-        width: 100%;
-        height: 8px;
-        border-radius: 999px;
-        background: #f0ebe0;
-        overflow: hidden;
-        margin-bottom: 4px;
-      }
-
-      .progress-inner {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, #5b6240, #c7a15a);
-        transition: width 0.3s ease;
-      }
-
-      .meta-status {
-        font-size: 11px;
-        color: #666;
-      }
-
-      /* Card de gerência */
-      #cardGerencia {
-        margin-top: 20px;
-        display: none;
-      }
-
-      .tag-gerente {
-        font-size: 10px;
-        padding: 2px 6px;
-        border-radius: 999px;
-        background: #f3efe0;
-        border: 1px solid #e0d8b8;
-        margin-left: 6px;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-      }
-
-      @media (max-width: 600px) {
-        header {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
-        .status-bar {
-          width: 100%;
-        }
-      }
     </style>
   </head>
 
   <body>
     <div class="layout">
       <header>
-        <img
-          src="001 LOGO_Prancheta 1 cópia 27.png"
-          alt="Logo Imagem Modas"
-        />
+        <img src="001 LOGO_Prancheta 1 cópia 27.jpeg" alt="Logo Imagem Modas" />
         <div>
           <div class="marca">IMAGEM MODAS</div>
           <div class="sub">Dashboard de vendas</div>
@@ -377,17 +106,16 @@
         <span class="status-dot"></span>
         <span id="statusText">Faça login para começar o dia.</span>
       </div>
-
       <!-- LOGIN -->
       <div id="loginCard" class="card">
-        <div class="card-title">Login da vendedora</div>
+        <div class="card-title">Login</div>
         <div class="card-subtitle">
-          Acesso exclusivo para vendedoras Imagem Modas.
+          Acesso exclusivo — Imagem Modas
         </div>
 
         <div class="field">
-          <label for="nome">Nome</label>
-          <input id="nome" value="Allane" autocomplete="username" />
+          <label for="nome">Usuário</label>
+          <input id="nome" autocomplete="username" placeholder="Ex: Allane" />
         </div>
 
         <div class="field">
@@ -395,573 +123,41 @@
           <input
             id="senha"
             type="password"
-            value="allane2025"
             autocomplete="current-password"
+            placeholder="Digite sua senha"
           />
         </div>
 
         <button class="btn-primary" onclick="login()">Entrar</button>
       </div>
 
-      <!-- PAINEL APÓS LOGIN -->
-      <div id="painel" class="grid">
-        <!-- Coluna esquerda: resumo + meta + atendimentos -->
-        <div class="card">
-          <div class="card-title" id="bemVindaTitulo">Bom dia</div>
-          <div class="card-subtitle small" id="infoHoje"></div>
-
-          <!-- META DIÁRIA -->
-          <div class="field">
-            <label>Meta de hoje</label>
-            <div class="row">
-              <div class="field">
-                <input
-                  id="metaValor"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="R$ 0,00"
-                />
-              </div>
-              <button class="btn-outline" onclick="salvarMetaHoje()">
-                Salvar meta
-              </button>
-            </div>
-            <div class="small">
-              Meta atual: <span id="metaAtual" class="meta-chip">—</span>
-            </div>
-
-            <!-- Barra de progresso da meta -->
-            <div class="progress-container">
-              <div class="progress-bar">
-                <div id="metaProgressInner" class="progress-inner"></div>
-              </div>
-              <div id="metaStatusLinha" class="meta-status">
-                Aguardando vendas para calcular a meta.
-              </div>
-            </div>
-          </div>
-
-          <!-- META MENSAL -->
-          <div class="field" style="margin-top: 16px">
-            <label>Meta mensal</label>
-            <div class="row">
-              <div class="field">
-                <input
-                  id="metaMensalValor"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="R$ 0,00"
-                />
-              </div>
-              <button class="btn-outline" onclick="salvarMetaMensal()">
-                Salvar meta mensal
-              </button>
-            </div>
-            <div class="small" id="metaMensalResumo">
-              Nenhuma meta mensal definida.
-            </div>
-            <div class="small" id="metaMensalSugestao"></div>
-          </div>
-
-          <hr style="border: none; border-top: 1px solid #eee; margin: 16px 0" />
-
-          <div>
-            <div class="card-title" style="font-size: 13px">Atendimentos</div>
-            <div class="card-subtitle small">
-              Quantos clientes você atendeu hoje (presencial, WhatsApp,
-              Instagram, etc).
-            </div>
-
-            <div class="row">
-              <div class="field">
-                <label for="atendimentosQtd">Atendimentos de hoje</label>
-                <input
-                  id="atendimentosQtd"
-                  type="number"
-                  min="0"
-                  step="1"
-                  placeholder="0"
-                />
-              </div>
-              <button class="btn-outline" onclick="salvarAtendimentosHoje()">
-                Salvar
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Coluna direita: abas Vendas / Condicionais -->
-        <div class="card">
-          <div class="tabs">
-            <div
-              class="tab active"
-              id="tabVendas"
-              onclick="abrirAba('vendas')"
-            >
-              Vendas
-            </div>
-            <div
-              class="tab"
-              id="tabCondicionais"
-              onclick="abrirAba('condicionais')"
-            >
-              Condicionais
-            </div>
-          </div>
-
-          <div class="tab-content">
-            <!-- ABA VENDAS -->
-            <div id="abaVendas">
-              <div class="card-subtitle">
-                Lance as vendas de hoje e acompanhe ticket médio, peças e
-                conversão.
-              </div>
-
-              <div class="row">
-                <div class="field">
-                  <label for="valorVenda">Valor (R$)</label>
-                  <input
-                    id="valorVenda"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="0,00"
-                  />
-                </div>
-
-                <div class="field">
-                  <label for="qtdPecasVenda">Qtd. de peças</label>
-                  <input
-                    id="qtdPecasVenda"
-                    type="number"
-                    min="1"
-                    step="1"
-                    placeholder="1"
-                  />
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="field">
-                  <label for="formaPagamento">Forma de pagamento</label>
-                  <select id="formaPagamento">
-                    <option value="">Selecione</option>
-
-                    <optgroup label="À vista">
-                      <option value="dinheiro">Dinheiro</option>
-                      <option value="pix">PIX</option>
-                      <option value="debito">Débito</option>
-                    </optgroup>
-
-                    <optgroup label="Crédito">
-                      <option value="credito_1x">Crédito 1x</option>
-                      <option value="credito_2x">Crédito 2x</option>
-                      <option value="credito_3x">Crédito 3x</option>
-                      <option value="credito_4x">Crédito 4x</option>
-                      <option value="credito_5x">Crédito 5x</option>
-                      <option value="credito_6x">Crédito 6x</option>
-                      <option value="credito_7x">Crédito 7x</option>
-                      <option value="credito_8x">Crédito 8x</option>
-                      <option value="credito_9x">Crédito 9x</option>
-                      <option value="credito_10x">Crédito 10x</option>
-                    </optgroup>
-
-                    <optgroup label="Crediário">
-                      <option value="crediario_1x">Crediário 1x</option>
-                      <option value="crediario_2x">Crediário 2x</option>
-                      <option value="crediario_3x">Crediário 3x</option>
-                      <option value="crediario_4x">Crediário 4x</option>
-                      <option value="crediario_5x">Crediário 5x</option>
-                      <option value="crediario_6x">Crediário 6x</option>
-                    </optgroup>
-
-                    <optgroup label="Boleto">
-                      <option value="boleto_1x">Boleto 1x</option>
-                      <option value="boleto_2x">Boleto 2x</option>
-                      <option value="boleto_3x">Boleto 3x</option>
-                      <option value="boleto_4x">Boleto 4x</option>
-                      <option value="boleto_5x">Boleto 5x</option>
-                      <option value="boleto_6x">Boleto 6x</option>
-                      <option value="boleto_7x">Boleto 7x</option>
-                      <option value="boleto_8x">Boleto 8x</option>
-                    </optgroup>
-
-                    <optgroup label="Cheque pré">
-                      <option value="cheque_1x">Cheque pré 1x</option>
-                      <option value="cheque_2x">Cheque pré 2x</option>
-                      <option value="cheque_3x">Cheque pré 3x</option>
-                      <option value="cheque_4x">Cheque pré 4x</option>
-                      <option value="cheque_5x">Cheque pré 5x</option>
-                      <option value="cheque_6x">Cheque pré 6x</option>
-                    </optgroup>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="field">
-                  <label for="clienteNome">Nome da cliente</label>
-                  <input
-                    id="clienteNome"
-                    type="text"
-                    placeholder="Opcional"
-                  />
-                </div>
-              </div>
-
-              <div class="field">
-                <label for="obsVenda">Observação</label>
-                <textarea
-                  id="obsVenda"
-                  placeholder="Ex: look completo, quem indicou, peça-chave..."
-                ></textarea>
-              </div>
-
-              <button class="btn-primary" onclick="lancarVenda()">
-                Lançar venda
-              </button>
-
-              <div
-                class="card-subtitle"
-                style="margin-top: 14px; margin-bottom: 4px"
-              >
-                Indicadores de hoje
-              </div>
-              <div class="small" id="resumoVendasHoje">Nenhuma venda ainda.</div>
-              <div class="small" id="ticketMedioLinha">
-                Ticket médio: R$ 0,00
-              </div>
-              <div class="small" id="taxaConversaoLinha">
-                Taxa de conversão: 0%
-              </div>
-              <div class="small" id="pecasPorVendaLinha">
-                Peças por venda: 0,0
-              </div>
-              <div class="small" id="pecasPorAtendimentoLinha">
-                Peças por atendimento: 0,0
-              </div>
-              <div class="small" id="totaisFormaPagamento">
-                Totais por forma de pagamento: —
-              </div>
-
-              <div
-                class="card-subtitle"
-                style="margin-top: 12px; margin-bottom: 6px"
-              >
-                Vendas de hoje
-              </div>
-
-              <div style="max-height: 220px; overflow-y: auto; margin-top: 6px">
-                <table id="tabelaVendas">
-                  <thead>
-                    <tr>
-                      <th>Horário</th>
-                      <th>Cliente</th>
-                      <th>Forma</th>
-                      <th>Peças</th>
-                      <th>Valor</th>
-                      <th>Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- ABA CONDICIONAIS -->
-            <div id="abaCondicionais" style="display: none">
-              <div class="card-subtitle">
-                Controle das peças que saem em condicional.
-              </div>
-
-              <div class="row">
-                <div class="field">
-                  <label for="qtdPecas">Qtd. de peças</label>
-                  <input
-                    id="qtdPecas"
-                    type="number"
-                    min="1"
-                    step="1"
-                    placeholder="0"
-                  />
-                </div>
-
-                <div class="field">
-                  <label for="valorCondicional">Valor total (R$)</label>
-                  <input
-                    id="valorCondicional"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="0,00"
-                  />
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="field">
-                  <label for="clienteCondicional">Cliente</label>
-                  <input
-                    id="clienteCondicional"
-                    type="text"
-                    placeholder="Nome da cliente"
-                  />
-                </div>
-              </div>
-
-              <div class="field">
-                <label for="obsCondicional">Observação</label>
-                <textarea
-                  id="obsCondicional"
-                  placeholder="Prazo de retorno, peças principais, etc."
-                ></textarea>
-              </div>
-
-              <button class="btn-primary" onclick="lancarCondicional()">
-                Lançar condicional
-              </button>
-
-              <div
-                class="card-subtitle"
-                style="margin-top: 14px; margin-bottom: 6px"
-              >
-                Condicionais em aberto
-              </div>
-
-              <div style="max-height: 220px; overflow-y: auto; margin-top: 6px">
-                <table id="tabelaCondicionais">
-                  <thead>
-                    <tr>
-                      <th>Data</th>
-                      <th>Cliente</th>
-                      <th>Peças</th>
-                      <th>Valor</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CARD DE GERÊNCIA -->
-      <div id="cardGerencia" class="card">
-        <div class="card-title">
-          Área da gerência
-          <span class="tag-gerente">ACESSO GERENTE</span>
-        </div>
-        <div class="card-subtitle">
-          Aqui você cadastra novas vendedoras e vê a lista de acessos.
-        </div>
-
-        <div class="row">
-          <div class="field">
-            <label for="novaVendedoraNome">Nome da vendedora</label>
-            <input
-              id="novaVendedoraNome"
-              type="text"
-              placeholder="Ex: Carla"
-            />
-          </div>
-          <div class="field">
-            <label for="novaVendedoraSenha">Senha</label>
-            <input
-              id="novaVendedoraSenha"
-              type="password"
-              placeholder="Defina uma senha"
-            />
-          </div>
-        </div>
-
-        <div class="field" style="margin-bottom: 6px">
-          <label>
-            <input
-              id="novaVendedoraGerente"
-              type="checkbox"
-              style="width: auto; margin-right: 6px"
-            />
-            Também é gerente
-          </label>
-        </div>
-
-        <button class="btn-outline" onclick="cadastrarVendedora()">
-          Cadastrar vendedora
-        </button>
-
-        <div
-          class="card-subtitle"
-          style="margin-top: 16px; margin-bottom: 6px"
-        >
-          Vendedoras cadastradas
-        </div>
-        <div class="small" id="listaVendedoras">
-          Carregando lista...
-        </div>
+      <!-- PAINEL PADRÃO (VENDEDORA OU GERENTE) -->
+      <div id="painel" style="display:none;">
+        <div id="painelConteudo"></div>
       </div>
     </div>
 
     <script>
-      // URL do backend no Render
       const API = "https://dashboard-vendas1.onrender.com/api";
-
       let token = null;
-      let nomeVendedora = null;
-      let isGerente = false;
-
-      // variáveis para indicadores
-      let vendasHojeQtd = 0;
-      let vendasHojeTotal = 0;
-      let vendasHojePecasTotal = 0;
-      let atendimentosHojeQtd = 0;
-      let metaHojeValor = 0;
-      let metaMensalValor = 0;
-
-      let vendasHojeDados = [];
-      let vendaEditandoId = null;
-
-      function hojeISO() {
-        return new Date().toISOString().slice(0, 10);
-      }
+      let usuario = null;
 
       function setStatus(msg, tipo) {
         const bar = document.getElementById("statusContainer");
         const text = document.getElementById("statusText");
         text.textContent = msg;
+
         bar.classList.remove("erro", "sucesso");
         if (tipo === "erro") bar.classList.add("erro");
         if (tipo === "sucesso") bar.classList.add("sucesso");
       }
 
-      function abrirAba(qual) {
-        const abaVendas = document.getElementById("abaVendas");
-        const abaCond = document.getElementById("abaCondicionais");
-        const tabV = document.getElementById("tabVendas");
-        const tabC = document.getElementById("tabCondicionais");
-
-        if (qual === "vendas") {
-          abaVendas.style.display = "block";
-          abaCond.style.display = "none";
-          tabV.classList.add("active");
-          tabC.classList.remove("active");
-        } else {
-          abaVendas.style.display = "none";
-          abaCond.style.display = "block";
-          tabV.classList.remove("active");
-          tabC.classList.add("active");
-        }
-      }
-
-      function authHeaders() {
-        return {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        };
-      }
-
-      function atualizarMetaBarra() {
-        const inner = document.getElementById("metaProgressInner");
-        const linha = document.getElementById("metaStatusLinha");
-
-        if (!metaHojeValor || metaHojeValor <= 0) {
-          inner.style.width = "0%";
-          linha.textContent =
-            "Defina uma meta diária para acompanhar o progresso.";
-          return;
-        }
-
-        const perc = Math.min(
-          300,
-          (vendasHojeTotal / metaHojeValor) * 100
-        ); // limite 300%
-        inner.style.width = perc.toFixed(1) + "%";
-
-        const falta = metaHojeValor - vendasHojeTotal;
-
-        if (falta > 0) {
-          linha.textContent =
-            "Você já fez R$ " +
-            vendasHojeTotal.toFixed(2) +
-            " — faltam R$ " +
-            falta.toFixed(2) +
-            " para bater a meta de hoje.";
-        } else if (falta === 0) {
-          linha.textContent =
-            "Meta diária batida em cheio! R$ " +
-            vendasHojeTotal.toFixed(2) +
-            " no dia. 🎉";
-        } else {
-          linha.textContent =
-            "Você passou da meta diária em R$ " +
-            Math.abs(falta).toFixed(2) +
-            "! Total do dia: R$ " +
-            vendasHojeTotal.toFixed(2) +
-            ".";
-        }
-      }
-
-      function atualizarIndicadoresVenda() {
-        const ticketSpan = document.getElementById("ticketMedioLinha");
-        const taxaSpan = document.getElementById("taxaConversaoLinha");
-        const pecasVendaSpan = document.getElementById(
-          "pecasPorVendaLinha"
-        );
-        const pecasAtendSpan = document.getElementById(
-          "pecasPorAtendimentoLinha"
-        );
-
-        const ticket = vendasHojeQtd
-          ? vendasHojeTotal / vendasHojeQtd
-          : 0;
-        ticketSpan.textContent =
-          "Ticket médio: R$ " + ticket.toFixed(2);
-
-        let taxa = 0;
-        if (atendimentosHojeQtd && vendasHojeQtd) {
-          taxa = (vendasHojeQtd / atendimentosHojeQtd) * 100;
-        }
-        taxaSpan.textContent =
-          "Taxa de conversão: " +
-          taxa.toFixed(1).replace(".", ",") +
-          "%";
-
-        const pecasPorVenda = vendasHojeQtd
-          ? vendasHojePecasTotal / vendasHojeQtd
-          : 0;
-        pecasVendaSpan.textContent =
-          "Peças por venda: " + pecasPorVenda.toFixed(1);
-
-        const pecasPorAtend = atendimentosHojeQtd
-          ? vendasHojePecasTotal / atendimentosHojeQtd
-          : 0;
-        pecasAtendSpan.textContent =
-          "Peças por atendimento: " + pecasPorAtend.toFixed(1);
-
-        atualizarMetaBarra();
-      }
-
-      function agruparFormaPagamento(codigo) {
-        if (!codigo) return "Outros";
-        if (codigo === "dinheiro") return "Dinheiro";
-        if (codigo === "pix") return "PIX";
-        if (codigo === "debito") return "Débito";
-        if (codigo.startsWith("credito_")) return "Crédito";
-        if (codigo.startsWith("crediario_")) return "Crediário";
-        if (codigo.startsWith("boleto_")) return "Boleto";
-        if (codigo.startsWith("cheque_")) return "Cheque pré";
-        return codigo;
-      }
-
       async function login() {
         const nome = document.getElementById("nome").value.trim();
-        const senha = document.getElementById("senha").value;
+        const senha = document.getElementById("senha").value.trim();
 
         if (!nome || !senha) {
-          setStatus("Preencha nome e senha para entrar.", "erro");
+          setStatus("Preencha login e senha.", "erro");
           return;
         }
 
@@ -971,715 +167,614 @@
           const resp = await fetch(API + "/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nome, senha }),
+            body: JSON.stringify({ nome, senha })
           });
 
           if (!resp.ok) {
-            setStatus("Falha no login. Confira nome e senha.", "erro");
+            setStatus("Usuário ou senha incorretos.", "erro");
             return;
           }
 
           const data = await resp.json();
           token = data.token;
-          nomeVendedora = data.vendedora?.nome || nome;
-          isGerente = data.vendedora?.isGerente === true;
+          usuario = data.vendedora;
 
           document.getElementById("loginCard").style.display = "none";
-          document.getElementById("painel").style.display = "grid";
+          document.getElementById("painel").style.display = "block";
 
-          const hojeFormatado = new Date().toLocaleDateString("pt-BR", {
-            weekday: "long",
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-          });
-
-          document.getElementById("bemVindaTitulo").textContent =
-            "Bom dia, " + nomeVendedora;
-          document.getElementById("infoHoje").textContent =
-            hojeFormatado.charAt(0).toUpperCase() +
-            hojeFormatado.slice(1);
-
-          if (isGerente) {
-            document.getElementById("cardGerencia").style.display = "block";
-            carregarVendedoras();
-            setStatus(
-              `Logada como ${nomeVendedora} (GERENTE).`,
-              "sucesso"
-            );
+          if (usuario.is_gerente) {
+            setStatus("Logada como GERENTE.", "sucesso");
+            carregarPainelGerente();
           } else {
-            setStatus(`Logada como ${nomeVendedora}.`, "sucesso");
-          }
-
-          // carregar meta mensal salva no navegador
-          carregarMetaMensalLocal();
-
-          await Promise.all([
-            carregarMetaHoje(),
-            carregarAtendimentosHoje(),
-            carregarVendasHoje(),
-            carregarCondicionais(),
-          ]);
-
-          // calcular resumo mensal depois de carregar vendas
-          calcularResumoMetaMensal().catch(() => {});
-        } catch (e) {
-          console.error(e);
-          setStatus("Erro ao conectar com o servidor.", "erro");
-        }
-      }
-
-      // META DIÁRIA
-      async function carregarMetaHoje() {
-        if (!token) return;
-        const data = hojeISO();
-        const resp = await fetch(API + "/metas/" + data, {
-          headers: { Authorization: "Bearer " + token },
-        });
-        const meta = await resp.json();
-        const valor = Number(meta.valor_meta || meta.valorMeta || 0);
-        metaHojeValor = valor;
-        document.getElementById("metaAtual").textContent =
-          "R$ " + valor.toFixed(2);
-        document.getElementById("metaValor").value =
-          valor > 0 ? valor.toString() : "";
-        atualizarMetaBarra();
-      }
-
-      async function salvarMetaHoje() {
-        if (!token) return;
-        const valor = Number(
-          (document.getElementById("metaValor").value || "0").replace(
-            ",",
-            "."
-          )
-        );
-        const data = hojeISO();
-
-        try {
-          const resp = await fetch(API + "/metas", {
-            method: "POST",
-            headers: authHeaders(),
-            body: JSON.stringify({ valorMeta: valor, data }),
-          });
-
-          if (!resp.ok) {
-            setStatus("Não foi possível salvar a meta diária.", "erro");
-            return;
-          }
-
-          await carregarMetaHoje();
-          setStatus("Meta de hoje atualizada.", "sucesso");
-        } catch (e) {
-          console.error(e);
-          setStatus("Erro ao salvar meta diária.", "erro");
-        }
-      }
-
-      // META MENSAL (apenas no frontend, salva no localStorage)
-      function carregarMetaMensalLocal() {
-        const salvo = localStorage.getItem("metaMensalDashboardIMG");
-        if (salvo) {
-          const v = Number(salvo);
-          if (!isNaN(v) && v > 0) {
-            metaMensalValor = v;
-            const input = document.getElementById("metaMensalValor");
-            if (input) input.value = v.toString();
-          }
-        }
-      }
-
-      function salvarMetaMensal() {
-        const v = Number(
-          (document.getElementById("metaMensalValor").value || "0").replace(
-            ",",
-            "."
-          )
-        );
-        metaMensalValor = v > 0 ? v : 0;
-        localStorage.setItem("metaMensalDashboardIMG", metaMensalValor);
-        setStatus("Meta mensal atualizada no painel.", "sucesso");
-        calcularResumoMetaMensal().catch(() => {});
-      }
-
-      function contarDiasUteisRestantes(hoje) {
-        const ano = hoje.getFullYear();
-        const mes = hoje.getMonth();
-        // começa amanhã
-        let dt = new Date(ano, mes, hoje.getDate() + 1);
-        const last = new Date(ano, mes + 1, 0);
-        let count = 0;
-        while (dt <= last) {
-          const dow = dt.getDay(); // 0=domingo, 6=sábado
-          if (dow !== 0) {
-            // trabalhamos de segunda a sábado, então só exclui domingo
-            count++;
-          }
-          dt.setDate(dt.getDate() + 1);
-        }
-        return count;
-      }
-
-      async function calcularResumoMetaMensal() {
-        const resumoEl = document.getElementById("metaMensalResumo");
-        const sugestaoEl = document.getElementById("metaMensalSugestao");
-
-        if (!metaMensalValor || metaMensalValor <= 0) {
-          resumoEl.textContent = "Nenhuma meta mensal definida.";
-          sugestaoEl.textContent = "";
-          return;
-        }
-
-        if (!token) {
-          resumoEl.textContent = "Faça login para calcular a meta mensal.";
-          sugestaoEl.textContent = "";
-          return;
-        }
-
-        const hoje = new Date();
-        const ano = hoje.getFullYear();
-        const mes = hoje.getMonth();
-        const inicio = new Date(ano, mes, 1).toISOString().slice(0, 10);
-        const fim = new Date(ano, mes + 1, 0).toISOString().slice(0, 10);
-
-        try {
-          const url =
-            API +
-            `/vendas?dataInicio=${encodeURIComponent(
-              inicio
-            )}&dataFim=${encodeURIComponent(fim)}`;
-          const resp = await fetch(url, {
-            headers: { Authorization: "Bearer " + token },
-          });
-          const vendas = await resp.json();
-
-          let totalMes = 0;
-          vendas.forEach((v) => {
-            totalMes += Number(v.valor || 0);
-          });
-
-          const falta = metaMensalValor - totalMes;
-
-          resumoEl.textContent =
-            "Meta mensal: R$ " +
-            metaMensalValor.toFixed(2) +
-            " • Vendido no mês: R$ " +
-            totalMes.toFixed(2) +
-            " • Diferença: R$ " +
-            falta.toFixed(2);
-
-          const diasRest = contarDiasUteisRestantes(hoje);
-
-          if (falta <= 0) {
-            sugestaoEl.textContent =
-              "Meta mensal já batida! Sobra de R$ " +
-              Math.abs(falta).toFixed(2) +
-              " no mês.";
-          } else if (diasRest <= 0) {
-            sugestaoEl.textContent =
-              "Não há mais dias úteis no mês para dividir a diferença.";
-          } else {
-            const metaDia = falta / diasRest;
-            sugestaoEl.textContent =
-              "Para bater a meta mensal, precisa vender em média R$ " +
-              metaDia.toFixed(2) +
-              " por dia útil até o fim do mês (" +
-              diasRest +
-              " dia(s)).";
+            setStatus(`Logada como ${usuario.nome}.`, "sucesso");
+            carregarPainelVendedora();
           }
         } catch (e) {
           console.error(e);
-          resumoEl.textContent = "Erro ao calcular meta mensal.";
-          sugestaoEl.textContent = "";
+          setStatus("Erro ao conectar ao servidor.", "erro");
         }
       }
 
-      // ATENDIMENTOS
-      async function carregarAtendimentosHoje() {
-        if (!token) return;
-        const data = hojeISO();
-        const resp = await fetch(API + "/atendimentos/" + data, {
-          headers: { Authorization: "Bearer " + token },
-        });
-        const dados = await resp.json();
-        const qtd = Number(dados.quantidade || 0);
-        document.getElementById("atendimentosQtd").value = qtd;
-        atendimentosHojeQtd = qtd;
-        atualizarIndicadoresVenda();
-      }
-
-      async function salvarAtendimentosHoje() {
-        if (!token) return;
-        const quantidade = Number(
-          document.getElementById("atendimentosQtd").value || "0"
-        );
-        const data = hojeISO();
-
-        try {
-          const resp = await fetch(API + "/atendimentos", {
-            method: "POST",
-            headers: authHeaders(),
-            body: JSON.stringify({ quantidade, data }),
-          });
-
-          if (!resp.ok) {
-            setStatus("Não foi possível salvar atendimentos.", "erro");
-            return;
-          }
-
-          await carregarAtendimentosHoje();
-          setStatus("Atendimentos salvos para hoje.", "sucesso");
-        } catch (e) {
-          console.error(e);
-          setStatus("Erro ao salvar atendimentos.", "erro");
-        }
-      }
-
-      // VENDAS
-      async function carregarVendasHoje() {
-        if (!token) return;
-        const hoje = hojeISO();
-        const url =
-          API +
-          `/vendas?dataInicio=${encodeURIComponent(
-            hoje
-          )}&dataFim=${encodeURIComponent(hoje)}`;
-
-        try {
-          const resp = await fetch(url, {
-            headers: { Authorization: "Bearer " + token },
-          });
-          const vendas = await resp.json();
-          vendasHojeDados = vendas;
-
-          const tbody = document.querySelector("#tabelaVendas tbody");
-          tbody.innerHTML = "";
-
-          let total = 0;
-          let totalPecas = 0;
-          const totaisForma = {};
-
-          vendas.forEach((v) => {
-            const tr = document.createElement("tr");
-            const dataVenda = v.data_venda || v.datavenda || v.data;
-            const hora = dataVenda
-              ? new Date(dataVenda).toLocaleTimeString("pt-BR", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : "-";
-
-            const valor = Number(v.valor || 0);
-            const pecas = Number(v.quantidade_pecas || 0);
-            const forma =
-              v.forma_pagamento || v.formaPagamento || "-";
-            const formaGrupo = agruparFormaPagamento(forma);
-
-            total += valor;
-            totalPecas += pecas;
-
-            if (!totaisForma[formaGrupo]) totaisForma[formaGrupo] = 0;
-            totaisForma[formaGrupo] += valor;
-
-            tr.innerHTML = `
-              <td>${hora}</td>
-              <td>${v.cliente_nome || v.clienteNome || "-"}</td>
-              <td>${forma}</td>
-              <td>${pecas || "-"}</td>
-              <td>R$ ${valor.toFixed(2)}</td>
-              <td>
-                <button
-                  class="btn-outline"
-                  style="padding:4px 8px;font-size:10px"
-                  onclick="prepararEdicaoVenda(${v.id})"
-                >
-                  Editar
-                </button>
-                <button
-                  class="btn-danger"
-                  style="padding:4px 8px;font-size:10px;margin-left:4px"
-                  onclick="deletarVenda(${v.id})"
-                >
-                  Excluir
-                </button>
-              </td>
-            `;
-            tbody.appendChild(tr);
-          });
-
-          vendasHojeQtd = vendas.length;
-          vendasHojeTotal = total;
-          vendasHojePecasTotal = totalPecas;
-
-          if (vendas.length === 0) {
-            document.getElementById("resumoVendasHoje").textContent =
-              "Nenhuma venda lançada hoje.";
-          } else {
-            document.getElementById(
-              "resumoVendasHoje"
-            ).textContent = `${vendas.length} venda(s) • Total R$ ${total.toFixed(
-              2
-            )} • Peças: ${totalPecas}`;
-          }
-
-          // Totais por forma de pagamento
-          const totaisEl = document.getElementById(
-            "totaisFormaPagamento"
-          );
-          const chaves = Object.keys(totaisForma);
-          if (chaves.length === 0) {
-            totaisEl.textContent =
-              "Totais por forma de pagamento: —";
-          } else {
-            const partes = chaves.map(
-              (k) => `${k}: R$ ${totaisForma[k].toFixed(2)}`
-            );
-            totaisEl.textContent =
-              "Totais por forma de pagamento: " +
-              partes.join(" • ");
-          }
-
-          atualizarIndicadoresVenda();
-        } catch (e) {
-          console.error(e);
-          setStatus("Erro ao buscar vendas de hoje.", "erro");
-        }
-      }
-
-      async function lancarVenda() {
-        if (!token) return;
-
-        const valor = Number(
-          (document.getElementById("valorVenda").value || "0").replace(
-            ",",
-            "."
-          )
-        );
-        const quantidadePecas = Number(
-          document.getElementById("qtdPecasVenda").value || "0"
-        );
-        const formaPagamento =
-          document.getElementById("formaPagamento").value;
-        const clienteNome = document
-          .getElementById("clienteNome")
-          .value.trim();
-        const observacao = document
-          .getElementById("obsVenda")
-          .value.trim();
-
-        if (!valor || !formaPagamento) {
-          setStatus(
-            "Informe pelo menos o valor e a forma de pagamento.",
-            "erro"
-          );
-          return;
-        }
-
-        const body = {
-          valor,
-          formaPagamento,
-          clienteNome,
-          observacao,
-          quantidadePecas,
+      function authHeaders() {
+        return {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
         };
+      }
 
-        let url = API + "/vendas";
-        let method = "POST";
+      /* ================================
+            PAINEL DA GERENTE
+         ================================ */
+      function carregarPainelGerente() {
+        document.getElementById("painelConteudo").innerHTML = `
+          <div class="card">
+            <div class="card-title">Painel da Gerente</div>
+            <div class="card-subtitle">
+              Visão geral da equipe, metas, vendas e condicionais.
+            </div>
 
-        if (vendaEditandoId) {
-          url = API + "/vendas/" + vendaEditandoId;
-          method = "PUT";
-        }
+            <button class="btn-outline" onclick="carregarResumoEquipe()">
+              Carregar visão geral
+            </button>
 
+            <div id="painelGerenteResultado" style="margin-top:20px;"></div>
+          </div>
+        `;
+      }
+
+      async function carregarResumoEquipe() {
         try {
-          const resp = await fetch(url, {
-            method,
-            headers: authHeaders(),
-            body: JSON.stringify(body),
+          const resp = await fetch(API + "/gerente/resumo", {
+            headers: authHeaders()
           });
 
           if (!resp.ok) {
-            setStatus("Não foi possível salvar a venda.", "erro");
+            document.getElementById("painelGerenteResultado").innerHTML =
+              "<p>Erro ao carregar dados.</p>";
             return;
           }
 
-          document.getElementById("valorVenda").value = "";
-          document.getElementById("qtdPecasVenda").value = "";
-          document.getElementById("formaPagamento").value = "";
-          document.getElementById("clienteNome").value = "";
-          document.getElementById("obsVenda").value = "";
-          vendaEditandoId = null;
+          const dados = await resp.json();
 
-          setStatus("Venda salva com sucesso.", "sucesso");
-          await carregarVendasHoje();
-          calcularResumoMetaMensal().catch(() => {});
+          document.getElementById("painelGerenteResultado").innerHTML = `
+            <h3>Resumo geral do dia</h3>
+            <p><strong>Total em vendas:</strong> R$ ${dados.totalVendas.toFixed(2)}</p>
+            <p><strong>Total de atendimentos:</strong> ${dados.totalAtendimentos}</p>
+            <p><strong>Ticket médio geral:</strong> R$ ${dados.ticketMedio.toFixed(2)}</p>
+            <p><strong>Taxa de conversão geral:</strong> ${dados.taxaConversao.toFixed(1)}%</p>
+          `;
         } catch (e) {
           console.error(e);
-          setStatus("Erro ao salvar venda.", "erro");
         }
       }
 
-      function prepararEdicaoVenda(id) {
-        const v = vendasHojeDados.find((x) => x.id === id);
-        if (!v) return;
+      /* ================================
+            PAINEL DA VENDEDORA
+         ================================ */
+      function carregarPainelVendedora() {
+        document.getElementById("painelConteudo").innerHTML = `
+          <div class="card">
+            <div class="card-title">Bem-vinda, ${usuario.nome}</div>
+            <div class="card-subtitle">Aqui estão suas metas e vendas de hoje.</div>
 
-        vendaEditandoId = id;
+            <button class="btn-outline" onclick="carregarDashboardVendedora()">
+              Carregar painel
+            </button>
 
-        document.getElementById("valorVenda").value = Number(
-          v.valor || 0
-        ).toString();
-        document.getElementById("qtdPecasVenda").value = v.quantidade_pecas
-          ? Number(v.quantidade_pecas).toString()
-          : "";
-        document.getElementById("formaPagamento").value =
-          v.forma_pagamento || v.formaPagamento || "";
-        document.getElementById("clienteNome").value =
-          v.cliente_nome || v.clienteNome || "";
-        document.getElementById("obsVenda").value = v.observacao || "";
-
-        setStatus(
-          "Editando venda selecionada. Ajuste os dados e clique em 'Lançar venda' para salvar.",
-          "sucesso"
-        );
+            <div id="painelVendedoraResultado" style="margin-top:20px;"></div>
+          </div>
+        `;
       }
 
-      async function deletarVenda(id) {
-        if (!token) return;
-        if (!confirm("Deseja remover esta venda?")) return;
+      async function carregarDashboardVendedora() {
+        const hoje = new Date().toISOString().slice(0, 10);
 
         try {
-          const resp = await fetch(API + "/vendas/" + id, {
-            method: "DELETE",
-            headers: { Authorization: "Bearer " + token },
+          const resp = await fetch(API + "/vendas?dataInicio=" + hoje + "&dataFim=" + hoje, {
+            headers: authHeaders()
           });
 
-          if (!resp.ok) {
-            setStatus("Não foi possível remover a venda.", "erro");
-            return;
-          }
+          const vendas = await resp.json();
+          const total = vendas.reduce((s, v) => s + Number(v.valor), 0);
 
-          setStatus("Venda removida.", "sucesso");
-          if (vendaEditandoId === id) vendaEditandoId = null;
-          await carregarVendasHoje();
-          calcularResumoMetaMensal().catch(() => {});
+          document.getElementById("painelVendedoraResultado").innerHTML = `
+            <h3>Seu dia hoje</h3>
+            <p><strong>Total vendido:</strong> R$ ${total.toFixed(2)}</p>
+            <p><strong>Número de vendas:</strong> ${vendas.length}</p>
+          `;
         } catch (e) {
           console.error(e);
-          setStatus("Erro ao remover venda.", "erro");
         }
       }
-
-      // CONDICIONAIS
-      async function carregarCondicionais() {
-        if (!token) return;
-
-        try {
-          const resp = await fetch(API + "/condicionais", {
-            headers: { Authorization: "Bearer " + token },
-          });
-          const conds = await resp.json();
-
-          const tbody = document.querySelector(
-            "#tabelaCondicionais tbody"
-          );
-          tbody.innerHTML = "";
-
-          conds.forEach((c) => {
-            const tr = document.createElement("tr");
-            const dataReg = c.data_registro || c.dataRegistro;
-            const data = dataReg
-              ? new Date(dataReg).toLocaleDateString("pt-BR")
-              : "-";
-
-            tr.innerHTML = `
-              <td>${data}</td>
-              <td>${c.cliente_nome || c.clienteNome}</td>
-              <td>${c.quantidade_pecas || c.quantidadePecas}</td>
-              <td>R$ ${Number(
-                c.valor_total || c.valorTotal || 0
-              ).toFixed(2)}</td>
-              <td><button class="btn-danger" onclick="deletarCondicional(${
-                c.id
-              })">Remover</button></td>
-            `;
-            tbody.appendChild(tr);
-          });
-        } catch (e) {
-          console.error(e);
-          setStatus("Erro ao buscar condicionais.", "erro");
-        }
-      }
-
-      async function lancarCondicional() {
-        if (!token) return;
-
-        const quantidadePecas = Number(
-          document.getElementById("qtdPecas").value || "0"
-        );
-        const valorTotal = Number(
-          (document
-            .getElementById("valorCondicional")
-            .value.replace(",", ".") || "0")
-        );
-        const clienteNome = document
-          .getElementById("clienteCondicional")
-          .value.trim();
-        const observacao = document
-          .getElementById("obsCondicional")
-          .value.trim();
-
-        if (!quantidadePecas || !clienteNome) {
-          setStatus(
-            "Informe ao menos a quantidade de peças e o nome da cliente.",
-            "erro"
-          );
-          return;
-        }
-
-        try {
-          const resp = await fetch(API + "/condicionais", {
-            method: "POST",
-            headers: authHeaders(),
-            body: JSON.stringify({
-              quantidadePecas,
-              valorTotal,
-              clienteNome,
-              observacao,
-            }),
-          });
-
-          if (!resp.ok) {
-            setStatus("Não foi possível lançar o condicional.", "erro");
-            return;
-          }
-
-          document.getElementById("qtdPecas").value = "";
-          document.getElementById("valorCondicional").value = "";
-          document.getElementById("clienteCondicional").value = "";
-          document.getElementById("obsCondicional").value = "";
-
-          setStatus("Condicional lançado com sucesso.", "sucesso");
-          await carregarCondicionais();
-        } catch (e) {
-          console.error(e);
-          setStatus("Erro ao lançar condicional.", "erro");
-        }
-      }
-
-      async function deletarCondicional(id) {
-        if (!token) return;
-        if (!confirm("Remover este condicional?")) return;
-
-        try {
-          const resp = await fetch(API + "/condicionais/" + id, {
-            method: "DELETE",
-            headers: { Authorization: "Bearer " + token },
-          });
-
-          if (!resp.ok) {
-            setStatus("Não foi possível remover o condicional.", "erro");
-            return;
-          }
-
-          setStatus("Condicional removido.", "sucesso");
-          await carregarCondicionais();
-        } catch (e) {
-          console.error(e);
-          setStatus("Erro ao remover condicional.", "erro");
-        }
-      }
-
-      // GERÊNCIA
-      async function carregarVendedoras() {
-        if (!token || !isGerente) return;
-
-        try {
-          const resp = await fetch(API + "/vendedoras", {
-            headers: { Authorization: "Bearer " + token },
-          });
-          if (!resp.ok) {
-            document.getElementById("listaVendedoras").textContent =
-              "Não foi possível carregar as vendedoras.";
-            return;
-          }
-
-          const lista = await resp.json();
-          if (!Array.isArray(lista) || lista.length === 0) {
-            document.getElementById("listaVendedoras").textContent =
-              "Nenhuma vendedora cadastrada ainda.";
-            return;
-          }
-
-          const linhas = lista.map((v) => {
-            return (
-              v.nome +
-              (v.is_gerente || v.isGerente ? " (gerente)" : "")
-            );
-          });
-
-          document.getElementById("listaVendedoras").textContent =
-            linhas.join(" • ");
-        } catch (e) {
-          console.error(e);
-          document.getElementById("listaVendedoras").textContent =
-            "Erro ao carregar vendedoras.";
-        }
-      }
-
-      async function cadastrarVendedora() {
-        if (!token || !isGerente) return;
-
-        const nome = document
-          .getElementById("novaVendedoraNome")
-          .value.trim();
-        const senha = document.getElementById("novaVendedoraSenha").value;
-        const isGer = document.getElementById(
-          "novaVendedoraGerente"
-        ).checked;
-
-        if (!nome || !senha) {
-          setStatus(
-            "Para cadastrar, preencha nome e senha da vendedora.",
-            "erro"
-          );
-          return;
-        }
-
-        try {
-          const resp = await fetch(API + "/vendedoras", {
-            method: "POST",
-            headers: authHeaders(),
-            body: JSON.stringify({
-              nome,
-              senha,
-              isGerente: isGer,
-            }),
-          });
-
-          if (!resp.ok) {
-            const erro = await resp.json().catch(() => ({}));
-            setStatus(
-              erro.erro || "Não foi possível cadastrar a vendedora.",
-              "erro"
-            );
-            return;
-          }
-
-          document.getElementById("novaVendedoraNome").value = "";
-          document.getElementById("novaVendedoraSenha").value = "";
-          document.getElementById("novaVendedoraGerente").checked = false;
-
-          setStatus("Vendedora cadastrada com sucesso.", "sucesso");
-          await carregarVendedoras();
-        } catch (e) {
-          console.error(e);
-          setStatus("Erro ao cadastrar vendedora.", "erro");
-        }
-      }
-
-      // Carrega meta mensal do localStorage ao abrir a página
-      document.addEventListener("DOMContentLoaded", () => {
-        carregarMetaMensalLocal();
-      });
     </script>
   </body>
 </html>
+/* ==========================================================
+          PAINEL VENDEDORA – COMPLETO
+   ========================================================== */
+
+async function carregarPainelVendedora() {
+  document.getElementById("painelConteudo").innerHTML = `
+    <div class="card">
+      <div class="card-title">Bem-vinda, ${usuario.nome}</div>
+      <div class="card-subtitle">
+        Acompanhe suas metas, vendas, atendimentos e condicionais de hoje.
+      </div>
+
+      <div id="painelVendedoraContent"></div>
+    </div>
+  `;
+
+  await montarPainelVendedora();
+}
+
+async function montarPainelVendedora() {
+  const hoje = hojeISO();
+
+  // Buscar tudo simultaneamente
+  const [metaDinamicaR, atendR, vendasR, condR] = await Promise.all([
+    fetch(API + "/meta-hoje-dinamica", { headers: authHeaders() }).then(r => r.json()),
+    fetch(API + "/atendimentos/" + hoje, { headers: authHeaders() }).then(r => r.json()),
+    fetch(API + `/vendas?dataInicio=${hoje}&dataFim=${hoje}`, { headers: authHeaders() }).then(r => r.json()),
+    fetch(API + "/condicionais", { headers: authHeaders() }).then(r => r.json())
+  ]);
+
+  const metaHoje = Number(metaDinamicaR.metaDinamica || 0);
+  const atendimentos = Number(atendR.quantidade || 0);
+  const vendas = vendasR || [];
+  const condicionais = condR || [];
+
+  const totalVendas = vendas.reduce((s, v) => s + Number(v.valor), 0);
+  const ticketMedio = vendas.length ? totalVendas / vendas.length : 0;
+  const taxaConversao = atendimentos ? (vendas.length / atendimentos) * 100 : 0;
+
+  // Montar layout
+  const container = document.getElementById("painelVendedoraContent");
+
+  container.innerHTML = `
+    <!-- METAS -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">Meta de hoje</div>
+      <div class="card-subtitle small">Meta dinâmica baseada na meta mensal.</div>
+
+      <p><strong>Meta de hoje:</strong> R$ ${metaHoje.toFixed(2)}</p>
+      <p><strong>Total vendido:</strong> R$ ${totalVendas.toFixed(2)}</p>
+      <p><strong>Falta:</strong> R$ ${(metaHoje - totalVendas).toFixed(2)}</p>
+    </div>
+
+    <!-- ATENDIMENTOS -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">Atendimentos</div>
+      <div class="row">
+        <div class="field">
+          <label>Atendimentos do dia</label>
+          <input type="number" id="atendimentosInput" value="${atendimentos}" />
+        </div>
+        <button class="btn-primary" onclick="salvarAtendimentosVendedora()">Salvar</button>
+      </div>
+
+      <p class="small">
+        Conversão: ${taxaConversao.toFixed(1)}%<br>
+        Ticket médio: R$ ${ticketMedio.toFixed(2)}
+      </p>
+    </div>
+
+    <!-- LANÇAR VENDA -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">Lançar venda</div>
+      <div class="row">
+        <div class="field">
+          <label>Valor (R$)</label>
+          <input id="valorVenda" type="number" step="0.01" />
+        </div>
+        <div class="field">
+          <label>Forma</label>
+          <select id="formaPagamento">
+            <option value="">Selecione</option>
+
+            <optgroup label="À vista">
+              <option value="dinheiro">Dinheiro</option>
+              <option value="pix">PIX</option>
+              <option value="debito">Débito</option>
+            </optgroup>
+
+            <optgroup label="Crédito">
+              ${Array.from({length:10}, (_,i)=>`<option value="credito_${i+1}x">Crédito ${i+1}x</option>`).join("")}
+            </optgroup>
+
+            <optgroup label="Crediário">
+              ${Array.from({length:6}, (_,i)=>`<option value="crediario_${i+1}x">Crediário ${i+1}x</option>`).join("")}
+            </optgroup>
+
+            <optgroup label="Boleto">
+              ${Array.from({length:8}, (_,i)=>`<option value="boleto_${i+1}x">Boleto ${i+1}x</option>`).join("")}
+            </optgroup>
+
+            <optgroup label="Cheque pré">
+              ${Array.from({length:6}, (_,i)=>`<option value="cheque_${i+1}x">Cheque pré ${i+1}x</option>`).join("")}
+            </optgroup>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Cliente</label>
+        <input id="clienteVenda" placeholder="Nome da cliente (opcional)" />
+      </div>
+
+      <div class="field">
+        <label>Observação</label>
+        <textarea id="obsVenda"></textarea>
+      </div>
+
+      <button class="btn-primary" onclick="lançarVendaVendedora()">Lançar venda</button>
+    </div>
+
+    <!-- LISTA DE VENDAS -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">Vendas de hoje</div>
+
+      <table style="margin-top:10px;">
+        <thead>
+          <tr>
+            <th>Hora</th>
+            <th>Cliente</th>
+            <th>Forma</th>
+            <th>Valor</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="listaVendas">
+          ${vendas.map(v => `
+            <tr>
+              <td>${new Date(v.data_venda).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</td>
+              <td>${v.cliente_nome || "-"}</td>
+              <td>${v.forma_pagamento}</td>
+              <td>R$ ${Number(v.valor).toFixed(2)}</td>
+              <td><button class="btn-danger" onclick="apagarVenda(${v.id})">X</button></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- LANÇAR CONDICIONAL -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">Lançar condicional</div>
+
+      <div class="row">
+        <div class="field">
+          <label>Qtd Peças</label>
+          <input id="qtdPecas" type="number" />
+        </div>
+        <div class="field">
+          <label>Valor Total</label>
+          <input id="valorCond" type="number" step="0.01" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Cliente</label>
+        <input id="clienteCond" />
+      </div>
+
+      <div class="field">
+        <label>Observação</label>
+        <textarea id="obsCond"></textarea>
+      </div>
+
+      <button class="btn-primary" onclick="lançarCondicionalVendedora()">Lançar</button>
+    </div>
+
+    <!-- LISTA DE CONDICIONAIS -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">Condicionais em aberto</div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Cliente</th>
+            <th>Peças</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${condicionais.map(c => `
+            <tr>
+              <td>${new Date(c.data_registro).toLocaleDateString("pt-BR")}</td>
+              <td>${c.cliente_nome}</td>
+              <td>${c.quantidade_pecas}</td>
+              <td>R$ ${Number(c.valor_total).toFixed(2)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+/* ==========================================================
+          FUNÇÕES DA VENDEDORA
+   ========================================================== */
+
+async function salvarAtendimentosVendedora() {
+  const quantidade = Number(document.getElementById("atendimentosInput").value);
+  const data = hojeISO();
+
+  await fetch(API + "/atendimentos", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ quantidade, data })
+  });
+
+  carregarPainelVendedora();
+}
+
+async function lançarVendaVendedora() {
+  const valor = Number(document.getElementById("valorVenda").value);
+  const formaPagamento = document.getElementById("formaPagamento").value;
+  const clienteNome = document.getElementById("clienteVenda").value.trim();
+  const observacao = document.getElementById("obsVenda").value.trim();
+
+  if (!valor || !formaPagamento) return setStatus("Preencha os campos obrigatórios.", "erro");
+
+  await fetch(API + "/vendas", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ valor, formaPagamento, clienteNome, observacao })
+  });
+
+  carregarPainelVendedora();
+}
+
+async function apagarVenda(id) {
+  await fetch(API + "/vendas/" + id, {
+    method: "DELETE",
+    headers: authHeaders()
+  });
+
+  carregarPainelVendedora();
+}
+
+async function lançarCondicionalVendedora() {
+  const quantidadePecas = Number(document.getElementById("qtdPecas").value);
+  const valorTotal = Number(document.getElementById("valorCond").value);
+  const clienteNome = document.getElementById("clienteCond").value.trim();
+  const observacao = document.getElementById("obsCond").value.trim();
+
+  if (!quantidadePecas || !clienteNome) return setStatus("Campos obrigatórios faltando.", "erro");
+
+  await fetch(API + "/condicionais", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ quantidadePecas, valorTotal, clienteNome, observacao })
+  });
+
+  carregarPainelVendedora();
+}
+/* ==========================================================
+      PAINEL DA GERENTE – COMPLETO
+   ========================================================== */
+
+async function carregarPainelGerente() {
+  document.getElementById("painelConteudo").innerHTML = `
+    <div class="card">
+      <div class="card-title">Painel da Gerente</div>
+      <div class="card-subtitle">
+        Visão geral de todas as vendedoras • Indicadores completos
+      </div>
+
+      <div id="painelGerenteContent"></div>
+    </div>
+  `;
+
+  await montarPainelGerente();
+}
+
+async function montarPainelGerente() {
+  const hoje = hojeISO();
+
+  // Carregar tudo ao mesmo tempo
+  const [
+    metasR,
+    atendR,
+    vendasR,
+    condR,
+    vendedorasR
+  ] = await Promise.all([
+    fetch(API + "/meta-hoje-dinamica", { headers: authHeaders() }).then(r => r.json()),
+    fetch(API + "/atendimentos-geral/" + hoje, { headers: authHeaders() }).then(r => r.json()),
+    fetch(API + `/vendas-geral?dataInicio=${hoje}&dataFim=${hoje}`, { headers: authHeaders() }).then(r => r.json()),
+    fetch(API + "/condicionais", { headers: authHeaders() }).then(r => r.json()),
+    fetch(API + "/vendedoras", { headers: authHeaders() }).then(r => r.json())
+  ]);
+
+  const metaHoje = Number(metasR.metaDinamica || 0);
+  const atendimentos = Number(atendR.total || 0);
+  const vendas = vendasR || [];
+  const condicionais = condR || [];
+  const vendedoras = vendedorasR || [];
+
+  const totalVendas = vendas.reduce((s, v) => s + Number(v.valor), 0);
+
+  const ticketMedioGlobal = vendas.length ? totalVendas / vendas.length : 0;
+  const taxaConversaoGlobal = atendimentos ? (vendas.length / atendimentos) * 100 : 0;
+
+  document.getElementById("painelGerenteContent").innerHTML = `
+    <!-- META MENSAL -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">Meta mensal</div>
+      <div class="card-subtitle small">
+        A gerente define a meta mensal. O sistema divide entre dias úteis automaticamente.
+      </div>
+
+      <p><strong>Meta dinâmica de hoje:</strong> R$ ${metaHoje.toFixed(2)}</p>
+
+      <div class="row">
+        <div class="field">
+          <label>Nova meta mensal (R$)</label>
+          <input id="metaMensalInput" type="number" />
+        </div>
+        <button class="btn-primary" onclick="salvarMetaMensal()">Salvar</button>
+      </div>
+    </div>
+
+    <!-- CADASTRO DE VENDEDORA -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">Cadastrar nova vendedora</div>
+
+      <div class="row">
+        <div class="field">
+          <label>Nome</label>
+          <input id="novaVendNome" />
+        </div>
+
+        <div class="field">
+          <label>Senha inicial</label>
+          <input id="novaVendSenha" type="password" />
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="cadastrarVendedora()">Cadastrar</button>
+    </div>
+
+    <!-- INDICADORES GERAIS -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">Indicadores gerais do dia</div>
+
+      <p><strong>Total vendido:</strong> R$ ${totalVendas.toFixed(2)}</p>
+      <p><strong>Atendimentos:</strong> ${atendimentos}</p>
+      <p><strong>Ticket médio geral:</strong> R$ ${ticketMedioGlobal.toFixed(2)}</p>
+      <p><strong>Taxa de conversão:</strong> ${taxaConversaoGlobal.toFixed(1)}%</p>
+    </div>
+
+    <!-- RANKING -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">Ranking do dia</div>
+      ${montarRankingHTML(vendas, vendedoras)}
+    </div>
+
+    <!-- VENDAS GERAIS -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">Vendas de hoje (todas)</div>
+
+      <table style="margin-top:10px;">
+        <thead>
+          <tr>
+            <th>Vendedora</th>
+            <th>Hora</th>
+            <th>Cliente</th>
+            <th>Forma</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${vendas.map(v => `
+            <tr>
+              <td>${v.vendedora_nome}</td>
+              <td>${new Date(v.data_venda).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</td>
+              <td>${v.cliente_nome || "-"}</td>
+              <td>${v.forma_pagamento}</td>
+              <td>R$ ${Number(v.valor).toFixed(2)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CONDICIONAIS -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">Condicionais em aberto</div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Cliente</th>
+            <th>Peças</th>
+            <th>Valor</th>
+            <th>Vendedora</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${condicionais.map(c => `
+            <tr>
+              <td>${new Date(c.data_registro).toLocaleDateString("pt-BR")}</td>
+              <td>${c.cliente_nome}</td>
+              <td>${c.quantidade_pecas}</td>
+              <td>R$ ${Number(c.valor_total).toFixed(2)}</td>
+              <td>${c.vendedora_nome}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+/* ==========================================================
+      FUNÇÕES EXTRAS DA GERENTE
+   ========================================================== */
+
+function montarRankingHTML(vendas, vendedoras) {
+  const somaPorVend = {};
+
+  vendas.forEach(v => {
+    if (!somaPorVend[v.vendedora_nome]) somaPorVend[v.vendedora_nome] = 0;
+    somaPorVend[v.vendedora_nome] += Number(v.valor);
+  });
+
+  const ranking = Object.entries(somaPorVend).sort((a, b) => b[1] - a[1]);
+
+  if (!ranking.length) return "<p class='small'>Nenhuma venda hoje.</p>";
+
+  return `
+    <ol>
+      ${ranking.map(r => `
+        <li><strong>${r[0]}</strong> — R$ ${r[1].toFixed(2)}</li>
+      `).join("")}
+    </ol>
+  `;
+}
+
+async function salvarMetaMensal() {
+  const valor = Number(document.getElementById("metaMensalInput").value);
+  if (!valor) return alert("Informe a meta mensal!");
+
+  await fetch(API + "/meta-mensal", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ metaMensal: valor })
+  });
+
+  alert("Meta mensal atualizada!");
+  carregarPainelGerente();
+}
+
+async function cadastrarVendedora() {
+  const nome = document.getElementById("novaVendNome").value.trim();
+  const senha = document.getElementById("novaVendSenha").value.trim();
+
+  if (!nome || !senha) {
+    alert("Preencha nome e senha.");
+    return;
+  }
+
+  const resp = await fetch(API + "/vendedoras", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ nome, senha })
+  });
+
+  if (!resp.ok) {
+    alert("Erro ao cadastrar. Talvez nome já exista.");
+    return;
+  }
+
+  alert("Vendedora cadastrada!");
+  document.getElementById("novaVendNome").value = "";
+  document.getElementById("novaVendSenha").value = "";
+
+  carregarPainelGerente();
+}
