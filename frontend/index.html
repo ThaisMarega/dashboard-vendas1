@@ -251,6 +251,10 @@
         border-bottom-color: #ffffff;
       }
 
+      .tab-content {
+        padding-top: 4px;
+      }
+
       table {
         width: 100%;
         border-collapse: collapse;
@@ -291,6 +295,7 @@
         color: #8a6b1f;
       }
 
+      /* Login x painel */
       #painel {
         display: none;
       }
@@ -298,13 +303,70 @@
       #loginCard {
         max-width: 420px;
       }
+
+      /* Barra de progresso da meta */
+      .progress-container {
+        margin-top: 8px;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        background: #f0ebe0;
+        overflow: hidden;
+        margin-bottom: 4px;
+      }
+
+      .progress-inner {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #5b6240, #c7a15a);
+        transition: width 0.3s ease;
+      }
+
+      .meta-status {
+        font-size: 11px;
+        color: #666;
+      }
+
+      /* Card de gerência */
+      #cardGerencia {
+        margin-top: 20px;
+        display: none;
+      }
+
+      .tag-gerente {
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 999px;
+        background: #f3efe0;
+        border: 1px solid #e0d8b8;
+        margin-left: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+
+      @media (max-width: 600px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .status-bar {
+          width: 100%;
+        }
+      }
     </style>
   </head>
 
   <body>
     <div class="layout">
       <header>
-        <img src="001 LOGO_Prancheta 1 cópia 27.png" />
+        <img
+          src="001 LOGO_Prancheta 1 cópia 27.png"
+          alt="Logo Imagem Modas"
+        />
         <div>
           <div class="marca">IMAGEM MODAS</div>
           <div class="sub">Dashboard de vendas</div>
@@ -319,215 +381,419 @@
       <!-- LOGIN -->
       <div id="loginCard" class="card">
         <div class="card-title">Login da vendedora</div>
-        <div class="field">
-          <label>Nome</label>
-          <input id="nome" value="Allane" />
+        <div class="card-subtitle">
+          Acesso exclusivo para vendedoras Imagem Modas.
         </div>
+
         <div class="field">
-          <label>Senha</label>
-          <input id="senha" type="password" value="allane2025" />
+          <label for="nome">Nome</label>
+          <input id="nome" value="Allane" autocomplete="username" />
         </div>
+
+        <div class="field">
+          <label for="senha">Senha</label>
+          <input
+            id="senha"
+            type="password"
+            value="allane2025"
+            autocomplete="current-password"
+          />
+        </div>
+
         <button class="btn-primary" onclick="login()">Entrar</button>
       </div>
 
-      <!-- PAINEL -->
+      <!-- PAINEL APÓS LOGIN -->
       <div id="painel" class="grid">
-        <!-- ESQUERDA -->
+        <!-- Coluna esquerda: resumo + meta + atendimentos -->
         <div class="card">
           <div class="card-title" id="bemVindaTitulo">Bom dia</div>
-          <div class="small" id="infoHoje"></div>
+          <div class="card-subtitle small" id="infoHoje"></div>
 
-          <label>Meta de hoje</label>
-          <div class="row">
-            <div class="field">
-              <input id="metaValor" type="number" min="0" step="0.01" />
+          <div class="field">
+            <label>Meta de hoje</label>
+            <div class="row">
+              <div class="field">
+                <input
+                  id="metaValor"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="R$ 0,00"
+                />
+              </div>
+              <button class="btn-outline" onclick="salvarMetaHoje()">
+                Salvar meta
+              </button>
             </div>
-            <button class="btn-outline" onclick="salvarMetaHoje()">Salvar</button>
+            <div class="small">
+              Meta atual: <span id="metaAtual" class="meta-chip">—</span>
+            </div>
+
+            <!-- Barra de progresso da meta -->
+            <div class="progress-container">
+              <div class="progress-bar">
+                <div id="metaProgressInner" class="progress-inner"></div>
+              </div>
+              <div id="metaStatusLinha" class="meta-status">
+                Aguardando vendas para calcular a meta.
+              </div>
+            </div>
           </div>
-          <div class="small">Meta atual: <span id="metaAtual">—</span></div>
 
-          <hr />
+          <hr style="border: none; border-top: 1px solid #eee; margin: 16px 0" />
 
-          <label>Atendimentos</label>
-          <div class="row">
-            <div class="field">
-              <input id="atendimentosQtd" type="number" min="0" />
+          <div>
+            <div class="card-title" style="font-size: 13px">Atendimentos</div>
+            <div class="card-subtitle small">
+              Quantos clientes você atendeu hoje (presencial, WhatsApp,
+              Instagram, etc).
             </div>
-            <button class="btn-outline" onclick="salvarAtendimentosHoje()">
-              Salvar
-            </button>
+
+            <div class="row">
+              <div class="field">
+                <label for="atendimentosQtd">Atendimentos de hoje</label>
+                <input
+                  id="atendimentosQtd"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                />
+              </div>
+              <button class="btn-outline" onclick="salvarAtendimentosHoje()">
+                Salvar
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- DIREITA -->
+        <!-- Coluna direita: abas Vendas / Condicionais -->
         <div class="card">
-
           <div class="tabs">
-            <div class="tab active" id="tabVendas" onclick="abrirAba('vendas')">
+            <div
+              class="tab active"
+              id="tabVendas"
+              onclick="abrirAba('vendas')"
+            >
               Vendas
             </div>
-            <div class="tab" id="tabCondicionais" onclick="abrirAba('cond')">
+            <div
+              class="tab"
+              id="tabCondicionais"
+              onclick="abrirAba('condicionais')"
+            >
               Condicionais
             </div>
           </div>
 
-          <div id="abaVendas">
-            <div class="card-subtitle">Lance suas vendas de hoje:</div>
+          <div class="tab-content">
+            <!-- ABA VENDAS -->
+            <div id="abaVendas">
+              <div class="card-subtitle">
+                Lance as vendas de hoje e acompanhe ticket médio, peças e
+                conversão.
+              </div>
 
-            <div class="row">
-              <div class="field">
-                <label>Valor</label>
-                <input id="valorVenda" type="number" step="0.01" />
+              <div class="row">
+                <div class="field">
+                  <label for="valorVenda">Valor (R$)</label>
+                  <input
+                    id="valorVenda"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0,00"
+                  />
+                </div>
+
+                <div class="field">
+                  <label for="qtdPecasVenda">Qtd. de peças</label>
+                  <input
+                    id="qtdPecasVenda"
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="1"
+                  />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="field">
+                  <label for="formaPagamento">Forma de pagamento</label>
+                  <select id="formaPagamento">
+                    <option value="">Selecione</option>
+
+                    <optgroup label="À vista">
+                      <option value="dinheiro">Dinheiro</option>
+                      <option value="pix">PIX</option>
+                      <option value="debito">Débito</option>
+                    </optgroup>
+
+                    <optgroup label="Crédito">
+                      <option value="credito_1x">Crédito 1x</option>
+                      <option value="credito_2x">Crédito 2x</option>
+                      <option value="credito_3x">Crédito 3x</option>
+                      <option value="credito_4x">Crédito 4x</option>
+                      <option value="credito_5x">Crédito 5x</option>
+                      <option value="credito_6x">Crédito 6x</option>
+                      <option value="credito_7x">Crédito 7x</option>
+                      <option value="credito_8x">Crédito 8x</option>
+                      <option value="credito_9x">Crédito 9x</option>
+                      <option value="credito_10x">Crédito 10x</option>
+                    </optgroup>
+
+                    <optgroup label="Crediário">
+                      <option value="crediario_1x">Crediário 1x</option>
+                      <option value="crediario_2x">Crediário 2x</option>
+                      <option value="crediario_3x">Crediário 3x</option>
+                      <option value="crediario_4x">Crediário 4x</option>
+                      <option value="crediario_5x">Crediário 5x</option>
+                      <option value="crediario_6x">Crediário 6x</option>
+                    </optgroup>
+
+                    <optgroup label="Boleto">
+                      <option value="boleto_1x">Boleto 1x</option>
+                      <option value="boleto_2x">Boleto 2x</option>
+                      <option value="boleto_3x">Boleto 3x</option>
+                      <option value="boleto_4x">Boleto 4x</option>
+                      <option value="boleto_5x">Boleto 5x</option>
+                      <option value="boleto_6x">Boleto 6x</option>
+                      <option value="boleto_7x">Boleto 7x</option>
+                      <option value="boleto_8x">Boleto 8x</option>
+                    </optgroup>
+
+                    <optgroup label="Cheque pré">
+                      <option value="cheque_1x">Cheque pré 1x</option>
+                      <option value="cheque_2x">Cheque pré 2x</option>
+                      <option value="cheque_3x">Cheque pré 3x</option>
+                      <option value="cheque_4x">Cheque pré 4x</option>
+                      <option value="cheque_5x">Cheque pré 5x</option>
+                      <option value="cheque_6x">Cheque pré 6x</option>
+                    </optgroup>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="field">
+                  <label for="clienteNome">Nome da cliente</label>
+                  <input
+                    id="clienteNome"
+                    type="text"
+                    placeholder="Opcional"
+                  />
+                </div>
               </div>
 
               <div class="field">
-                <label>Pagamento</label>
-                <select id="formaPagamento">
-                  <option value="">Selecione</option>
+                <label for="obsVenda">Observação</label>
+                <textarea
+                  id="obsVenda"
+                  placeholder="Ex: look completo, quem indicou, peça-chave..."
+                ></textarea>
+              </div>
 
-                  <optgroup label="À vista">
-                    <option value="dinheiro">Dinheiro</option>
-                    <option value="pix">PIX</option>
-                    <option value="debito">Débito</option>
-                  </optgroup>
+              <button class="btn-primary" onclick="lancarVenda()">
+                Lançar venda
+              </button>
 
-                  <optgroup label="Crédito">
-                    <option value="credito_1x">Crédito 1x</option>
-                    <option value="credito_2x">Crédito 2x</option>
-                    <option value="credito_3x">Crédito 3x</option>
-                    <option value="credito_4x">Crédito 4x</option>
-                    <option value="credito_5x">Crédito 5x</option>
-                    <option value="credito_6x">Crédito 6x</option>
-                    <option value="credito_7x">Crédito 7x</option>
-                    <option value="credito_8x">Crédito 8x</option>
-                    <option value="credito_9x">Crédito 9x</option>
-                    <option value="credito_10x">Crédito 10x</option>
-                  </optgroup>
+              <div
+                class="card-subtitle"
+                style="margin-top: 14px; margin-bottom: 4px"
+              >
+                Indicadores de hoje
+              </div>
+              <div class="small" id="resumoVendasHoje">Nenhuma venda ainda.</div>
+              <div class="small" id="ticketMedioLinha">
+                Ticket médio: R$ 0,00
+              </div>
+              <div class="small" id="taxaConversaoLinha">
+                Taxa de conversão: 0%
+              </div>
+              <div class="small" id="pecasPorVendaLinha">
+                Peças por venda: 0,0
+              </div>
+              <div class="small" id="pecasPorAtendimentoLinha">
+                Peças por atendimento: 0,0
+              </div>
+              <div class="small" id="totaisFormaPagamento">
+                Totais por forma de pagamento: —
+              </div>
 
-                  <optgroup label="Crediário">
-                    <option value="crediario_1x">Crediário 1x</option>
-                    <option value="crediario_2x">Crediário 2x</option>
-                    <option value="crediario_3x">Crediário 3x</option>
-                    <option value="crediario_4x">Crediário 4x</option>
-                    <option value="crediario_5x">Crediário 5x</option>
-                    <option value="crediario_6x">Crediário 6x</option>
-                  </optgroup>
+              <div
+                class="card-subtitle"
+                style="margin-top: 12px; margin-bottom: 6px"
+              >
+                Vendas de hoje
+              </div>
 
-                  <optgroup label="Boleto">
-                    <option value="boleto_1x">Boleto 1x</option>
-                    <option value="boleto_2x">Boleto 2x</option>
-                    <option value="boleto_3x">Boleto 3x</option>
-                    <option value="boleto_4x">Boleto 4x</option>
-                    <option value="boleto_5x">Boleto 5x</option>
-                    <option value="boleto_6x">Boleto 6x</option>
-                    <option value="boleto_7x">Boleto 7x</option>
-                    <option value="boleto_8x">Boleto 8x</option>
-                  </optgroup>
-
-                  <optgroup label="Cheque pré">
-                    <option value="cheque_1x">Cheque pré 1x</option>
-                    <option value="cheque_2x">Cheque pré 2x</option>
-                    <option value="cheque_3x">Cheque pré 3x</option>
-                    <option value="cheque_4x">Cheque pré 4x</option>
-                    <option value="cheque_5x">Cheque pré 5x</option>
-                    <option value="cheque_6x">Cheque pré 6x</option>
-                  </optgroup>
-                </select>
+              <div style="max-height: 220px; overflow-y: auto; margin-top: 6px">
+                <table id="tabelaVendas">
+                  <thead>
+                    <tr>
+                      <th>Horário</th>
+                      <th>Cliente</th>
+                      <th>Forma</th>
+                      <th>Peças</th>
+                      <th>Valor</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
               </div>
             </div>
 
-            <div class="field">
-              <label>Cliente</label>
-              <input id="clienteNome" placeholder="Opcional" />
+            <!-- ABA CONDICIONAIS -->
+            <div id="abaCondicionais" style="display: none">
+              <div class="card-subtitle">
+                Controle das peças que saem em condicional.
+              </div>
+
+              <div class="row">
+                <div class="field">
+                  <label for="qtdPecas">Qtd. de peças</label>
+                  <input
+                    id="qtdPecas"
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="0"
+                  />
+                </div>
+
+                <div class="field">
+                  <label for="valorCondicional">Valor total (R$)</label>
+                  <input
+                    id="valorCondicional"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0,00"
+                  />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="field">
+                  <label for="clienteCondicional">Cliente</label>
+                  <input
+                    id="clienteCondicional"
+                    type="text"
+                    placeholder="Nome da cliente"
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="obsCondicional">Observação</label>
+                <textarea
+                  id="obsCondicional"
+                  placeholder="Prazo de retorno, peças principais, etc."
+                ></textarea>
+              </div>
+
+              <button class="btn-primary" onclick="lancarCondicional()">
+                Lançar condicional
+              </button>
+
+              <div
+                class="card-subtitle"
+                style="margin-top: 14px; margin-bottom: 6px"
+              >
+                Condicionais em aberto
+              </div>
+
+              <div style="max-height: 220px; overflow-y: auto; margin-top: 6px">
+                <table id="tabelaCondicionais">
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Cliente</th>
+                      <th>Peças</th>
+                      <th>Valor</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
             </div>
-
-            <div class="field">
-              <label>Observação</label>
-              <textarea id="obsVenda"></textarea>
-            </div>
-
-            <button class="btn-primary" onclick="lançarVenda()">
-              Lançar venda
-            </button>
-
-            <br /><br />
-            <div class="small" id="resumoVendasHoje">Nenhuma venda.</div>
-            <div class="small" id="ticketMedioLinha">Ticket médio: R$ 0,00</div>
-            <div class="small" id="taxaConversaoLinha">
-              Taxa de conversão: 0%
-            </div>
-
-            <table>
-              <thead>
-                <tr>
-                  <th>Hora</th>
-                  <th>Cliente</th>
-                  <th>Forma</th>
-                  <th>Valor</th>
-                </tr>
-              </thead>
-              <tbody id="tabelaVendas"></tbody>
-            </table>
           </div>
+        </div>
+      </div>
 
-          <!-- COND -->
-          <div id="abaCond" style="display:none;">
-            <div class="card-subtitle">
-              Controle de condicionais em aberto.
-            </div>
+      <!-- CARD DE GERÊNCIA -->
+      <div id="cardGerencia" class="card">
+        <div class="card-title">
+          Área da gerência
+          <span class="tag-gerente">ACESSO GERENTE</span>
+        </div>
+        <div class="card-subtitle">
+          Aqui você cadastra novas vendedoras e vê a lista de acessos.
+        </div>
 
-            <div class="row">
-              <div class="field">
-                <label>Peças</label>
-                <input id="qtdPecas" type="number"/>
-              </div>
-              <div class="field">
-                <label>Valor</label>
-                <input id="valorCondicional" type="number" step="0.01"/>
-              </div>
-            </div>
-
-            <div class="field">
-              <label>Cliente</label>
-              <input id="clienteCondicional"/>
-            </div>
-
-            <div class="field">
-              <label>Observação</label>
-              <textarea id="obsCondicional"></textarea>
-            </div>
-
-            <button class="btn-primary" onclick="lançarCondicional()">
-              Lançar condicional
-            </button>
-
-            <br /><br />
-
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Cliente</th>
-                  <th>Peças</th>
-                  <th>Valor</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="tabelaCondicionais"></tbody>
-            </table>
+        <div class="row">
+          <div class="field">
+            <label for="novaVendedoraNome">Nome da vendedora</label>
+            <input
+              id="novaVendedoraNome"
+              type="text"
+              placeholder="Ex: Carla"
+            />
           </div>
+          <div class="field">
+            <label for="novaVendedoraSenha">Senha</label>
+            <input
+              id="novaVendedoraSenha"
+              type="password"
+              placeholder="Defina uma senha"
+            />
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom: 6px">
+          <label>
+            <input
+              id="novaVendedoraGerente"
+              type="checkbox"
+              style="width: auto; margin-right: 6px"
+            />
+            Também é gerente
+          </label>
+        </div>
+
+        <button class="btn-outline" onclick="cadastrarVendedora()">
+          Cadastrar vendedora
+        </button>
+
+        <div
+          class="card-subtitle"
+          style="margin-top: 16px; margin-bottom: 6px"
+        >
+          Vendedoras cadastradas
+        </div>
+        <div class="small" id="listaVendedoras">
+          Carregando lista...
         </div>
       </div>
     </div>
 
     <script>
+      // URL do backend no Render
       const API = "https://dashboard-vendas1.onrender.com/api";
+
       let token = null;
       let nomeVendedora = null;
+      let isGerente = false;
 
+      // variáveis para indicadores
       let vendasHojeQtd = 0;
       let vendasHojeTotal = 0;
+      let vendasHojePecasTotal = 0;
       let atendimentosHojeQtd = 0;
+      let metaHojeValor = 0;
 
       function hojeISO() {
         return new Date().toISOString().slice(0, 10);
@@ -542,232 +808,637 @@
         if (tipo === "sucesso") bar.classList.add("sucesso");
       }
 
-      function abrirAba(x) {
-        document.getElementById("abaVendas").style.display = x === "vendas" ? "block" : "none";
-        document.getElementById("abaCond").style.display = x === "cond" ? "block" : "none";
-        document.getElementById("tabVendas").classList.toggle("active", x === "vendas");
-        document.getElementById("tabCondicionais").classList.toggle("active", x === "cond");
+      function abrirAba(qual) {
+        const abaVendas = document.getElementById("abaVendas");
+        const abaCond = document.getElementById("abaCondicionais");
+        const tabV = document.getElementById("tabVendas");
+        const tabC = document.getElementById("tabCondicionais");
+
+        if (qual === "vendas") {
+          abaVendas.style.display = "block";
+          abaCond.style.display = "none";
+          tabV.classList.add("active");
+          tabC.classList.remove("active");
+        } else {
+          abaVendas.style.display = "none";
+          abaCond.style.display = "block";
+          tabV.classList.remove("active");
+          tabC.classList.add("active");
+        }
+      }
+
+      function authHeaders() {
+        return {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        };
+      }
+
+      function atualizarMetaBarra() {
+        const inner = document.getElementById("metaProgressInner");
+        const linha = document.getElementById("metaStatusLinha");
+
+        if (!metaHojeValor || metaHojeValor <= 0) {
+          inner.style.width = "0%";
+          linha.textContent = "Defina uma meta para acompanhar o progresso.";
+          return;
+        }
+
+        const perc = Math.min(
+          300,
+          (vendasHojeTotal / metaHojeValor) * 100
+        ); // limite 300%
+        inner.style.width = perc.toFixed(1) + "%";
+
+        const falta = metaHojeValor - vendasHojeTotal;
+
+        if (falta > 0) {
+          linha.textContent =
+            "Você já fez R$ " +
+            vendasHojeTotal.toFixed(2) +
+            " — faltam R$ " +
+            falta.toFixed(2) +
+            " para bater a meta.";
+        } else if (falta === 0) {
+          linha.textContent =
+            "Meta batida em cheio! R$ " +
+            vendasHojeTotal.toFixed(2) +
+            " no dia. 🎉";
+        } else {
+          linha.textContent =
+            "Você passou da meta em R$ " +
+            Math.abs(falta).toFixed(2) +
+            "! Total do dia: R$ " +
+            vendasHojeTotal.toFixed(2) +
+            ".";
+        }
+      }
+
+      function atualizarIndicadoresVenda() {
+        const ticketSpan = document.getElementById("ticketMedioLinha");
+        const taxaSpan = document.getElementById("taxaConversaoLinha");
+        const pecasVendaSpan = document.getElementById("pecasPorVendaLinha");
+        const pecasAtendSpan =
+          document.getElementById("pecasPorAtendimentoLinha");
+
+        const ticket = vendasHojeQtd
+          ? vendasHojeTotal / vendasHojeQtd
+          : 0;
+        ticketSpan.textContent =
+          "Ticket médio: R$ " + ticket.toFixed(2);
+
+        let taxa = 0;
+        if (atendimentosHojeQtd && vendasHojeQtd) {
+          taxa = (vendasHojeQtd / atendimentosHojeQtd) * 100;
+        }
+        taxaSpan.textContent =
+          "Taxa de conversão: " +
+          taxa.toFixed(1).replace(".", ",") +
+          "%";
+
+        const pecasPorVenda = vendasHojeQtd
+          ? vendasHojePecasTotal / vendasHojeQtd
+          : 0;
+        pecasVendaSpan.textContent =
+          "Peças por venda: " + pecasPorVenda.toFixed(1);
+
+        const pecasPorAtend = atendimentosHojeQtd
+          ? vendasHojePecasTotal / atendimentosHojeQtd
+          : 0;
+        pecasAtendSpan.textContent =
+          "Peças por atendimento: " + pecasPorAtend.toFixed(1);
+
+        atualizarMetaBarra();
+      }
+
+      function agruparFormaPagamento(codigo) {
+        if (!codigo) return "Outros";
+        if (codigo === "dinheiro") return "Dinheiro";
+        if (codigo === "pix") return "PIX";
+        if (codigo === "debito") return "Débito";
+        if (codigo.startsWith("credito_")) return "Crédito";
+        if (codigo.startsWith("crediario_")) return "Crediário";
+        if (codigo.startsWith("boleto_")) return "Boleto";
+        if (codigo.startsWith("cheque_")) return "Cheque pré";
+        return codigo;
       }
 
       async function login() {
-        const nome = document.getElementById("nome").value;
+        const nome = document.getElementById("nome").value.trim();
         const senha = document.getElementById("senha").value;
 
+        if (!nome || !senha) {
+          setStatus("Preencha nome e senha para entrar.", "erro");
+          return;
+        }
+
+        setStatus("Conectando...", null);
+
         try {
-          const r = await fetch(API + "/login", {
+          const resp = await fetch(API + "/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ nome, senha }),
           });
 
-          if (!r.ok) return setStatus("Falha no login.", "erro");
+          if (!resp.ok) {
+            setStatus("Falha no login. Confira nome e senha.", "erro");
+            return;
+          }
 
-          const data = await r.json();
+          const data = await resp.json();
           token = data.token;
-          nomeVendedora = data.vendedora.nome;
+          nomeVendedora = data.vendedora?.nome || nome;
+          isGerente = data.vendedora?.isGerente === true;
 
           document.getElementById("loginCard").style.display = "none";
           document.getElementById("painel").style.display = "grid";
-          setStatus("Logada como " + nomeVendedora, "sucesso");
 
-          const hoje = new Date().toLocaleDateString("pt-BR", {
+          const hojeFormatado = new Date().toLocaleDateString("pt-BR", {
             weekday: "long",
             day: "2-digit",
             month: "long",
             year: "numeric",
           });
+
           document.getElementById("bemVindaTitulo").textContent =
             "Bom dia, " + nomeVendedora;
-          document.getElementById("infoHoje").textContent = hoje;
+          document.getElementById("infoHoje").textContent =
+            hojeFormatado.charAt(0).toUpperCase() +
+            hojeFormatado.slice(1);
 
-          await carregarMetaHoje();
-          await carregarAtendimentosHoje();
-          await carregarVendasHoje();
-          await carregarCondicionais();
+          if (isGerente) {
+            document.getElementById("cardGerencia").style.display = "block";
+            carregarVendedoras();
+            setStatus(
+              `Logada como ${nomeVendedora} (GERENTE).`,
+              "sucesso"
+            );
+          } else {
+            setStatus(`Logada como ${nomeVendedora}.`, "sucesso");
+          }
+
+          await Promise.all([
+            carregarMetaHoje(),
+            carregarAtendimentosHoje(),
+            carregarVendasHoje(),
+            carregarCondicionais(),
+          ]);
         } catch (e) {
-          console.log(e);
-          setStatus("Erro ao conectar.", "erro");
+          console.error(e);
+          setStatus("Erro ao conectar com o servidor.", "erro");
         }
-      }
-
-      function authHeaders() {
-        return { "Content-Type": "application/json", Authorization: "Bearer " + token };
       }
 
       // META
       async function carregarMetaHoje() {
-        const d = hojeISO();
-        const r = await fetch(API + "/metas/" + d, { headers: authHeaders() });
-        const j = await r.json();
-        const v = Number(j.valor_meta || 0);
-        document.getElementById("metaAtual").textContent = "R$ " + v.toFixed(2);
-        document.getElementById("metaValor").value = v;
+        if (!token) return;
+        const data = hojeISO();
+        const resp = await fetch(API + "/metas/" + data, {
+          headers: { Authorization: "Bearer " + token },
+        });
+        const meta = await resp.json();
+        const valor = Number(meta.valor_meta || meta.valorMeta || 0);
+        metaHojeValor = valor;
+        document.getElementById("metaAtual").textContent =
+          "R$ " + valor.toFixed(2);
+        document.getElementById("metaValor").value =
+          valor > 0 ? valor.toString() : "";
+        atualizarMetaBarra();
       }
 
       async function salvarMetaHoje() {
-        const v = Number(document.getElementById("metaValor").value);
-        const d = hojeISO();
-        await fetch(API + "/metas", {
-          method: "POST",
-          headers: authHeaders(),
-          body: JSON.stringify({ valorMeta: v, data: d }),
-        });
-        setStatus("Meta atualizada!", "sucesso");
-        carregarMetaHoje();
+        if (!token) return;
+        const valor = Number(
+          (document.getElementById("metaValor").value || "0").replace(
+            ",",
+            "."
+          )
+        );
+        const data = hojeISO();
+
+        try {
+          const resp = await fetch(API + "/metas", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({ valorMeta: valor, data }),
+          });
+
+          if (!resp.ok) {
+            setStatus("Não foi possível salvar a meta.", "erro");
+            return;
+          }
+
+          await carregarMetaHoje();
+          setStatus("Meta de hoje atualizada.", "sucesso");
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao salvar meta.", "erro");
+        }
       }
 
       // ATENDIMENTOS
       async function carregarAtendimentosHoje() {
-        const d = hojeISO();
-        const r = await fetch(API + "/atendimentos/" + d, {
-          headers: authHeaders(),
+        if (!token) return;
+        const data = hojeISO();
+        const resp = await fetch(API + "/atendimentos/" + data, {
+          headers: { Authorization: "Bearer " + token },
         });
-        const j = await r.json();
-        atendimentosHojeQtd = Number(j.quantidade || 0);
-        document.getElementById("atendimentosQtd").value = atendimentosHojeQtd;
-        atualizarIndicadores();
+        const dados = await resp.json();
+        const qtd = Number(dados.quantidade || 0);
+        document.getElementById("atendimentosQtd").value = qtd;
+        atendimentosHojeQtd = qtd;
+        atualizarIndicadoresVenda();
       }
 
       async function salvarAtendimentosHoje() {
-        const d = hojeISO();
-        const qtd = Number(document.getElementById("atendimentosQtd").value);
-        await fetch(API + "/atendimentos", {
-          method: "POST",
-          headers: authHeaders(),
-          body: JSON.stringify({ quantidade: qtd, data: d }),
-        });
-        atendimentosHojeQtd = qtd;
-        setStatus("Atendimentos atualizados!", "sucesso");
-        atualizarIndicadores();
+        if (!token) return;
+        const quantidade = Number(
+          document.getElementById("atendimentosQtd").value || "0"
+        );
+        const data = hojeISO();
+
+        try {
+          const resp = await fetch(API + "/atendimentos", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({ quantidade, data }),
+          });
+
+          if (!resp.ok) {
+            setStatus("Não foi possível salvar atendimentos.", "erro");
+            return;
+          }
+
+          await carregarAtendimentosHoje();
+          setStatus("Atendimentos salvos para hoje.", "sucesso");
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao salvar atendimentos.", "erro");
+        }
       }
 
       // VENDAS
       async function carregarVendasHoje() {
-        const h = hojeISO();
-        const r = await fetch(
-          API + `/vendas?dataInicio=${h}&dataFim=${h}`,
-          { headers: authHeaders() }
-        );
-        const vendas = await r.json();
+        if (!token) return;
+        const hoje = hojeISO();
+        const url =
+          API +
+          `/vendas?dataInicio=${encodeURIComponent(
+            hoje
+          )}&dataFim=${encodeURIComponent(hoje)}`;
 
-        const tb = document.getElementById("tabelaVendas");
-        tb.innerHTML = "";
-        vendasHojeQtd = vendas.length;
-        vendasHojeTotal = vendas.reduce((s, v) => s + Number(v.valor || 0), 0);
+        try {
+          const resp = await fetch(url, {
+            headers: { Authorization: "Bearer " + token },
+          });
+          const vendas = await resp.json();
 
-        vendas.forEach((v) => {
-          const tr = document.createElement("tr");
-          const hora = new Date(v.data_venda).toLocaleTimeString("pt-BR", {
-            hour: "2-digit",
-            minute: "2-digit",
+          const tbody = document.querySelector("#tabelaVendas tbody");
+          tbody.innerHTML = "";
+
+          let total = 0;
+          let totalPecas = 0;
+          const totaisForma = {};
+
+          vendas.forEach((v) => {
+            const tr = document.createElement("tr");
+            const dataVenda = v.data_venda || v.datavenda || v.data;
+            const hora = dataVenda
+              ? new Date(dataVenda).toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "-";
+
+            const valor = Number(v.valor || 0);
+            const pecas = Number(v.quantidade_pecas || 0);
+            const forma =
+              v.forma_pagamento || v.formaPagamento || "-";
+            const formaGrupo = agruparFormaPagamento(forma);
+
+            total += valor;
+            totalPecas += pecas;
+
+            if (!totaisForma[formaGrupo]) totaisForma[formaGrupo] = 0;
+            totaisForma[formaGrupo] += valor;
+
+            tr.innerHTML = `
+              <td>${hora}</td>
+              <td>${v.cliente_nome || v.clienteNome || "-"}</td>
+              <td>${forma}</td>
+              <td>${pecas || "-"}</td>
+              <td>R$ ${valor.toFixed(2)}</td>
+            `;
+            tbody.appendChild(tr);
           });
 
-          tr.innerHTML = `
-            <td>${hora}</td>
-            <td>${v.cliente_nome || ""}</td>
-            <td>${v.forma_pagamento}</td>
-            <td>R$ ${Number(v.valor).toFixed(2)}</td>
-          `;
-          tb.appendChild(tr);
-        });
+          vendasHojeQtd = vendas.length;
+          vendasHojeTotal = total;
+          vendasHojePecasTotal = totalPecas;
 
-        document.getElementById("resumoVendasHoje").textContent =
-          vendasHojeQtd + " venda(s)";
+          if (vendas.length === 0) {
+            document.getElementById("resumoVendasHoje").textContent =
+              "Nenhuma venda lançada hoje.";
+          } else {
+            document.getElementById(
+              "resumoVendasHoje"
+            ).textContent = `${vendas.length} venda(s) • Total R$ ${total.toFixed(
+              2
+            )} • Peças: ${totalPecas}`;
+          }
 
-        atualizarIndicadores();
+          // Totais por forma de pagamento
+          const totaisEl = document.getElementById(
+            "totaisFormaPagamento"
+          );
+          const chaves = Object.keys(totaisForma);
+          if (chaves.length === 0) {
+            totaisEl.textContent =
+              "Totais por forma de pagamento: —";
+          } else {
+            const partes = chaves.map(
+              (k) => `${k}: R$ ${totaisForma[k].toFixed(2)}`
+            );
+            totaisEl.textContent =
+              "Totais por forma de pagamento: " +
+              partes.join(" • ");
+          }
+
+          atualizarIndicadoresVenda();
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao buscar vendas de hoje.", "erro");
+        }
       }
 
-      async function lançarVenda() {
-        const valor = Number(document.getElementById("valorVenda").value);
-        const forma = document.getElementById("formaPagamento").value;
-        const cliente = document.getElementById("clienteNome").value;
-        const obs = document.getElementById("obsVenda").value;
+      async function lancarVenda() {
+        if (!token) return;
 
-        const r = await fetch(API + "/vendas", {
-          method: "POST",
-          headers: authHeaders(),
-          body: JSON.stringify({
-            valor,
-            formaPagamento: forma,
-            clienteNome: cliente,
-            observacao: obs,
-          }),
-        });
+        const valor = Number(
+          (document.getElementById("valorVenda").value || "0").replace(
+            ",",
+            "."
+          )
+        );
+        const quantidadePecas = Number(
+          document.getElementById("qtdPecasVenda").value || "0"
+        );
+        const formaPagamento =
+          document.getElementById("formaPagamento").value;
+        const clienteNome = document
+          .getElementById("clienteNome")
+          .value.trim();
+        const observacao = document
+          .getElementById("obsVenda")
+          .value.trim();
 
-        if (!r.ok) return setStatus("Erro ao lançar venda", "erro");
+        if (!valor || !formaPagamento) {
+          setStatus(
+            "Informe pelo menos o valor e a forma de pagamento.",
+            "erro"
+          );
+          return;
+        }
 
-        setStatus("Venda lançada!", "sucesso");
-        document.getElementById("valorVenda").value = "";
-        document.getElementById("clienteNome").value = "";
-        document.getElementById("obsVenda").value = "";
-        carregarVendasHoje();
+        try {
+          const resp = await fetch(API + "/vendas", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({
+              valor,
+              formaPagamento,
+              clienteNome,
+              observacao,
+              quantidadePecas,
+            }),
+          });
+
+          if (!resp.ok) {
+            setStatus("Não foi possível lançar a venda.", "erro");
+            return;
+          }
+
+          document.getElementById("valorVenda").value = "";
+          document.getElementById("qtdPecasVenda").value = "";
+          document.getElementById("formaPagamento").value = "";
+          document.getElementById("clienteNome").value = "";
+          document.getElementById("obsVenda").value = "";
+
+          setStatus("Venda lançada com sucesso.", "sucesso");
+          await carregarVendasHoje();
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao lançar venda.", "erro");
+        }
       }
 
       // CONDICIONAIS
       async function carregarCondicionais() {
-        const r = await fetch(API + "/condicionais", {
-          headers: authHeaders(),
-        });
-        const lista = await r.json();
+        if (!token) return;
 
-        const tb = document.getElementById("tabelaCondicionais");
-        tb.innerHTML = "";
+        try {
+          const resp = await fetch(API + "/condicionais", {
+            headers: { Authorization: "Bearer " + token },
+          });
+          const conds = await resp.json();
 
-        lista.forEach((c) => {
-          const tr = document.createElement("tr");
-          const data = new Date(c.data_registro).toLocaleDateString("pt-BR");
-          tr.innerHTML = `
-            <td>${data}</td>
-            <td>${c.cliente_nome}</td>
-            <td>${c.quantidade_pecas}</td>
-            <td>R$ ${Number(c.valor_total).toFixed(2)}</td>
-            <td><button class="btn-danger" onclick="deletarCondicional(${c.id})">X</button></td>
-          `;
-          tb.appendChild(tr);
-        });
+          const tbody = document.querySelector(
+            "#tabelaCondicionais tbody"
+          );
+          tbody.innerHTML = "";
+
+          conds.forEach((c) => {
+            const tr = document.createElement("tr");
+            const dataReg = c.data_registro || c.dataRegistro;
+            const data = dataReg
+              ? new Date(dataReg).toLocaleDateString("pt-BR")
+              : "-";
+
+            tr.innerHTML = `
+              <td>${data}</td>
+              <td>${c.cliente_nome || c.clienteNome}</td>
+              <td>${c.quantidade_pecas || c.quantidadePecas}</td>
+              <td>R$ ${Number(
+                c.valor_total || c.valorTotal || 0
+              ).toFixed(2)}</td>
+              <td><button class="btn-danger" onclick="deletarCondicional(${
+                c.id
+              })">Remover</button></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao buscar condicionais.", "erro");
+        }
       }
 
-      async function lançarCondicional() {
-        const qtd = Number(document.getElementById("qtdPecas").value);
-        const valor = Number(document.getElementById("valorCondicional").value);
-        const cliente = document.getElementById("clienteCondicional").value;
-        const obs = document.getElementById("obsCondicional").value;
+      async function lancarCondicional() {
+        if (!token) return;
 
-        await fetch(API + "/condicionais", {
-          method: "POST",
-          headers: authHeaders(),
-          body: JSON.stringify({
-            quantidadePecas: qtd,
-            valorTotal: valor,
-            clienteNome: cliente,
-            observacao: obs,
-          }),
-        });
+        const quantidadePecas = Number(
+          document.getElementById("qtdPecas").value || "0"
+        );
+        const valorTotal = Number(
+          (document
+            .getElementById("valorCondicional")
+            .value.replace(",", ".") || "0")
+        );
+        const clienteNome = document
+          .getElementById("clienteCondicional")
+          .value.trim();
+        const observacao = document
+          .getElementById("obsCondicional")
+          .value.trim();
 
-        setStatus("Condicional lançado!", "sucesso");
-        carregarCondicionais();
+        if (!quantidadePecas || !clienteNome) {
+          setStatus(
+            "Informe ao menos a quantidade de peças e o nome da cliente.",
+            "erro"
+          );
+          return;
+        }
+
+        try {
+          const resp = await fetch(API + "/condicionais", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({
+              quantidadePecas,
+              valorTotal,
+              clienteNome,
+              observacao,
+            }),
+          });
+
+          if (!resp.ok) {
+            setStatus("Não foi possível lançar o condicional.", "erro");
+            return;
+          }
+
+          document.getElementById("qtdPecas").value = "";
+          document.getElementById("valorCondicional").value = "";
+          document.getElementById("clienteCondicional").value = "";
+          document.getElementById("obsCondicional").value = "";
+
+          setStatus("Condicional lançado com sucesso.", "sucesso");
+          await carregarCondicionais();
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao lançar condicional.", "erro");
+        }
       }
 
       async function deletarCondicional(id) {
-        await fetch(API + "/condicionais/" + id, {
-          method: "DELETE",
-          headers: authHeaders(),
-        });
-        setStatus("Condicional removido", "sucesso");
-        carregarCondicionais();
+        if (!token) return;
+        if (!confirm("Remover este condicional?")) return;
+
+        try {
+          const resp = await fetch(API + "/condicionais/" + id, {
+            method: "DELETE",
+            headers: { Authorization: "Bearer " + token },
+          });
+
+          if (!resp.ok) {
+            setStatus("Não foi possível remover o condicional.", "erro");
+            return;
+          }
+
+          setStatus("Condicional removido.", "sucesso");
+          await carregarCondicionais();
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao remover condicional.", "erro");
+        }
       }
 
-      function atualizarIndicadores() {
-        const ticket = vendasHojeQtd ? vendasHojeTotal / vendasHojeQtd : 0;
-        document.getElementById("ticketMedioLinha").textContent =
-          "Ticket médio: R$ " + ticket.toFixed(2);
+      // GERÊNCIA
+      async function carregarVendedoras() {
+        if (!token || !isGerente) return;
 
-        const taxa =
-          atendimentosHojeQtd > 0
-            ? ((vendasHojeQtd / atendimentosHojeQtd) * 100).toFixed(1)
-            : 0;
-        document.getElementById("taxaConversaoLinha").textContent =
-          "Taxa de conversão: " + taxa + "%";
+        try {
+          const resp = await fetch(API + "/vendedoras", {
+            headers: { Authorization: "Bearer " + token },
+          });
+          if (!resp.ok) {
+            document.getElementById("listaVendedoras").textContent =
+              "Não foi possível carregar as vendedoras.";
+            return;
+          }
+
+          const lista = await resp.json();
+          if (!Array.isArray(lista) || lista.length === 0) {
+            document.getElementById("listaVendedoras").textContent =
+              "Nenhuma vendedora cadastrada ainda.";
+            return;
+          }
+
+          const linhas = lista.map((v) => {
+            return (
+              v.nome +
+              (v.is_gerente || v.isGerente ? " (gerente)" : "")
+            );
+          });
+
+          document.getElementById("listaVendedoras").textContent =
+            linhas.join(" • ");
+        } catch (e) {
+          console.error(e);
+          document.getElementById("listaVendedoras").textContent =
+            "Erro ao carregar vendedoras.";
+        }
+      }
+
+      async function cadastrarVendedora() {
+        if (!token || !isGerente) return;
+
+        const nome = document
+          .getElementById("novaVendedoraNome")
+          .value.trim();
+        const senha = document.getElementById("novaVendedoraSenha").value;
+        const isGer = document.getElementById(
+          "novaVendedoraGerente"
+        ).checked;
+
+        if (!nome || !senha) {
+          setStatus(
+            "Para cadastrar, preencha nome e senha da vendedora.",
+            "erro"
+          );
+          return;
+        }
+
+        try {
+          const resp = await fetch(API + "/vendedoras", {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({
+              nome,
+              senha,
+              isGerente: isGer,
+            }),
+          });
+
+          if (!resp.ok) {
+            const erro = await resp.json().catch(() => ({}));
+            setStatus(
+              erro.erro || "Não foi possível cadastrar a vendedora.",
+              "erro"
+            );
+            return;
+          }
+
+          document.getElementById("novaVendedoraNome").value = "";
+          document.getElementById("novaVendedoraSenha").value = "";
+          document.getElementById("novaVendedoraGerente").checked = false;
+
+          setStatus("Vendedora cadastrada com sucesso.", "sucesso");
+          await carregarVendedoras();
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao cadastrar vendedora.", "erro");
+        }
       }
     </script>
   </body>
