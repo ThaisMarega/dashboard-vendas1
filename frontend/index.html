@@ -26,11 +26,11 @@
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
           sans-serif;
         background: radial-gradient(
-          circle at top,
-          #ffffff 0,
-          #ece7dd 45%,
-          #d9d2c4 100%
-        );
+            circle at top,
+            #ffffff 0,
+            #ece7dd 45%,
+            #d9d2c4 100%
+          );
         color: var(--texto);
       }
 
@@ -68,14 +68,6 @@
         text-transform: uppercase;
         color: #888;
         margin-top: 2px;
-      }
-
-      header .perfil {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: #777;
-        margin-top: 4px;
       }
 
       .status-bar {
@@ -231,11 +223,6 @@
         font-size: 11px;
       }
 
-      .btn-small {
-        font-size: 11px;
-        padding: 4px 8px;
-      }
-
       .small {
         font-size: 12px;
         color: #777;
@@ -289,16 +276,6 @@
         letter-spacing: 0.08em;
       }
 
-      .pill {
-        display: inline-flex;
-        align-items: center;
-        padding: 3px 8px;
-        border-radius: 999px;
-        font-size: 11px;
-        background: #f6f3ea;
-        color: #5b4a2a;
-      }
-
       .meta-chip {
         font-size: 11px;
         padding: 4px 9px;
@@ -327,9 +304,7 @@
         }
       }
     </style>
-  </head>
-
-  <body>
+  </head><body>
     <div class="layout">
       <header>
         <img
@@ -339,7 +314,6 @@
         <div>
           <div class="marca">IMAGEM MODAS</div>
           <div class="sub">Dashboard de vendas</div>
-          <div class="perfil" id="perfilTexto"></div>
         </div>
       </header>
 
@@ -350,14 +324,14 @@
 
       <!-- LOGIN -->
       <div id="loginCard" class="card">
-        <div class="card-title">Login</div>
+        <div class="card-title">Login da vendedora</div>
         <div class="card-subtitle">
           Acesso exclusivo para vendedoras Imagem Modas.
         </div>
 
         <div class="field">
-          <label for="nome">Nome</label>
-          <input id="nome" value="Allane" autocomplete="username" />
+          <label for="nome">Nome da vendedora</label>
+          <input id="nome" value="" autocomplete="username" />
         </div>
 
         <div class="field">
@@ -365,22 +339,25 @@
           <input
             id="senha"
             type="password"
-            value="allane2025"
             autocomplete="current-password"
           />
         </div>
 
         <button class="btn-primary" onclick="login()">Entrar</button>
-      </div>
 
-      <!-- PAINEL -->
-      <div id="painel" class="grid">
-        <!-- Esquerda: meta e atendimentos -->
+        <div style="margin-top: 10px; font-size: 12px; text-align: center;">
+          <a href="gerente.html" style="color: #5b6240; font-weight: 600;">
+            Acesso da Gerente
+          </a>
+        </div>
+      </div><!-- PAINEL APÓS LOGIN -->
+      <div id="painel" class="grid" style="display:none;">
+        <!-- Coluna esquerda: resumo + atendimentos/meta -->
         <div class="card">
           <div class="card-title" id="bemVindaTitulo">Bom dia</div>
           <div class="card-subtitle small" id="infoHoje"></div>
 
-          <!-- Meta diária -->
+          <!-- META DIÁRIA -->
           <div class="field">
             <label>Meta de hoje</label>
             <div class="row">
@@ -400,11 +377,17 @@
             <div class="small">
               Meta atual: <span id="metaAtual" class="meta-chip">—</span>
             </div>
+            <div class="small" style="margin-top:6px;">
+              Meta mensal: <span id="metaMensalChip" class="meta-chip">—</span>
+            </div>
+            <div class="small" style="margin-top:6px;">
+              Falta para o mês: <span id="faltanteMensalChip" class="meta-chip">—</span>
+            </div>
           </div>
 
           <hr style="border: none; border-top: 1px solid #eee; margin: 16px 0" />
 
-          <!-- Atendimentos -->
+          <!-- ATENDIMENTOS -->
           <div>
             <div class="card-title" style="font-size: 13px">Atendimentos</div>
             <div class="card-subtitle small">
@@ -428,13 +411,16 @@
               </button>
             </div>
 
-            <div class="small" id="indicadoresLinha">
-              Ticket médio: R$ 0,00 • Conversão: 0% • Peças por venda: 0,0
+            <div class="small" style="margin-top:10px;">
+              Taxa de conversão: <span id="taxaConversaoSpan">0%</span>
+            </div>
+            <div class="small">
+              Ticket médio: <span id="ticketMedioSpan">R$ 0,00</span>
             </div>
           </div>
         </div>
 
-        <!-- Direita: vendas / condicionais -->
+        <!-- Coluna direita: abas Vendas / Condicionais -->
         <div class="card">
           <div class="tabs">
             <div
@@ -457,8 +443,7 @@
             <!-- ABA VENDAS -->
             <div id="abaVendas">
               <div class="card-subtitle">
-                Lance as vendas de hoje e acompanhe ticket médio, conversão e
-                peças por venda.
+                Lance as vendas de hoje e acompanhe ticket médio e conversão.
               </div>
 
               <div class="row">
@@ -473,19 +458,6 @@
                   />
                 </div>
 
-                <div class="field">
-                  <label for="qtdPecasVenda">Qtd. peças</label>
-                  <input
-                    id="qtdPecasVenda"
-                    type="number"
-                    min="1"
-                    step="1"
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-
-              <div class="row">
                 <div class="field">
                   <label for="formaPagamento">Forma de pagamento</label>
                   <select id="formaPagamento">
@@ -561,19 +533,14 @@
                 ></textarea>
               </div>
 
-              <button class="btn-primary" onclick="lancarVenda()">
+              <button class="btn-primary" onclick="lançarVenda()">
                 Lançar venda
               </button>
 
-              <div
-                class="card-subtitle"
-                style="margin-top: 14px; margin-bottom: 6px"
-              >
+              <div class="card-subtitle" style="margin-top: 14px; margin-bottom: 6px">
                 Vendas de hoje
               </div>
-              <div class="small" id="resumoVendasHoje">
-                Nenhuma venda ainda.
-              </div>
+              <div class="small" id="resumoVendasHoje">Nenhuma venda ainda.</div>
 
               <div style="max-height: 220px; overflow-y: auto; margin-top: 6px">
                 <table id="tabelaVendas">
@@ -582,9 +549,7 @@
                       <th>Horário</th>
                       <th>Cliente</th>
                       <th>Forma</th>
-                      <th>Peças</th>
                       <th>Valor</th>
-                      <th></th>
                     </tr>
                   </thead>
                   <tbody></tbody>
@@ -593,16 +558,16 @@
             </div>
 
             <!-- ABA CONDICIONAIS -->
-            <div id="abaCondicionais" style="display: none">
+            <div id="abaCondicionais" style="display:none;">
               <div class="card-subtitle">
                 Controle das peças que saem em condicional.
               </div>
 
               <div class="row">
                 <div class="field">
-                  <label for="qtdPecasCond">Qtd. de peças</label>
+                  <label for="qtdPecas">Qtd. de peças</label>
                   <input
-                    id="qtdPecasCond"
+                    id="qtdPecas"
                     type="number"
                     min="1"
                     step="1"
@@ -641,14 +606,11 @@
                 ></textarea>
               </div>
 
-              <button class="btn-primary" onclick="lancarCondicional()">
+              <button class="btn-primary" onclick="lançarCondicional()">
                 Lançar condicional
               </button>
 
-              <div
-                class="card-subtitle"
-                style="margin-top: 14px; margin-bottom: 6px"
-              >
+              <div class="card-subtitle" style="margin-top: 14px; margin-bottom: 6px">
                 Condicionais em aberto
               </div>
 
@@ -660,31 +622,58 @@
                       <th>Cliente</th>
                       <th>Peças</th>
                       <th>Valor</th>
-                      <th></th>
                     </tr>
                   </thead>
                   <tbody></tbody>
                 </table>
               </div>
+
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <script>
-      const API = "https://dashboard-vendas1.onrender.com/api";
+      </div><script>
+      const API = "https://dashboard-vendas-backend.onrender.com/api";
       let token = null;
-      let usuario = null;
+      let nomeVendedora = null;
 
       // indicadores
       let vendasHojeQtd = 0;
       let vendasHojeTotal = 0;
-      let pecasHojeTotal = 0;
       let atendimentosHojeQtd = 0;
+
+      // metas
+      let metaDiariaAtual = 0;
+      let metaPadraoLogin = 0; // vem do login (meta padrão da vendedora)
+      let metaMensal = 0;
+      let totalVendasMensal = 0;
 
       function hojeISO() {
         return new Date().toISOString().slice(0, 10);
+      }
+
+      function getMesRange() {
+        const hoje = new Date();
+        const ano = hoje.getFullYear();
+        const mes = hoje.getMonth(); // 0-11
+
+        const primeiro = new Date(ano, mes, 1);
+        const ultimo = new Date(ano, mes + 1, 0);
+
+        // contar dias trabalhados (segunda a sábado)
+        let diasTrabalho = 0;
+        const d = new Date(primeiro);
+        while (d <= ultimo) {
+          const diaSemana = d.getDay(); // 0 = domingo
+          if (diaSemana !== 0) {
+            diasTrabalho++;
+          }
+          d.setDate(d.getDate() + 1);
+        }
+
+        const inicioISO = primeiro.toISOString().slice(0, 10);
+        const fimISO = ultimo.toISOString().slice(0, 10);
+
+        return { inicio: inicioISO, fim: fimISO, diasTrabalho };
       }
 
       function setStatus(msg, tipo) {
@@ -715,27 +704,33 @@
         }
       }
 
-      function atualizarIndicadores() {
-        const linha = document.getElementById("indicadoresLinha");
+      function atualizarIndicadoresVenda() {
+        const ticketSpan = document.getElementById("ticketMedioSpan");
+        const taxaSpan = document.getElementById("taxaConversaoSpan");
 
         const ticket = vendasHojeQtd ? vendasHojeTotal / vendasHojeQtd : 0;
-        const pecasPorVenda = vendasHojeQtd
-          ? pecasHojeTotal / vendasHojeQtd
-          : 0;
+        if (ticketSpan) {
+          ticketSpan.textContent = "R$ " + ticket.toFixed(2);
+        }
+
         let taxa = 0;
         if (atendimentosHojeQtd && vendasHojeQtd) {
           taxa = (vendasHojeQtd / atendimentosHojeQtd) * 100;
         }
-
-        linha.textContent =
-          "Ticket médio: R$ " +
-          ticket.toFixed(2) +
-          " • Conversão: " +
-          taxa.toFixed(1).replace(".", ",") +
-          "% • Peças por venda: " +
-          pecasPorVenda.toFixed(1).replace(".", ",");
+        if (taxaSpan) {
+          taxaSpan.textContent =
+            taxa.toFixed(1).replace(".", ",") + "%";
+        }
       }
 
+      function authHeaders() {
+        return {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        };
+      }
+
+      // LOGIN
       async function login() {
         const nome = document.getElementById("nome").value.trim();
         const senha = document.getElementById("senha").value;
@@ -761,13 +756,13 @@
 
           const data = await resp.json();
           token = data.token;
-          usuario = data.vendedora || {};
-          const nomeExibicao = usuario.nome || nome;
+          nomeVendedora = data.vendedora?.nome || nome;
+          metaPadraoLogin = Number(data.vendedora?.metaPadrao || 0);
 
           document.getElementById("loginCard").style.display = "none";
           document.getElementById("painel").style.display = "grid";
 
-          const hoje = new Date().toLocaleDateString("pt-BR", {
+          const hojeFormatado = new Date().toLocaleDateString("pt-BR", {
             weekday: "long",
             day: "2-digit",
             month: "long",
@@ -775,18 +770,11 @@
           });
 
           document.getElementById("bemVindaTitulo").textContent =
-            "Bom dia, " + nomeExibicao;
+            "Bom dia, " + nomeVendedora;
           document.getElementById("infoHoje").textContent =
-            hoje.charAt(0).toUpperCase() + hoje.slice(1);
+            hojeFormatado.charAt(0).toUpperCase() + hojeFormatado.slice(1);
 
-          const perfilEl = document.getElementById("perfilTexto");
-          if (usuario.is_gerente || usuario.isGerente) {
-            perfilEl.textContent = "Perfil: Gerente";
-          } else {
-            perfilEl.textContent = "Perfil: Vendedora";
-          }
-
-          setStatus(`Logada como ${nomeExibicao}. Bom trabalho!`, "sucesso");
+          setStatus(`Logada como ${nomeVendedora}. Bom trabalho!`, "sucesso");
 
           await Promise.all([
             carregarMetaHoje(),
@@ -794,20 +782,15 @@
             carregarVendasHoje(),
             carregarCondicionais(),
           ]);
+
+          await carregarResumoMensal();
         } catch (e) {
           console.error(e);
           setStatus("Erro ao conectar com o servidor.", "erro");
         }
       }
 
-      function authHeaders() {
-        return {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        };
-      }
-
-      // META
+      // META DIÁRIA
       async function carregarMetaHoje() {
         if (!token) return;
         const data = hojeISO();
@@ -816,7 +799,9 @@
             headers: { Authorization: "Bearer " + token },
           });
           const meta = await resp.json();
-          const valor = Number(meta.valor_meta || meta.valorMeta || 0);
+          const valor = Number(meta.valor_meta || meta.valorMeta || metaPadraoLogin || 0);
+          metaDiariaAtual = valor;
+
           document.getElementById("metaAtual").textContent =
             "R$ " + valor.toFixed(2);
           document.getElementById("metaValor").value =
@@ -847,10 +832,55 @@
           }
 
           await carregarMetaHoje();
+          await carregarResumoMensal();
           setStatus("Meta de hoje atualizada.", "sucesso");
         } catch (e) {
           console.error(e);
           setStatus("Erro ao salvar meta.", "erro");
+        }
+      }
+
+      // META MENSAL (cálculo em cima da meta diária x dias trabalhados)
+      async function carregarResumoMensal() {
+        if (!token) return;
+
+        const { inicio, fim, diasTrabalho } = getMesRange();
+        const metaBase = metaDiariaAtual || metaPadraoLogin || 0;
+        metaMensal = metaBase * diasTrabalho;
+
+        // buscar todas vendas do mês
+        try {
+          const url =
+            API +
+            `/vendas?dataInicio=${encodeURIComponent(
+              inicio
+            )}&dataFim=${encodeURIComponent(fim)}`;
+
+          const resp = await fetch(url, {
+            headers: { Authorization: "Bearer " + token },
+          });
+
+          const vendas = await resp.json();
+          totalVendasMensal = vendas.reduce(
+            (soma, v) => soma + Number(v.valor || 0),
+            0
+          );
+
+          const faltante = Math.max(metaMensal - totalVendasMensal, 0);
+
+          const metaMensalChip = document.getElementById("metaMensalChip");
+          const faltanteMensalChip =
+            document.getElementById("faltanteMensalChip");
+
+          if (metaMensalChip) {
+            metaMensalChip.textContent = "R$ " + metaMensal.toFixed(2);
+          }
+          if (faltanteMensalChip) {
+            faltanteMensalChip.textContent = "R$ " + faltante.toFixed(2);
+          }
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao carregar resumo mensal.", "erro");
         }
       }
 
@@ -866,7 +896,7 @@
           const qtd = Number(dados.quantidade || 0);
           document.getElementById("atendimentosQtd").value = qtd;
           atendimentosHojeQtd = qtd;
-          atualizarIndicadores();
+          atualizarIndicadoresVenda();
         } catch (e) {
           console.error(e);
           setStatus("Erro ao carregar atendimentos.", "erro");
@@ -920,11 +950,10 @@
           tbody.innerHTML = "";
 
           let total = 0;
-          let totalPecas = 0;
 
           vendas.forEach((v) => {
             const tr = document.createElement("tr");
-            const dataVenda = v.data_venda || v.dataVenda || v.data;
+            const dataVenda = v.data_venda || v.datavenda || v.data;
             const hora = dataVenda
               ? new Date(dataVenda).toLocaleTimeString("pt-BR", {
                   hour: "2-digit",
@@ -933,30 +962,19 @@
               : "-";
 
             const valor = Number(v.valor || 0);
-            const pecas =
-              Number(v.quantidade_pecas || v.quantidadePecas || 0) || 0;
-
             total += valor;
-            totalPecas += pecas;
 
             tr.innerHTML = `
               <td>${hora}</td>
               <td>${v.cliente_nome || v.clienteNome || "-"}</td>
               <td>${v.forma_pagamento || v.formaPagamento || "-"}</td>
-              <td>${pecas}</td>
               <td>R$ ${valor.toFixed(2)}</td>
-              <td>
-                <button class="btn-danger btn-small" onclick="apagarVenda(${
-                  v.id
-                })">Excluir</button>
-              </td>
             `;
             tbody.appendChild(tr);
           });
 
           vendasHojeQtd = vendas.length;
           vendasHojeTotal = total;
-          pecasHojeTotal = totalPecas;
 
           if (vendas.length === 0) {
             document.getElementById("resumoVendasHoje").textContent =
@@ -969,21 +987,18 @@
             )}`;
           }
 
-          atualizarIndicadores();
+          atualizarIndicadoresVenda();
         } catch (e) {
           console.error(e);
           setStatus("Erro ao buscar vendas de hoje.", "erro");
         }
       }
 
-      async function lancarVenda() {
+      async function lançarVenda() {
         if (!token) return;
 
         const valor = Number(
           (document.getElementById("valorVenda").value || "0").replace(",", ".")
-        );
-        const quantidadePecas = Number(
-          document.getElementById("qtdPecasVenda").value || "0"
         );
         const formaPagamento = document.getElementById("formaPagamento").value;
         const clienteNome = document.getElementById("clienteNome").value.trim();
@@ -1004,7 +1019,6 @@
             body: JSON.stringify({
               valor,
               formaPagamento,
-              quantidadePecas,
               clienteNome,
               observacao,
             }),
@@ -1016,39 +1030,16 @@
           }
 
           document.getElementById("valorVenda").value = "";
-          document.getElementById("qtdPecasVenda").value = "";
           document.getElementById("formaPagamento").value = "";
           document.getElementById("clienteNome").value = "";
           document.getElementById("obsVenda").value = "";
 
           setStatus("Venda lançada com sucesso.", "sucesso");
           await carregarVendasHoje();
+          await carregarResumoMensal();
         } catch (e) {
           console.error(e);
           setStatus("Erro ao lançar venda.", "erro");
-        }
-      }
-
-      async function apagarVenda(id) {
-        if (!token) return;
-        if (!confirm("Excluir esta venda?")) return;
-
-        try {
-          const resp = await fetch(API + "/vendas/" + id, {
-            method: "DELETE",
-            headers: { Authorization: "Bearer " + token },
-          });
-
-          if (!resp.ok) {
-            setStatus("Não foi possível excluir a venda.", "erro");
-            return;
-          }
-
-          setStatus("Venda excluída.", "sucesso");
-          await carregarVendasHoje();
-        } catch (e) {
-          console.error(e);
-          setStatus("Erro ao excluir venda.", "erro");
         }
       }
 
@@ -1072,19 +1063,13 @@
               ? new Date(dataReg).toLocaleDateString("pt-BR")
               : "-";
 
-            const pecas =
-              Number(c.quantidade_pecas || c.quantidadePecas || 0) || 0;
-
             tr.innerHTML = `
               <td>${data}</td>
-              <td>${c.cliente_nome || c.clienteNome}</td>
-              <td>${pecas}</td>
+              <td>${c.cliente_nome || c.clienteNome || "-"}</td>
+              <td>${c.quantidade_pecas || c.quantidadePecas || 0}</td>
               <td>R$ ${Number(
                 c.valor_total || c.valorTotal || 0
               ).toFixed(2)}</td>
-              <td><button class="btn-danger btn-small" onclick="deletarCondicional(${
-                c.id
-              })">Remover</button></td>
             `;
             tbody.appendChild(tr);
           });
@@ -1094,11 +1079,11 @@
         }
       }
 
-      async function lancarCondicional() {
+      async function lançarCondicional() {
         if (!token) return;
 
         const quantidadePecas = Number(
-          document.getElementById("qtdPecasCond").value || "0"
+          document.getElementById("qtdPecas").value || "0"
         );
         const valorTotal = Number(
           (document.getElementById("valorCondicional").value || "0").replace(
@@ -1138,7 +1123,7 @@
             return;
           }
 
-          document.getElementById("qtdPecasCond").value = "";
+          document.getElementById("qtdPecas").value = "";
           document.getElementById("valorCondicional").value = "";
           document.getElementById("clienteCondicional").value = "";
           document.getElementById("obsCondicional").value = "";
@@ -1150,29 +1135,6 @@
           setStatus("Erro ao lançar condicional.", "erro");
         }
       }
-
-      async function deletarCondicional(id) {
-        if (!token) return;
-        if (!confirm("Remover este condicional?")) return;
-
-        try {
-          const resp = await fetch(API + "/condicionais/" + id, {
-            method: "DELETE",
-            headers: { Authorization: "Bearer " + token },
-          });
-
-          if (!resp.ok) {
-            setStatus("Não foi possível remover o condicional.", "erro");
-            return;
-          }
-
-          setStatus("Condicional removido.", "sucesso");
-          await carregarCondicionais();
-        } catch (e) {
-          console.error(e);
-          setStatus("Erro ao remover condicional.", "erro");
-        }
-      }
-    </script>
+    </script></div> <!-- fim .layout -->
   </body>
 </html>
