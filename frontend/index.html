@@ -674,693 +674,741 @@
       </div>
 
       <script>
-        const API = "https://dashboard-vendas1.onrender.com/api";
-        let token = null;
-        let nomeVendedora = null;
+  const API = "https://dashboard-vendas1.onrender.com/api";
+  let token = null;
+  let nomeVendedora = null;
 
-        // data exibida no painel (começa em hoje)
-        let dataPainel = null;
+  // data exibida no painel (começa em hoje)
+  let dataPainel = null;
 
-        // indicadores
-        let vendasHojeQtd = 0;
-        let vendasHojeTotal = 0;
-        let atendimentosHojeQtd = 0;
+  // indicadores
+  let vendasHojeQtd = 0;
+  let vendasHojeTotal = 0;
+  let atendimentosHojeQtd = 0;
 
-        function hojeISO() {
-          return new Date().toISOString().slice(0, 10);
+  // metas vindas do login (fallback)
+  let metaPadraoLogin = 0;
+  let metaMensalLogin = 0;
+
+  function hojeISO() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function setStatus(msg, tipo) {
+    const bar = document.getElementById("statusContainer");
+    const text = document.getElementById("statusText");
+    text.textContent = msg;
+    bar.classList.remove("erro", "sucesso");
+    if (tipo === "erro") bar.classList.add("erro");
+    if (tipo === "sucesso") bar.classList.add("sucesso");
+  }
+
+  function abrirAba(qual) {
+    const abaVendas = document.getElementById("abaVendas");
+    const abaCond = document.getElementById("abaCondicionais");
+    const tabV = document.getElementById("tabVendas");
+    const tabC = document.getElementById("tabCondicionais");
+
+    if (qual === "vendas") {
+      abaVendas.style.display = "block";
+      abaCond.style.display = "none";
+      tabV.classList.add("active");
+      tabC.classList.remove("active");
+    } else {
+      abaVendas.style.display = "none";
+      abaCond.style.display = "block";
+      tabV.classList.remove("active");
+      tabC.classList.add("active");
+    }
+  }
+
+  function atualizarIndicadoresVenda() {
+    const ticketSpan = document.getElementById("ticketMedioSpan");
+    const taxaSpan = document.getElementById("taxaConversaoSpan");
+
+    const ticket = vendasHojeQtd ? vendasHojeTotal / vendasHojeQtd : 0;
+    if (ticketSpan) {
+      ticketSpan.textContent = "R$ " + ticket.toFixed(2);
+    }
+
+    let taxa = 0;
+    if (atendimentosHojeQtd && vendasHojeQtd) {
+      taxa = (vendasHojeQtd / atendimentosHojeQtd) * 100;
+    }
+    if (taxaSpan) {
+      taxaSpan.textContent = taxa.toFixed(1).replace(".", ",") + "%";
+    }
+  }
+
+  function authHeaders() {
+    return {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    };
+  }
+
+  // LOGIN
+  async function login() {
+    const nome = document.getElementById("nome").value.trim();
+    const senha = document.getElementById("senha").value;
+
+    if (!nome || !senha) {
+      setStatus("Preencha nome e senha para entrar.", "erro");
+      return;
+    }
+
+    setStatus("Conectando...", null);
+
+    try {
+      const resp = await fetch(API + "/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome, senha }),
+      });
+
+      if (!resp.ok) {
+        setStatus("Falha no login. Confira nome e senha.", "erro");
+        return;
+      }
+
+      const data = await resp.json();
+      token = data.token;
+      nomeVendedora = data.vendedora?.nome || nome;
+
+      // guardamos meta padrão e meta mensal do backend (fallback)
+      metaPadraoLogin = Number(data.vendedora?.metaPadrao || 0);
+      metaMensalLogin = Number(data.vendedora?.metaMensal || 0);
+
+      document.getElementById("loginCard").style.display = "none";
+      document.getElementById("painel").style.display = "grid";
+
+      // define dia padrão
+      dataPainel = hojeISO();
+      const inputData = document.getElementById("dataPainel");
+      if (inputData) inputData.value = dataPainel;
+
+      atualizarDataCabecalho();
+
+      setStatus(`Logada como ${nomeVendedora}. Bom trabalho!`, "sucesso");
+
+      await carregarTudoVendedora();
+    } catch (e) {
+      console.error(e);
+      setStatus("Erro ao conectar com o servidor.", "erro");
+    }
+  }
+
+  function atualizarDataCabecalho() {
+    if (!dataPainel) dataPainel = hojeISO();
+    const d = new Date(dataPainel + "T12:00:00");
+    const texto = d.toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+
+    document.getElementById("bemVindaTitulo").textContent =
+      "Bom dia, " + (nomeVendedora || "");
+    document.getElementById("infoHoje").textContent =
+      texto.charAt(0).toUpperCase() + texto.slice(1);
+  }
+
+  async function alterarDataPainel(novaData) {
+    dataPainel = novaData || hojeISO();
+
+    const inputData = document.getElementById("dataPainel");
+    if (inputData && !novaData) {
+      inputData.value = dataPainel;
+    }
+
+    atualizarDataCabecalho();
+    setStatus("Carregando dados do dia selecionado...", null);
+    await carregarTudoVendedora();
+    setStatus("Dados atualizados para o dia selecionado.", "sucesso");
+  }
+
+  async function carregarTudoVendedora() {
+    await Promise.all([
+      carregarMetaHoje(dataPainel),
+      carregarAtendimentosHoje(dataPainel),
+      carregarVendasHoje(dataPainel),
+      carregarCondicionais(),
+    ]);
+  }
+
+  // META DIÁRIA + MENSAL (usando /api/metas/:data com fallback para metaPadraoLogin)
+  async function carregarMetaHoje(dataRef) {
+    if (!token) return;
+    const data = dataRef || hojeISO();
+
+    const metaMensalChip = document.getElementById("metaMensalChip");
+    const faltanteMensalChip = document.getElementById("faltanteMensalChip");
+    const metaAtualChip = document.getElementById("metaAtual");
+    const inputMeta = document.getElementById("metaValor");
+
+    try {
+      const resp = await fetch(API + "/metas/" + data, {
+        headers: { Authorization: "Bearer " + token },
+      });
+
+      if (!resp.ok) {
+        // se a rota falhar, usa meta padrão do login (se tiver)
+        if (metaPadraoLogin > 0) {
+          if (metaAtualChip)
+            metaAtualChip.textContent = "R$ " + metaPadraoLogin.toFixed(2);
+          if (inputMeta) inputMeta.value = metaPadraoLogin.toString();
+          if (metaMensalChip && metaMensalLogin > 0)
+            metaMensalChip.textContent = "R$ " + metaMensalLogin.toFixed(2);
+          if (faltanteMensalChip && metaMensalLogin > 0)
+            faltanteMensalChip.textContent = "R$ " + metaMensalLogin.toFixed(2);
         }
-
-        function setStatus(msg, tipo) {
-          const bar = document.getElementById("statusContainer");
-          const text = document.getElementById("statusText");
-          text.textContent = msg;
-          bar.classList.remove("erro", "sucesso");
-          if (tipo === "erro") bar.classList.add("erro");
-          if (tipo === "sucesso") bar.classList.add("sucesso");
-        }
-
-        function abrirAba(qual) {
-          const abaVendas = document.getElementById("abaVendas");
-          const abaCond = document.getElementById("abaCondicionais");
-          const tabV = document.getElementById("tabVendas");
-          const tabC = document.getElementById("tabCondicionais");
-
-          if (qual === "vendas") {
-            abaVendas.style.display = "block";
-            abaCond.style.display = "none";
-            tabV.classList.add("active");
-            tabC.classList.remove("active");
-          } else {
-            abaVendas.style.display = "none";
-            abaCond.style.display = "block";
-            tabV.classList.remove("active");
-            tabC.classList.add("active");
-          }
-        }
-
-        function atualizarIndicadoresVenda() {
-          const ticketSpan = document.getElementById("ticketMedioSpan");
-          const taxaSpan = document.getElementById("taxaConversaoSpan");
-
-          const ticket = vendasHojeQtd ? vendasHojeTotal / vendasHojeQtd : 0;
-          if (ticketSpan) {
-            ticketSpan.textContent = "R$ " + ticket.toFixed(2);
-          }
-
-          let taxa = 0;
-          if (atendimentosHojeQtd && vendasHojeQtd) {
-            taxa = (vendasHojeQtd / atendimentosHojeQtd) * 100;
-          }
-          if (taxaSpan) {
-            taxaSpan.textContent =
-              taxa.toFixed(1).replace(".", ",") + "%";
-          }
-        }
-
-        function authHeaders() {
-          return {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token,
-          };
-        }
-
-        // LOGIN
-        async function login() {
-          const nome = document.getElementById("nome").value.trim();
-          const senha = document.getElementById("senha").value;
-
-          if (!nome || !senha) {
-            setStatus("Preencha nome e senha para entrar.", "erro");
-            return;
-          }
-
-          setStatus("Conectando...", null);
-
-          try {
-            const resp = await fetch(API + "/login", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ nome, senha }),
-            });
-
-            if (!resp.ok) {
-              setStatus("Falha no login. Confira nome e senha.", "erro");
-              return;
-            }
-
-            const data = await resp.json();
-            token = data.token;
-            nomeVendedora = data.vendedora?.nome || nome;
-
-            document.getElementById("loginCard").style.display = "none";
-            document.getElementById("painel").style.display = "grid";
-
-            // define dia padrão
-            dataPainel = hojeISO();
-            const inputData = document.getElementById("dataPainel");
-            if (inputData) inputData.value = dataPainel;
-
-            atualizarDataCabecalho();
-
-            setStatus(`Logada como ${nomeVendedora}. Bom trabalho!`, "sucesso");
-
-            await carregarTudoVendedora();
-          } catch (e) {
-            console.error(e);
-            setStatus("Erro ao conectar com o servidor.", "erro");
-          }
-        }
-
-        function atualizarDataCabecalho() {
-          if (!dataPainel) dataPainel = hojeISO();
-          const d = new Date(dataPainel + "T12:00:00");
-          const texto = d.toLocaleDateString("pt-BR", {
-            weekday: "long",
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-          });
-
-          document.getElementById("bemVindaTitulo").textContent =
-            "Bom dia, " + (nomeVendedora || "");
-          document.getElementById("infoHoje").textContent =
-            texto.charAt(0).toUpperCase() + texto.slice(1);
-        }
-
-        async function alterarDataPainel(novaData) {
-          dataPainel = novaData || hojeISO();
-
-          const inputData = document.getElementById("dataPainel");
-          if (inputData && !novaData) {
-            inputData.value = dataPainel;
-          }
-
-          atualizarDataCabecalho();
-          setStatus("Carregando dados do dia selecionado...", null);
-          await carregarTudoVendedora();
-          setStatus("Dados atualizados para o dia selecionado.", "sucesso");
-        }
-
-        async function carregarTudoVendedora() {
-          await Promise.all([
-            carregarMetaHoje(dataPainel),
-            carregarAtendimentosHoje(dataPainel),
-            carregarVendasHoje(dataPainel),
-            carregarCondicionais(),
-          ]);
-        }
-
-        // META DIÁRIA + MENSAL (usando /api/metas/:data)
-        async function carregarMetaHoje(dataRef) {
-          if (!token) return;
-          const data = dataRef || hojeISO();
-
-          try {
-            const resp = await fetch(API + "/metas/" + data, {
-              headers: { Authorization: "Bearer " + token },
-            });
-            const meta = await resp.json();
-
-            const valorDia = Number(meta.valor_meta || meta.valorMeta || 0);
-            const metaMensal = Number(meta.meta_mensal || 0);
-            const faltaMes = Number(meta.falta_no_mes || 0);
-
-            document.getElementById("metaAtual").textContent =
-              "R$ " + valorDia.toFixed(2);
-            document.getElementById("metaValor").value =
-              valorDia > 0 ? valorDia.toString() : "";
-
-            const metaMensalChip = document.getElementById("metaMensalChip");
-            const faltanteMensalChip =
-              document.getElementById("faltanteMensalChip");
-
-            if (metaMensalChip) {
-              metaMensalChip.textContent = "R$ " + metaMensal.toFixed(2);
-            }
-            if (faltanteMensalChip) {
-              faltanteMensalChip.textContent = "R$ " + faltaMes.toFixed(2);
-            }
-          } catch (e) {
-            console.error(e);
-            setStatus("Erro ao buscar meta.", "erro");
-          }
-        }
-
-        async function salvarMetaHoje() {
-          if (!token) return;
-          const valor = Number(
-            (document.getElementById("metaValor").value || "0").replace(
-              ",",
-              "."
-            )
-          );
-          const data = dataPainel || hojeISO();
-
-          try {
-            const resp = await fetch(API + "/metas", {
-              method: "POST",
-              headers: authHeaders(),
-              body: JSON.stringify({ valorMeta: valor, data }),
-            });
-
-            if (!resp.ok) {
-              setStatus("Não foi possível salvar a meta.", "erro");
-              return;
-            }
-
-            await carregarMetaHoje(data);
-            setStatus("Meta do dia atualizada.", "sucesso");
-          } catch (e) {
-            console.error(e);
-            setStatus("Erro ao salvar meta.", "erro");
-          }
-        }
-
-        // ATENDIMENTOS
-        async function carregarAtendimentosHoje(dataRef) {
-          if (!token) return;
-          const data = dataRef || hojeISO();
-
-          try {
-            const resp = await fetch(API + "/atendimentos/" + data, {
-              headers: { Authorization: "Bearer " + token },
-            });
-            const dados = await resp.json();
-            const qtd = Number(dados.quantidade || 0);
-
-            document.getElementById("atendimentosQtd").value = qtd;
-            atendimentosHojeQtd = qtd;
-            atualizarIndicadoresVenda();
-          } catch (e) {
-            console.error(e);
-            setStatus("Erro ao buscar atendimentos.", "erro");
-          }
-        }
-
-        async function salvarAtendimentosHoje() {
-          if (!token) return;
-          const quantidade = Number(
-            document.getElementById("atendimentosQtd").value || "0"
-          );
-          const data = dataPainel || hojeISO();
-
-          try {
-            const resp = await fetch(API + "/atendimentos", {
-              method: "POST",
-              headers: authHeaders(),
-              body: JSON.stringify({ quantidade, data }),
-            });
-
-            if (!resp.ok) {
-              setStatus("Não foi possível salvar atendimentos.", "erro");
-              return;
-            }
-
-            await carregarAtendimentosHoje(data);
-            setStatus("Atendimentos salvos.", "sucesso");
-          } catch (e) {
-            console.error(e);
-            setStatus("Erro ao salvar atendimentos.", "erro");
-          }
-        }
-
-        // VENDAS
-        async function carregarVendasHoje(dataRef) {
-          if (!token) return;
-          const dia = dataRef || hojeISO();
-
-          const url =
-            API +
-            `/vendas?dataInicio=${encodeURIComponent(
-              dia
-            )}&dataFim=${encodeURIComponent(dia)}`;
-
-          try {
-            const resp = await fetch(url, {
-              headers: { Authorization: "Bearer " + token },
-            });
-            const vendas = await resp.json();
-
-            const tbody = document.querySelector("#tabelaVendas tbody");
-            tbody.innerHTML = "";
-
-            let total = 0;
-            let totalPecas = 0;
-
-            vendas.forEach((v) => {
-              const tr = document.createElement("tr");
-              const dataVenda = v.data_venda || v.datavenda || v.data;
-              const hora = dataVenda
-                ? new Date(dataVenda).toLocaleTimeString("pt-BR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "-";
-
-              const pecas = Number(
-                v.quantidade_pecas || v.quantidadePecas || 0
-              );
-
-              total += Number(v.valor || 0);
-              totalPecas += pecas;
-
-              tr.innerHTML = `
-                <td>${hora}</td>
-                <td>${v.cliente_nome || v.clienteNome || "-"}</td>
-                <td>${v.forma_pagamento || v.formaPagamento || "-"}</td>
-                <td>${pecas || "-"}</td>
-                <td>R$ ${Number(v.valor || 0).toFixed(2)}</td>
-                <td>
-                  <button
-                    class="btn-danger"
-                    onclick="excluirVenda(${v.id})"
-                  >
-                    Remover
-                  </button>
-                  <button
-                    class="btn-outline"
-                    style="padding:4px 8px; font-size:10px; margin-top:4px;"
-                    onclick="editarVenda(${v.id}, ${Number(
-                v.valor || 0
-              )}, ${pecas || 0})"
-                  >
-                    Editar
-                  </button>
-                </td>
-              `;
-              tbody.appendChild(tr);
-            });
-
-            vendasHojeQtd = vendas.length;
-            vendasHojeTotal = total;
-
-            if (vendas.length === 0) {
-              document.getElementById("resumoVendasHoje").textContent =
-                "Nenhuma venda lançada neste dia.";
-            } else {
-              document.getElementById(
-                "resumoVendasHoje"
-              ).textContent = `${vendas.length} venda(s) • Total R$ ${total.toFixed(
-                2
-              )}`;
-            }
-
-            // peças por venda
-            const pecasPorVenda =
-              vendasHojeQtd > 0 ? totalPecas / vendasHojeQtd : 0;
-            const pecasLinha = document.getElementById("pecasPorVendaLinha");
-            if (pecasLinha) {
-              pecasLinha.textContent =
-                "Peças por venda: " +
-                pecasPorVenda.toFixed(1).replace(".", ",");
-            }
-
-            atualizarIndicadoresVenda();
-          } catch (e) {
-            console.error(e);
-            setStatus("Erro ao buscar vendas.", "erro");
-          }
-        }
-
-        async function lançarVenda() {
-          if (!token) return;
-
-          const valor = Number(
-            (document.getElementById("valorVenda").value || "0").replace(
-              ",",
-              "."
-            )
-          );
-          const quantidadePecas = Number(
-            document.getElementById("qtdPecasVenda").value || "0"
-          );
-          const formaPagamento =
-            document.getElementById("formaPagamento").value;
-          const clienteNome = document
-            .getElementById("clienteNome")
-            .value.trim();
-          const observacao = document
-            .getElementById("obsVenda")
-            .value.trim();
-
-          if (!valor || !formaPagamento) {
-            setStatus(
-              "Informe pelo menos o valor e a forma de pagamento.",
-              "erro"
-            );
-            return;
-          }
-
-          try {
-            const resp = await fetch(API + "/vendas", {
-              method: "POST",
-              headers: authHeaders(),
-              body: JSON.stringify({
-                valor,
-                quantidadePecas,
-                formaPagamento,
-                clienteNome,
-                observacao,
-              }),
-            });
-
-            if (!resp.ok) {
-              setStatus("Não foi possível lançar a venda.", "erro");
-              return;
-            }
-
-            document.getElementById("valorVenda").value = "";
-            document.getElementById("qtdPecasVenda").value = "";
-            document.getElementById("formaPagamento").value = "";
-            document.getElementById("clienteNome").value = "";
-            document.getElementById("obsVenda").value = "";
-
-            setStatus("Venda lançada com sucesso.", "sucesso");
-            await carregarVendasHoje(dataPainel);
-            await carregarMetaHoje(dataPainel);
-          } catch (e) {
-            console.error(e);
-            setStatus("Erro ao lançar venda.", "erro");
-          }
-        }
-
-        // CONDICIONAIS
-        async function carregarCondicionais() {
-          if (!token) return;
-
-          try {
-            const resp = await fetch(API + "/condicionais", {
-              headers: { Authorization: "Bearer " + token },
-            });
-            const conds = await resp.json();
-
-            const tbody = document.querySelector(
-              "#tabelaCondicionais tbody"
-            );
-            tbody.innerHTML = "";
-
-            conds.forEach((c) => {
-              const tr = document.createElement("tr");
-              const dataReg = c.data_registro || c.dataRegistro;
-              const data = dataReg
-                ? new Date(dataReg).toLocaleDateString("pt-BR")
-                : "-";
-
-              const pecas = Number(
-                c.quantidade_pecas || c.quantidadePecas || 0
-              );
-              const valor = Number(
-                c.valor_total || c.valorTotal || 0
-              );
-
-              tr.innerHTML = `
-                <td>${data}</td>
-                <td>${c.cliente_nome || c.clienteNome || "-"}</td>
-                <td>${pecas}</td>
-                <td>R$ ${valor.toFixed(2)}</td>
-                <td>
-                  <button
-                    class="btn-danger"
-                    onclick="excluirCondicional(${c.id})"
-                  >
-                    Remover
-                  </button>
-                  <button
-                    class="btn-outline"
-                    style="padding:4px 8px; font-size:10px; margin-top:4px;"
-                    onclick="editarCondicional(${c.id}, ${pecas}, ${valor})"
-                  >
-                    Editar
-                  </button>
-                </td>
-              `;
-              tbody.appendChild(tr);
-            });
-          } catch (e) {
-            console.error(e);
-            setStatus("Erro ao buscar condicionais.", "erro");
-          }
-        }
-
-        async function lançarCondicional() {
-          if (!token) return;
-
-          const quantidadePecas = Number(
-            document.getElementById("qtdPecas").value || "0"
-          );
-          const valorTotal = Number(
-            (document.getElementById("valorCondicional").value || "0").replace(
-              ",",
-              "."
-            )
-          );
-          const clienteNome = document
-            .getElementById("clienteCondicional")
-            .value.trim();
-          const observacao = document
-            .getElementById("obsCondicional")
-            .value.trim();
-
-          if (!quantidadePecas || !clienteNome) {
-            setStatus(
-              "Informe ao menos a quantidade de peças e o nome da cliente.",
-              "erro"
-            );
-            return;
-          }
-
-          try {
-            const resp = await fetch(API + "/condicionais", {
-              method: "POST",
-              headers: authHeaders(),
-              body: JSON.stringify({
-                quantidadePecas,
-                valorTotal,
-                clienteNome,
-                observacao,
-              }),
-            });
-
-            if (!resp.ok) {
-              setStatus("Não foi possível lançar o condicional.", "erro");
-              return;
-            }
-
-            document.getElementById("qtdPecas").value = "";
-            document.getElementById("valorCondicional").value = "";
-            document.getElementById("clienteCondicional").value = "";
-            document.getElementById("obsCondicional").value = "";
-
-            setStatus("Condicional lançado com sucesso.", "sucesso");
-            await carregarCondicionais();
-          } catch (e) {
-            console.error(e);
-            setStatus("Erro ao lançar condicional.", "erro");
-          }
-        }
-
-        // ====== EDIÇÃO / EXCLUSÃO VENDAS E CONDICIONAIS ======
-
-        async function excluirVenda(id) {
-          if (!token) return;
-          if (!confirm("Remover esta venda?")) return;
-
-          try {
-            const resp = await fetch(API + "/vendas/" + id, {
-              method: "DELETE",
-              headers: { Authorization: "Bearer " + token },
-            });
-
-            if (!resp.ok) {
-              setStatus("Não foi possível remover a venda.", "erro");
-              return;
-            }
-
-            setStatus("Venda removida.", "sucesso");
-            await carregarVendasHoje(dataPainel);
-            await carregarMetaHoje(dataPainel);
-          } catch (e) {
-            console.error(e);
-            setStatus("Erro ao remover venda.", "erro");
-          }
-        }
-
-        async function editarVenda(id, valorAtual, pecasAtual) {
-          if (!token) return;
-
-          const novoValorStr = prompt(
-            "Novo valor da venda (R$):",
-            valorAtual.toFixed(2)
-          );
-          if (novoValorStr === null) return;
-          const novoValor = Number(
-            novoValorStr.toString().replace(",", ".")
-          );
-          if (!novoValor || novoValor <= 0) {
-            alert("Valor inválido.");
-            return;
-          }
-
-          const novasPecasStr = prompt(
-            "Nova quantidade de peças:",
-            pecasAtual || 1
-          );
-          if (novasPecasStr === null) return;
-          const novasPecas = parseInt(novasPecasStr, 10) || 1;
-
-          try {
-            const resp = await fetch(API + "/vendas/" + id, {
-              method: "PUT",
-              headers: authHeaders(),
-              body: JSON.stringify({
-                valor: novoValor,
-                quantidadePecas: novasPecas,
-              }),
-            });
-
-            if (!resp.ok) {
-              setStatus("Não foi possível editar a venda.", "erro");
-              return;
-            }
-
-            setStatus("Venda atualizada.", "sucesso");
-            await carregarVendasHoje(dataPainel);
-            await carregarMetaHoje(dataPainel);
-          } catch (e) {
-            console.error(e);
-            setStatus("Erro ao editar venda.", "erro");
-          }
-        }
-
-        async function excluirCondicional(id) {
-          if (!token) return;
-          if (!confirm("Remover este condicional?")) return;
-
-          try {
-            const resp = await fetch(API + "/condicionais/" + id, {
-              method: "DELETE",
-              headers: { Authorization: "Bearer " + token },
-            });
-
-            if (!resp.ok) {
-              setStatus("Não foi possível remover o condicional.", "erro");
-              return;
-            }
-
-            setStatus("Condicional removido.", "sucesso");
-            await carregarCondicionais();
-          } catch (e) {
-            console.error(e);
-            setStatus("Erro ao remover condicional.", "erro");
-          }
-        }
-
-        async function editarCondicional(id, pecasAtual, valorAtual) {
-          if (!token) return;
-
-          const novasPecasStr = prompt(
-            "Nova quantidade de peças:",
-            pecasAtual || 1
-          );
-          if (novasPecasStr === null) return;
-          const novasPecas = parseInt(novasPecasStr, 10) || 1;
-
-          const novoValorStr = prompt(
-            "Novo valor total (R$):",
-            valorAtual.toFixed(2)
-          );
-          if (novoValorStr === null) return;
-          const novoValor = Number(
-            novoValorStr.toString().replace(",", ".")
-          );
-          if (!novoValor || novoValor < 0) {
-            alert("Valor inválido.");
-            return;
-          }
-
-          try {
-            const resp = await fetch(API + "/condicionais/" + id, {
-              method: "PUT",
-              headers: authHeaders(),
-              body: JSON.stringify({
-                quantidadePecas: novasPecas,
-                valorTotal: novoValor,
-              }),
-            });
-
-            if (!resp.ok) {
-              setStatus("Não foi possível editar o condicional.", "erro");
-              return;
-            }
-
-            setStatus("Condicional atualizado.", "sucesso");
-            await carregarCondicionais();
-          } catch (e) {
-            console.error(e);
-            setStatus("Erro ao editar condicional.", "erro");
-          }
-        }
-      </script>
+        setStatus("Não foi possível carregar meta automática (usando padrão).", "erro");
+        return;
+      }
+
+      const meta = await resp.json();
+
+      let valorDia = Number(meta.valor_meta || meta.valorMeta || 0);
+      let metaMensal = Number(meta.meta_mensal || 0);
+      let faltaMes = Number(meta.falta_no_mes || 0);
+
+      // se a API retornar 0 mas temos meta padrão, usamos metaPadraoLogin
+      if ((!valorDia || valorDia === 0) && metaPadraoLogin > 0) {
+        valorDia = metaPadraoLogin;
+      }
+
+      // se meta mensal vier 0 mas temos metaMensalLogin, usamos
+      if ((!metaMensal || metaMensal === 0) && metaMensalLogin > 0) {
+        metaMensal = metaMensalLogin;
+      }
+
+      // se faltar mês não vier, mas temos meta mensal, colocamos igual à meta
+      if (faltaMes === 0 && metaMensal > 0 && meta.vendido_no_mes === 0) {
+        faltaMes = metaMensal;
+      }
+
+      if (metaAtualChip) {
+        metaAtualChip.textContent = "R$ " + valorDia.toFixed(2);
+      }
+      if (inputMeta) {
+        inputMeta.value = valorDia > 0 ? valorDia.toString() : "";
+      }
+
+      if (metaMensalChip) {
+        metaMensalChip.textContent = "R$ " + metaMensal.toFixed(2);
+      }
+      if (faltanteMensalChip) {
+        faltanteMensalChip.textContent = "R$ " + faltaMes.toFixed(2);
+      }
+    } catch (e) {
+      console.error(e);
+      // fallback final se der erro de rede
+      if (metaPadraoLogin > 0) {
+        if (metaAtualChip)
+          metaAtualChip.textContent = "R$ " + metaPadraoLogin.toFixed(2);
+        if (inputMeta) inputMeta.value = metaPadraoLogin.toString();
+        if (metaMensalChip && metaMensalLogin > 0)
+          metaMensalChip.textContent = "R$ " + metaMensalLogin.toFixed(2);
+        if (faltanteMensalChip && metaMensalLogin > 0)
+          faltanteMensalChip.textContent = "R$ " + metaMensalLogin.toFixed(2);
+      }
+      setStatus("Erro ao buscar meta (usando padrão).", "erro");
+    }
+  }
+
+  async function salvarMetaHoje() {
+    if (!token) return;
+    const valor = Number(
+      (document.getElementById("metaValor").value || "0").replace(",", ".")
+    );
+    const data = dataPainel || hojeISO();
+
+    try {
+      const resp = await fetch(API + "/metas", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ valorMeta: valor, data }),
+      });
+
+      if (!resp.ok) {
+        setStatus("Não foi possível salvar a meta.", "erro");
+        return;
+      }
+
+      await carregarMetaHoje(data);
+      setStatus("Meta do dia atualizada.", "sucesso");
+    } catch (e) {
+      console.error(e);
+      setStatus("Erro ao salvar meta.", "erro");
+    }
+  }
+
+  // ATENDIMENTOS
+  async function carregarAtendimentosHoje(dataRef) {
+    if (!token) return;
+    const data = dataRef || hojeISO();
+
+    try {
+      const resp = await fetch(API + "/atendimentos/" + data, {
+        headers: { Authorization: "Bearer " + token },
+      });
+      const dados = await resp.json();
+      const qtd = Number(dados.quantidade || 0);
+
+      document.getElementById("atendimentosQtd").value = qtd;
+      atendimentosHojeQtd = qtd;
+      atualizarIndicadoresVenda();
+    } catch (e) {
+      console.error(e);
+      setStatus("Erro ao buscar atendimentos.", "erro");
+    }
+  }
+
+  async function salvarAtendimentosHoje() {
+    if (!token) return;
+    const quantidade = Number(
+      document.getElementById("atendimentosQtd").value || "0"
+    );
+    const data = dataPainel || hojeISO();
+
+    try {
+      const resp = await fetch(API + "/atendimentos", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ quantidade, data }),
+      });
+
+      if (!resp.ok) {
+        setStatus("Não foi possível salvar atendimentos.", "erro");
+        return;
+      }
+
+      await carregarAtendimentosHoje(data);
+      setStatus("Atendimentos salvos.", "sucesso");
+    } catch (e) {
+      console.error(e);
+      setStatus("Erro ao salvar atendimentos.", "erro");
+    }
+  }
+
+  // VENDAS
+  async function carregarVendasHoje(dataRef) {
+    if (!token) return;
+    const dia = dataRef || hojeISO();
+
+    const url =
+      API +
+      `/vendas?dataInicio=${encodeURIComponent(
+        dia
+      )}&dataFim=${encodeURIComponent(dia)}`;
+
+    try {
+      const resp = await fetch(url, {
+        headers: { Authorization: "Bearer " + token },
+      });
+      const vendas = await resp.json();
+
+      const tbody = document.querySelector("#tabelaVendas tbody");
+      tbody.innerHTML = "";
+
+      let total = 0;
+      let totalPecas = 0;
+
+      vendas.forEach((v) => {
+        const tr = document.createElement("tr");
+        const dataVenda = v.data_venda || v.datavenda || v.data;
+        const hora = dataVenda
+          ? new Date(dataVenda).toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "-";
+
+        const pecas = Number(
+          v.quantidade_pecas || v.quantidadePecas || 0
+        );
+
+        total += Number(v.valor || 0);
+        totalPecas += pecas;
+
+        tr.innerHTML = `
+          <td>${hora}</td>
+          <td>${v.cliente_nome || v.clienteNome || "-"}</td>
+          <td>${v.forma_pagamento || v.formaPagamento || "-"}</td>
+          <td>${pecas || "-"}</td>
+          <td>R$ ${Number(v.valor || 0).toFixed(2)}</td>
+          <td>
+            <button
+              class="btn-danger"
+              onclick="excluirVenda(${v.id})"
+            >
+              Remover
+            </button>
+            <button
+              class="btn-outline"
+              style="padding:4px 8px; font-size:10px; margin-top:4px;"
+              onclick="editarVenda(${v.id}, ${Number(
+          v.valor || 0
+        )}, ${pecas || 0})"
+            >
+              Editar
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      vendasHojeQtd = vendas.length;
+      vendasHojeTotal = total;
+
+      if (vendas.length === 0) {
+        document.getElementById("resumoVendasHoje").textContent =
+          "Nenhuma venda lançada neste dia.";
+      } else {
+        document.getElementById(
+          "resumoVendasHoje"
+        ).textContent = `${vendas.length} venda(s) • Total R$ ${total.toFixed(
+          2
+        )}`;
+      }
+
+      // peças por venda
+      const pecasPorVenda =
+        vendasHojeQtd > 0 ? totalPecas / vendasHojeQtd : 0;
+      const pecasLinha = document.getElementById("pecasPorVendaLinha");
+      if (pecasLinha) {
+        pecasLinha.textContent =
+          "Peças por venda: " +
+          pecasPorVenda.toFixed(1).replace(".", ",");
+      }
+
+      atualizarIndicadoresVenda();
+    } catch (e) {
+      console.error(e);
+      setStatus("Erro ao buscar vendas.", "erro");
+    }
+  }
+
+  async function lançarVenda() {
+    if (!token) return;
+
+    const valor = Number(
+      (document.getElementById("valorVenda").value || "0").replace(
+        ",",
+        "."
+      )
+    );
+    const quantidadePecas = Number(
+      document.getElementById("qtdPecasVenda").value || "0"
+    );
+    const formaPagamento =
+      document.getElementById("formaPagamento").value;
+    const clienteNome = document
+      .getElementById("clienteNome")
+      .value.trim();
+    const observacao = document
+      .getElementById("obsVenda")
+      .value.trim();
+
+    if (!valor || !formaPagamento) {
+      setStatus(
+        "Informe pelo menos o valor e a forma de pagamento.",
+        "erro"
+      );
+      return;
+    }
+
+    try {
+      const resp = await fetch(API + "/vendas", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          valor,
+          quantidadePecas,
+          formaPagamento,
+          clienteNome,
+          observacao,
+        }),
+      });
+
+      if (!resp.ok) {
+        setStatus("Não foi possível lançar a venda.", "erro");
+        return;
+      }
+
+      document.getElementById("valorVenda").value = "";
+      document.getElementById("qtdPecasVenda").value = "";
+      document.getElementById("formaPagamento").value = "";
+      document.getElementById("clienteNome").value = "";
+      document.getElementById("obsVenda").value = "";
+
+      setStatus("Venda lançada com sucesso.", "sucesso");
+      await carregarVendasHoje(dataPainel);
+      await carregarMetaHoje(dataPainel);
+    } catch (e) {
+      console.error(e);
+      setStatus("Erro ao lançar venda.", "erro");
+    }
+  }
+
+  // CONDICIONAIS
+  async function carregarCondicionais() {
+    if (!token) return;
+
+    try {
+      const resp = await fetch(API + "/condicionais", {
+        headers: { Authorization: "Bearer " + token },
+      });
+      const conds = await resp.json();
+
+      const tbody = document.querySelector(
+        "#tabelaCondicionais tbody"
+      );
+      tbody.innerHTML = "";
+
+      conds.forEach((c) => {
+        const tr = document.createElement("tr");
+        const dataReg = c.data_registro || c.dataRegistro;
+        const data = dataReg
+          ? new Date(dataReg).toLocaleDateString("pt-BR")
+          : "-";
+
+        const pecas = Number(
+          c.quantidade_pecas || c.quantidadePecas || 0
+        );
+        const valor = Number(
+          c.valor_total || c.valorTotal || 0
+        );
+
+        tr.innerHTML = `
+          <td>${data}</td>
+          <td>${c.cliente_nome || c.clienteNome || "-"}</td>
+          <td>${pecas}</td>
+          <td>R$ ${valor.toFixed(2)}</td>
+          <td>
+            <button
+              class="btn-danger"
+              onclick="excluirCondicional(${c.id})"
+            >
+              Remover
+            </button>
+            <button
+              class="btn-outline"
+              style="padding:4px 8px; font-size:10px; margin-top:4px;"
+              onclick="editarCondicional(${c.id}, ${pecas}, ${valor})"
+            >
+              Editar
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      console.error(e);
+      setStatus("Erro ao buscar condicionais.", "erro");
+    }
+  }
+
+  async function lançarCondicional() {
+    if (!token) return;
+
+    const quantidadePecas = Number(
+      document.getElementById("qtdPecas").value || "0"
+    );
+    const valorTotal = Number(
+      (document.getElementById("valorCondicional").value || "0").replace(
+        ",",
+        "."
+      )
+    );
+    const clienteNome = document
+      .getElementById("clienteCondicional")
+      .value.trim();
+    const observacao = document
+      .getElementById("obsCondicional")
+      .value.trim();
+
+    if (!quantidadePecas || !clienteNome) {
+      setStatus(
+        "Informe ao menos a quantidade de peças e o nome da cliente.",
+        "erro"
+      );
+      return;
+    }
+
+    try {
+      const resp = await fetch(API + "/condicionais", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          quantidadePecas,
+          valorTotal,
+          clienteNome,
+          observacao,
+        }),
+      });
+
+      if (!resp.ok) {
+        setStatus("Não foi possível lançar o condicional.", "erro");
+        return;
+      }
+
+      document.getElementById("qtdPecas").value = "";
+      document.getElementById("valorCondicional").value = "";
+      document.getElementById("clienteCondicional").value = "";
+      document.getElementById("obsCondicional").value = "";
+
+      setStatus("Condicional lançado com sucesso.", "sucesso");
+      await carregarCondicionais();
+    } catch (e) {
+      console.error(e);
+      setStatus("Erro ao lançar condicional.", "erro");
+    }
+  }
+
+  // ====== EDIÇÃO / EXCLUSÃO VENDAS E CONDICIONAIS ======
+
+  async function excluirVenda(id) {
+    if (!token) return;
+    if (!confirm("Remover esta venda?")) return;
+
+    try {
+      const resp = await fetch(API + "/vendas/" + id, {
+        method: "DELETE",
+        headers: { Authorization: "Bearer " + token },
+      });
+
+      if (!resp.ok) {
+        setStatus("Não foi possível remover a venda.", "erro");
+        return;
+      }
+
+      setStatus("Venda removida.", "sucesso");
+      await carregarVendasHoje(dataPainel);
+      await carregarMetaHoje(dataPainel);
+    } catch (e) {
+      console.error(e);
+      setStatus("Erro ao remover venda.", "erro");
+    }
+  }
+
+  async function editarVenda(id, valorAtual, pecasAtual) {
+    if (!token) return;
+
+    const novoValorStr = prompt(
+      "Novo valor da venda (R$):",
+      valorAtual.toFixed(2)
+    );
+    if (novoValorStr === null) return;
+    const novoValor = Number(
+      novoValorStr.toString().replace(",", ".")
+    );
+    if (!novoValor || novoValor <= 0) {
+      alert("Valor inválido.");
+      return;
+    }
+
+    const novasPecasStr = prompt(
+      "Nova quantidade de peças:",
+      pecasAtual || 1
+    );
+    if (novasPecasStr === null) return;
+    const novasPecas = parseInt(novasPecasStr, 10) || 1;
+
+    try {
+      const resp = await fetch(API + "/vendas/" + id, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          valor: novoValor,
+          quantidadePecas: novasPecas,
+        }),
+      });
+
+      if (!resp.ok) {
+        setStatus("Não foi possível editar a venda.", "erro");
+        return;
+      }
+
+      setStatus("Venda atualizada.", "sucesso");
+      await carregarVendasHoje(dataPainel);
+      await carregarMetaHoje(dataPainel);
+    } catch (e) {
+      console.error(e);
+      setStatus("Erro ao editar venda.", "erro");
+    }
+  }
+
+  async function excluirCondicional(id) {
+    if (!token) return;
+    if (!confirm("Remover este condicional?")) return;
+
+    try {
+      const resp = await fetch(API + "/condicionais/" + id, {
+        method: "DELETE",
+        headers: { Authorization: "Bearer " + token },
+      });
+
+      if (!resp.ok) {
+        setStatus("Não foi possível remover o condicional.", "erro");
+        return;
+      }
+
+      setStatus("Condicional removido.", "sucesso");
+      await carregarCondicionais();
+    } catch (e) {
+      console.error(e);
+      setStatus("Erro ao remover condicional.", "erro");
+    }
+  }
+
+  async function editarCondicional(id, pecasAtual, valorAtual) {
+    if (!token) return;
+
+    const novasPecasStr = prompt(
+      "Nova quantidade de peças:",
+      pecasAtual || 1
+    );
+    if (novasPecasStr === null) return;
+    const novasPecas = parseInt(novasPecasStr, 10) || 1;
+
+    const novoValorStr = prompt(
+      "Novo valor total (R$):",
+      valorAtual.toFixed(2)
+    );
+    if (novoValorStr === null) return;
+    const novoValor = Number(
+      novoValorStr.toString().replace(",", ".")
+    );
+    if (!novoValor || novoValor < 0) {
+      alert("Valor inválido.");
+      return;
+    }
+
+    try {
+      const resp = await fetch(API + "/condicionais/" + id, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          quantidadePecas: novasPecas,
+          valorTotal: novoValor,
+        }),
+      });
+
+      if (!resp.ok) {
+        setStatus("Não foi possível editar o condicional.", "erro");
+        return;
+      }
+
+      setStatus("Condicional atualizado.", "sucesso");
+      await carregarCondicionais();
+    } catch (e) {
+      console.error(e);
+      setStatus("Erro ao editar condicional.", "erro");
+    }
+  }
+</script>
     </div>
   </body>
 </html>
