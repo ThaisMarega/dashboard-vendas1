@@ -26,7 +26,9 @@ const PORT = process.env.PORT || 3001;
 const JWT_SECRET =
   process.env.JWT_SECRET || 'seu-secret-key-aqui-mude-em-producao';
 
-// Middlewares
+// =========================
+// MIDDLEWARES BÁSICOS
+// =========================
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || '*',
@@ -55,7 +57,7 @@ const pool = new Pool({
 // ===================================
 const criarTabelas = async () => {
   try {
-    // Cria tabelas se não existirem
+    // Tabelas base
     await pool.query(`
       CREATE TABLE IF NOT EXISTS vendedoras (
         id SERIAL PRIMARY KEY,
@@ -105,7 +107,13 @@ const criarTabelas = async () => {
       );
     `);
 
-    // 🔧 Atualiza tabela de vendas para garantir coluna quantidade_pecas
+    // Coluna extra: perfil de gerente
+    await pool.query(`
+      ALTER TABLE vendedoras
+      ADD COLUMN IF NOT EXISTS is_gerente BOOLEAN DEFAULT false;
+    `);
+
+    // Coluna extra: quantidade de peças na venda
     await pool.query(`
       ALTER TABLE vendas
       ADD COLUMN IF NOT EXISTS quantidade_pecas INTEGER DEFAULT 0;
@@ -118,17 +126,53 @@ const criarTabelas = async () => {
 };
 
 // ===================================
-// MIDDLEWARE DE AUTENTICAÇÃO
+// CRIA GERENTE PADRÃO SE NÃO EXISTIR
+// ===================================
+const criarUsuarioGerenteSeNecessario = async () => {
+  try {
+    const check = await pool.query(
+      'SELECT id, nome FROM vendedoras WHERE is_gerente = true LIMIT 1',
+    );
+
+    if (check.rows.length > 0) {
+      console.log(`Gerente já existente: ${check.rows[0].nome}`);
+      return;
+    }
+
+    const nome = process.env.GERENTE_NOME || 'Gerente';
+    const senhaPlano = process.env.GERENTE_SENHA || 'gerente2025';
+    const email = process.env.GERENTE_EMAIL || null;
+
+    const hash = await bcrypt.hash(senhaPlano, 10);
+
+    await pool.query(
+      `INSERT INTO vendedoras (nome, senha_hash, email, meta_padrao, ativo, is_gerente)
+       VALUES ($1, $2, $3, $4, true, true)`,
+      [nome, hash, email, 0],
+    );
+
+    console.log(`✅ Usuário gerente criado: ${nome}`);
+  } catch (error) {
+    console.error('❌ Erro ao criar usuário gerente:', error);
+  }
+};
+
+// ===================================
+// AUTENTICAÇÃO
 // ===================================
 const autenticar = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    const tokenHeader = req.headers.authorization;
+    const token = tokenHeader?.split(' ')[1];
+
     if (!token) {
       return res.status(401).json({ erro: 'Token não fornecido' });
     }
 
     const decoded = jwt.verify(token, JWT_SECRET);
     req.vendedoraId = decoded.id;
+    req.isGerente = !!decoded.isGerente;
+
     next();
   } catch (error) {
     console.error('Erro na autenticação:', error.message);
@@ -136,11 +180,16 @@ const autenticar = async (req, res, next) => {
   }
 };
 
+const exigirGerente = (req, res, next) => {
+  if (!req.isGerente) {
+    return res.status(403).json({ erro: 'Acesso restrito à gerente' });
+  }
+  next();
+};
+
 // ===================================
 // ROTAS DE AUTENTICAÇÃO
 // ===================================
-
-// Login
 app.post('/api/login', async (req, res) => {
   try {
     const { nome, senha } = req.body;
@@ -161,9 +210,11 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).json({ erro: 'Credenciais inválidas' });
     }
 
-    const token = jwt.sign({ id: vendedora.id }, JWT_SECRET, {
-      expiresIn: '24h',
-    });
+    const token = jwt.sign(
+      { id: vendedora.id, isGerente: vendedora.is_gerente },
+      JWT_SECRET,
+      { expiresIn: '24h' },
+    );
 
     res.json({
       token,
@@ -172,6 +223,7 @@ app.post('/api/login', async (req, res) => {
         nome: vendedora.nome,
         email: vendedora.email,
         metaPadrao: parseFloat(vendedora.meta_padrao),
+        isGerente: vendedora.is_gerente,
       },
     });
   } catch (error) {
@@ -180,16 +232,18 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Cadastrar vendedora (rota simples; depois podemos proteger como admin)
+// Cadastro de vendedora (pode ser usado depois pelo painel da gerente)
 app.post('/api/vendedoras', async (req, res) => {
   try {
-    const { nome, senha, email, metaPadrao } = req.body;
+    const { nome, senha, email, metaPadrao, isGerente } = req.body;
 
     const senhaHash = await bcrypt.hash(senha, 10);
 
     const result = await pool.query(
-      'INSERT INTO vendedoras (nome, senha_hash, email, meta_padrao) VALUES ($1, $2, $3, $4) RETURNING id, nome, email, meta_padrao',
-      [nome, senhaHash, email, metaPadrao || 15000],
+      `INSERT INTO vendedoras (nome, senha_hash, email, meta_padrao, is_gerente)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, nome, email, meta_padrao, is_gerente`,
+      [nome, senhaHash, email, metaPadrao || 15000, !!isGerente],
     );
 
     res.status(201).json(result.rows[0]);
@@ -203,20 +257,33 @@ app.post('/api/vendedoras', async (req, res) => {
 });
 
 // ===================================
-// ROTAS DE VENDAS
+// ROTAS DE VENDAS (VENDEDORA)
 // ===================================
-
-// Listar vendas (por período, para a vendedora logada)
 app.get('/api/vendas', autenticar, async (req, res) => {
   try {
-    const { dataInicio, dataFim } = req.query;
+    const { dataInicio, dataFim, all } = req.query;
 
-    let query = 'SELECT * FROM vendas WHERE vendedora_id = $1';
-    const params = [req.vendedoraId];
+    let query;
+    let params;
+
+    if (all === 'true' && req.isGerente) {
+      // Gerente pode ver todas
+      query = 'SELECT * FROM vendas WHERE 1=1';
+      params = [];
+    } else {
+      // Vendedora vê só as dela
+      query = 'SELECT * FROM vendas WHERE vendedora_id = $1';
+      params = [req.vendedoraId];
+    }
 
     if (dataInicio && dataFim) {
-      query += ' AND data_venda::date BETWEEN $2 AND $3';
-      params.push(dataInicio, dataFim);
+      if (params.length === 0) {
+        query += ' AND data_venda::date BETWEEN $1 AND $2';
+        params = [dataInicio, dataFim];
+      } else {
+        query += ' AND data_venda::date BETWEEN $2 AND $3';
+        params.push(dataInicio, dataFim);
+      }
     }
 
     query += ' ORDER BY data_venda DESC';
@@ -229,7 +296,6 @@ app.get('/api/vendas', autenticar, async (req, res) => {
   }
 });
 
-// Adicionar venda
 app.post('/api/vendas', autenticar, async (req, res) => {
   try {
     const {
@@ -277,7 +343,6 @@ app.post('/api/vendas', autenticar, async (req, res) => {
   }
 });
 
-// Deletar venda
 app.delete('/api/vendas/:id', autenticar, async (req, res) => {
   try {
     const { id } = req.params;
@@ -295,10 +360,8 @@ app.delete('/api/vendas/:id', autenticar, async (req, res) => {
 });
 
 // ===================================
-// ROTAS DE CONDICIONAIS
+// ROTAS DE CONDICIONAIS (VENDEDORA)
 // ===================================
-
-// Listar condicionais
 app.get('/api/condicionais', autenticar, async (req, res) => {
   try {
     const result = await pool.query(
@@ -313,7 +376,6 @@ app.get('/api/condicionais', autenticar, async (req, res) => {
   }
 });
 
-// Adicionar condicional
 app.post('/api/condicionais', autenticar, async (req, res) => {
   try {
     const { quantidadePecas, valorTotal, clienteNome, observacao } = req.body;
@@ -347,7 +409,6 @@ app.post('/api/condicionais', autenticar, async (req, res) => {
   }
 });
 
-// Deletar condicional
 app.delete('/api/condicionais/:id', autenticar, async (req, res) => {
   try {
     const { id } = req.params;
@@ -365,10 +426,8 @@ app.delete('/api/condicionais/:id', autenticar, async (req, res) => {
 });
 
 // ===================================
-// ROTAS DE ATENDIMENTOS
+// ROTAS DE ATENDIMENTOS (VENDEDORA)
 // ===================================
-
-// Salvar atendimentos do dia
 app.post('/api/atendimentos', autenticar, async (req, res) => {
   try {
     const { quantidade, data } = req.body;
@@ -394,7 +453,6 @@ app.post('/api/atendimentos', autenticar, async (req, res) => {
   }
 });
 
-// Buscar atendimentos do dia
 app.get('/api/atendimentos/:data', autenticar, async (req, res) => {
   try {
     const { data } = req.params;
@@ -412,10 +470,8 @@ app.get('/api/atendimentos/:data', autenticar, async (req, res) => {
 });
 
 // ===================================
-// ROTAS DE METAS
+// ROTAS DE METAS (VENDEDORA)
 // ===================================
-
-// Salvar meta do dia
 app.post('/api/metas', autenticar, async (req, res) => {
   try {
     const { valorMeta, data } = req.body;
@@ -441,7 +497,6 @@ app.post('/api/metas', autenticar, async (req, res) => {
   }
 });
 
-// Buscar meta do dia
 app.get('/api/metas/:data', autenticar, async (req, res) => {
   try {
     const { data } = req.params;
@@ -469,12 +524,117 @@ app.get('/api/metas/:data', autenticar, async (req, res) => {
 });
 
 // ===================================
+// ROTAS EXCLUSIVAS DA GERENTE (VISÃO GERAL)
+// ===================================
+
+// Vendas do dia (todas vendedoras)
+app.get(
+  '/api/admin/vendas-dia',
+  autenticar,
+  exigirGerente,
+  async (req, res) => {
+    try {
+      const data = req.query.data || new Date().toISOString().slice(0, 10);
+
+      const result = await pool.query(
+        `SELECT
+           ve.id,
+           ve.valor,
+           ve.quantidade_pecas,
+           ve.forma_pagamento,
+           ve.cliente_nome,
+           ve.data_venda,
+           v.id   AS vendedora_id,
+           v.nome AS vendedora_nome
+         FROM vendas ve
+         JOIN vendedoras v ON v.id = ve.vendedora_id
+         WHERE ve.data_venda::date = $1
+         ORDER BY ve.data_venda DESC`,
+        [data],
+      );
+
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar vendas gerais do dia:', error);
+      res
+        .status(500)
+        .json({ erro: 'Erro ao buscar vendas gerais do dia' });
+    }
+  },
+);
+
+// Atendimentos do dia (todas vendedoras)
+app.get(
+  '/api/admin/atendimentos-dia',
+  autenticar,
+  exigirGerente,
+  async (req, res) => {
+    try {
+      const data = req.query.data || new Date().toISOString().slice(0, 10);
+
+      const result = await pool.query(
+        `SELECT
+           a.id,
+           a.quantidade,
+           a.data_registro,
+           v.id   AS vendedora_id,
+           v.nome AS vendedora_nome
+         FROM atendimentos a
+         JOIN vendedoras v ON v.id = a.vendedora_id
+         WHERE a.data_registro = $1
+         ORDER BY v.nome`,
+        [data],
+      );
+
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar atendimentos gerais do dia:', error);
+      res
+        .status(500)
+        .json({ erro: 'Erro ao buscar atendimentos gerais do dia' });
+    }
+  },
+);
+
+// Condicionais (todas vendedoras)
+app.get(
+  '/api/admin/condicionais',
+  autenticar,
+  exigirGerente,
+  async (_req, res) => {
+    try {
+      const result = await pool.query(
+        `SELECT
+           c.id,
+           c.quantidade_pecas,
+           c.valor_total,
+           c.cliente_nome,
+           c.observacao,
+           c.data_registro,
+           v.id   AS vendedora_id,
+           v.nome AS vendedora_nome
+         FROM condicionais c
+         JOIN vendedoras v ON v.id = c.vendedora_id
+         ORDER BY c.data_registro DESC`,
+      );
+
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Erro ao buscar condicionais gerais:', error);
+      res
+        .status(500)
+        .json({ erro: 'Erro ao buscar condicionais gerais' });
+    }
+  },
+);
+
+// ===================================
 // INICIALIZAÇÃO DO SERVIDOR
 // ===================================
 app.listen(PORT, async () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
   await criarTabelas();
+  await criarUsuarioGerenteSeNecessario();
 });
 
-// Exportar para testes (se precisar)
 module.exports = app;
