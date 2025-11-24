@@ -17,11 +17,10 @@
 
       body {
         margin: 0;
-        padding: 0;
+        padding: 20px;
         background: var(--bege);
         font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
         color: var(--texto);
-        padding: 20px;
       }
 
       header {
@@ -118,7 +117,7 @@
 
   <body>
     <header>
-      <img src="001 LOGO_Prancheta 1 cópia 27.png" />
+      <img src="001 LOGO_Prancheta 1 cópia 27.jpeg" />
       <div>
         <h1>Painel da Gerente</h1>
         <div style="font-size: 12px; color: #666; letter-spacing: 0.1em;">
@@ -147,7 +146,7 @@
       <button onclick="loginGerente()">Entrar</button>
     </div>
 
-    <!-- PAINEL -->
+    <!-- PAINEL GERENTE -->
     <div id="painel" style="display: none">
       <!-- CADASTRAR NOVA VENDEDORA -->
       <div class="card">
@@ -223,7 +222,7 @@
     </div>
 
     <script>
-    const API = "https://dashboard-vendas-backend.onrender.com/api";
+      const API = "https://dashboard-vendas-backend.onrender.com/api";
       let token = null;
 
       function setStatus(msg, tipo = "") {
@@ -369,8 +368,18 @@
         const resp = await fetch(API + "/admin/metas", { headers: auth() });
         const dados = await resp.json();
 
-        const tbody = document.querySelector("#t
-`;
+        const tbody = document.querySelector("#tabelaMetas tbody");
+        tbody.innerHTML = "";
+
+        dados.forEach((m) => {
+          const d = new Date(m.data);
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+            <td>${d.toLocaleDateString("pt-BR")}</td>
+            <td>${m.vendedora}</td>
+            <td>R$ ${Number(m.valor_meta).toFixed(2)}</td>
+          `;
           tbody.appendChild(tr);
         });
       }
