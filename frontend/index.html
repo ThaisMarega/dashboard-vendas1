@@ -357,7 +357,17 @@
         <div class="card">
           <div class="card-title" id="bemVindaTitulo">Bom dia</div>
           <div class="card-subtitle small" id="infoHoje"></div>
-
+<div class="field">
+  <label for="dataPainel">Dia</label>
+  <input
+    id="dataPainel"
+    type="date"
+    onchange="alterarDataPainel(this.value)"
+  />
+  <div class="small">
+    Escolha outro dia para ver seu histórico de metas, atendimentos e vendas.
+  </div>
+</div>
           <!-- META DIÁRIA -->
           <div class="field">
             <label>Meta de hoje</label>
@@ -650,13 +660,16 @@
       </div>
       <script>
       const API = "https://dashboard-vendas1.onrender.com/api";
-      let token = null;
-      let nomeVendedora = null;
+let token = null;
+let nomeVendedora = null;
 
-      // indicadores
-      let vendasHojeQtd = 0;
-      let vendasHojeTotal = 0;
-      let atendimentosHojeQtd = 0;
+// data que está sendo exibida no painel (padrão: hoje)
+let dataPainel = null;
+
+// variáveis para indicadores
+let vendasHojeQtd = 0;
+let vendasHojeTotal = 0;
+let atendimentosHojeQtd = 0;
 
       // metas
       let metaDiariaAtual = 0;
@@ -779,26 +792,22 @@
           document.getElementById("loginCard").style.display = "none";
           document.getElementById("painel").style.display = "grid";
 
-          const hojeFormatado = new Date().toLocaleDateString("pt-BR", {
-            weekday: "long",
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-          });
+         // define o dia padrão como "hoje"
+dataPainel = hojeISO();
 
-          document.getElementById("bemVindaTitulo").textContent =
-            "Bom dia, " + nomeVendedora;
-          document.getElementById("infoHoje").textContent =
-            hojeFormatado.charAt(0).toUpperCase() + hojeFormatado.slice(1);
+// preenche o input=date com o dia atual
+const inputData = document.getElementById("dataPainel");
+if (inputData) {
+  inputData.value = dataPainel;
+}
 
-          setStatus(`Logada como ${nomeVendedora}. Bom trabalho!`, "sucesso");
+// atualiza o texto com a data "bonita"
+atualizarDataCabecalho();
 
-          await Promise.all([
-            carregarMetaHoje(),
-            carregarAtendimentosHoje(),
-            carregarVendasHoje(),
-            carregarCondicionais(),
-          ]);
+setStatus(`Logada como ${nomeVendedora}. Bom trabalho!`, "sucesso");
+
+// carrega dados do dia selecionado (inicialmente, hoje)
+await carregarTudoVendedora();
 
           await carregarResumoMensal();
         } catch (e) {
@@ -806,35 +815,69 @@
           setStatus("Erro ao conectar com o servidor.", "erro");
         }
       }
+function atualizarDataCabecalho() {
+  if (!dataPainel) dataPainel = hojeISO();
 
+  const d = new Date(dataPainel + "T12:00:00");
+  const texto = d.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+
+  document.getElementById("bemVindaTitulo").textContent =
+    "Bom dia, " + (nomeVendedora || "");
+  document.getElementById("infoHoje").textContent =
+    texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+// chamada quando a vendedora troca a data no calendário
+async function alterarDataPainel(novaData) {
+  dataPainel = novaData || hojeISO();
+
+  const inputData = document.getElementById("dataPainel");
+  if (inputData && !novaData) {
+    inputData.value = dataPainel;
+  }
+
+  atualizarDataCabecalho();
+  setStatus("Carregando dados do dia selecionado...", null);
+  await carregarTudoVendedora();
+  setStatus("Dados atualizados para o dia selecionado.", "sucesso");
+}
+
+// carrega meta, atendimentos, vendas e condicionais do dia atual do painel
+async function carregarTudoVendedora() {
+  await Promise.all([
+    carregarMetaHoje(dataPainel),
+    carregarAtendimentosHoje(dataPainel),
+    carregarVendasHoje(dataPainel),
+    carregarCondicionais(), // condicionais em aberto continuam geral
+  ]);
+}
       // META DIÁRIA
-      async function carregarMetaHoje() {
-        if (!token) return;
-        const data = hojeISO();
-        try {
-          const resp = await fetch(API + "/metas/" + data, {
-            headers: { Authorization: "Bearer " + token },
-          });
-          const meta = await resp.json();
-          const valor = Number(meta.valor_meta || meta.valorMeta || metaPadraoLogin || 0);
-          metaDiariaAtual = valor;
+      async function carregarMetaHoje(dataRef) {
+  if (!token) return;
+  const data = dataRef || hojeISO();
 
-          document.getElementById("metaAtual").textContent =
-            "R$ " + valor.toFixed(2);
-          document.getElementById("metaValor").value =
-            valor > 0 ? valor.toString() : "";
-        } catch (e) {
-          console.error(e);
-          setStatus("Erro ao carregar meta de hoje.", "erro");
-        }
-      }
+  const resp = await fetch(API + "/metas/" + data, {
+    headers: { Authorization: "Bearer " + token },
+  });
+  const meta = await resp.json();
+  const valor = Number(meta.valor_meta || meta.valorMeta || 0);
+  document.getElementById("metaAtual").textContent =
+    "R$ " + valor.toFixed(2);
+  document.getElementById("metaValor").value =
+    valor > 0 ? valor.toString() : "";
+}
 
       async function salvarMetaHoje() {
-        if (!token) return;
-        const valor = Number(
-          (document.getElementById("metaValor").value || "0").replace(",", ".")
-        );
-        const data = hojeISO();
+  if (!token) return;
+  const valor = Number(
+    (document.getElementById("metaValor").value || "0").replace(",", ".")
+  );
+  const data = dataPainel || hojeISO();
 
         try {
           const resp = await fetch(API + "/metas", {
@@ -902,30 +945,26 @@
       }
 
       // ATENDIMENTOS
-      async function carregarAtendimentosHoje() {
-        if (!token) return;
-        const data = hojeISO();
-        try {
-          const resp = await fetch(API + "/atendimentos/" + data, {
-            headers: { Authorization: "Bearer " + token },
-          });
-          const dados = await resp.json();
-          const qtd = Number(dados.quantidade || 0);
-          document.getElementById("atendimentosQtd").value = qtd;
-          atendimentosHojeQtd = qtd;
-          atualizarIndicadoresVenda();
-        } catch (e) {
-          console.error(e);
-          setStatus("Erro ao carregar atendimentos.", "erro");
-        }
-      }
+      async function carregarAtendimentosHoje(dataRef) {
+  if (!token) return;
+  const data = dataRef || hojeISO();
 
-      async function salvarAtendimentosHoje() {
-        if (!token) return;
-        const quantidade = Number(
-          document.getElementById("atendimentosQtd").value || "0"
-        );
-        const data = hojeISO();
+  const resp = await fetch(API + "/atendimentos/" + data, {
+    headers: { Authorization: "Bearer " + token },
+  });
+  const dados = await resp.json();
+  const qtd = Number(dados.quantidade || 0);
+  document.getElementById("atendimentosQtd").value = qtd;
+  atendimentosHojeQtd = qtd;
+  atualizarIndicadoresVenda();
+}
+
+     async function salvarAtendimentosHoje() {
+  if (!token) return;
+  const quantidade = Number(
+    document.getElementById("atendimentosQtd").value || "0"
+  );
+  const data = dataPainel || hojeISO();
 
         try {
           const resp = await fetch(API + "/atendimentos", {
@@ -948,14 +987,14 @@
       }
 
       // VENDAS
-      async function carregarVendasHoje() {
-        if (!token) return;
-        const hoje = hojeISO();
-        const url =
-          API +
-          `/vendas?dataInicio=${encodeURIComponent(
-            hoje
-          )}&dataFim=${encodeURIComponent(hoje)}`;
+     async function carregarVendasHoje(dataRef) {
+  if (!token) return;
+  const dia = dataRef || hojeISO();
+  const url =
+    API +
+    `/vendas?dataInicio=${encodeURIComponent(
+      dia
+    )}&dataFim=${encodeURIComponent(dia)}`;
 
         try {
           const resp = await fetch(url, {
