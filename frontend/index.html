@@ -418,6 +418,9 @@
             <div class="small">
               Ticket médio: <span id="ticketMedioSpan">R$ 0,00</span>
             </div>
+<div class="small" id="pecasPorVendaLinha">
+  Peças por venda: 0,0
+</div> 
           </div>
         </div>
 
@@ -447,73 +450,84 @@
                 Lance as vendas de hoje e acompanhe ticket médio e conversão.
               </div>
 
-              <div class="row">
-                <div class="field">
-                  <label for="valorVenda">Valor (R$)</label>
-                  <input
-                    id="valorVenda"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="0,00"
-                  />
-                </div>
+            <div class="row">
+  <div class="field">
+    <label for="valorVenda">Valor (R$)</label>
+    <input
+      id="valorVenda"
+      type="number"
+      min="0"
+      step="0.01"
+      placeholder="0,00"
+    />
+  </div>
 
-                <div class="field">
-                  <label for="formaPagamento">Forma de pagamento</label>
-                  <select id="formaPagamento">
-                    <option value="">Selecione</option>
+  <div class="field">
+    <label for="qtdPecasVenda">Qtd. peças</label>
+    <input
+      id="qtdPecasVenda"
+      type="number"
+      min="1"
+      step="1"
+      placeholder="0"
+    />
+  </div>
 
-                    <optgroup label="À vista">
-                      <option value="dinheiro">Dinheiro</option>
-                      <option value="pix">PIX</option>
-                      <option value="debito">Débito</option>
-                    </optgroup>
+  <div class="field">
+    <label for="formaPagamento">Forma de pagamento</label>
+    <select id="formaPagamento">
+      <option value="">Selecione</option>
 
-                    <optgroup label="Crédito">
-                      <option value="credito_1x">Crédito 1x</option>
-                      <option value="credito_2x">Crédito 2x</option>
-                      <option value="credito_3x">Crédito 3x</option>
-                      <option value="credito_4x">Crédito 4x</option>
-                      <option value="credito_5x">Crédito 5x</option>
-                      <option value="credito_6x">Crédito 6x</option>
-                      <option value="credito_7x">Crédito 7x</option>
-                      <option value="credito_8x">Crédito 8x</option>
-                      <option value="credito_9x">Crédito 9x</option>
-                      <option value="credito_10x">Crédito 10x</option>
-                    </optgroup>
+      <optgroup label="À vista">
+        <option value="dinheiro">Dinheiro</option>
+        <option value="pix">PIX</option>
+        <option value="debito">Débito</option>
+      </optgroup>
 
-                    <optgroup label="Crediário">
-                      <option value="crediario_1x">Crediário 1x</option>
-                      <option value="crediario_2x">Crediário 2x</option>
-                      <option value="crediario_3x">Crediário 3x</option>
-                      <option value="crediario_4x">Crediário 4x</option>
-                      <option value="crediario_5x">Crediário 5x</option>
-                      <option value="crediario_6x">Crediário 6x</option>
-                    </optgroup>
+      <optgroup label="Crédito">
+        <option value="credito_1x">Crédito 1x</option>
+        <option value="credito_2x">Crédito 2x</option>
+        <option value="credito_3x">Crédito 3x</option>
+        <option value="credito_4x">Crédito 4x</option>
+        <option value="credito_5x">Crédito 5x</option>
+        <option value="credito_6x">Crédito 6x</option>
+        <option value="credito_7x">Crédito 7x</option>
+        <option value="credito_8x">Crédito 8x</option>
+        <option value="credito_9x">Crédito 9x</option>
+        <option value="credito_10x">Crédito 10x</option>
+      </optgroup>
 
-                    <optgroup label="Boleto">
-                      <option value="boleto_1x">Boleto 1x</option>
-                      <option value="boleto_2x">Boleto 2x</option>
-                      <option value="boleto_3x">Boleto 3x</option>
-                      <option value="boleto_4x">Boleto 4x</option>
-                      <option value="boleto_5x">Boleto 5x</option>
-                      <option value="boleto_6x">Boleto 6x</option>
-                      <option value="boleto_7x">Boleto 7x</option>
-                      <option value="boleto_8x">Boleto 8x</option>
-                    </optgroup>
+      <optgroup label="Crediário">
+        <option value="crediario_1x">Crediário 1x</option>
+        <option value="crediario_2x">Crediário 2x</option>
+        <option value="crediario_3x">Crediário 3x</option>
+        <option value="crediario_4x">Crediário 4x</option>
+        <option value="crediario_5x">Crediário 5x</option>
+        <option value="crediario_6x">Crediário 6x</option>
+      </optgroup>
 
-                    <optgroup label="Cheque pré">
-                      <option value="cheque_1x">Cheque pré 1x</option>
-                      <option value="cheque_2x">Cheque pré 2x</option>
-                      <option value="cheque_3x">Cheque pré 3x</option>
-                      <option value="cheque_4x">Cheque pré 4x</option>
-                      <option value="cheque_5x">Cheque pré 5x</option>
-                      <option value="cheque_6x">Cheque pré 6x</option>
-                    </optgroup>
-                  </select>
-                </div>
-              </div>
+      <optgroup label="Boleto">
+        <option value="boleto_1x">Boleto 1x</option>
+        <option value="boleto_2x">Boleto 2x</option>
+        <option value="boleto_3x">Boleto 3x</option>
+        <option value="boleto_4x">Boleto 4x</option>
+        <option value="boleto_5x">Boleto 5x</option>
+        <option value="boleto_6x">Boleto 6x</option>
+        <option value="boleto_7x">Boleto 7x</option>
+        <option value="boleto_8x">Boleto 8x</option>
+      </optgroup>
+
+      <optgroup label="Cheque pré">
+        <option value="cheque_1x">Cheque pré 1x</option>
+        <option value="cheque_2x">Cheque pré 2x</option>
+        <option value="cheque_3x">Cheque pré 3x</option>
+        <option value="cheque_4x">Cheque pré 4x</option>
+        <option value="cheque_5x">Cheque pré 5x</option>
+        <option value="cheque_6x">Cheque pré 6x</option>
+      </optgroup>
+    </select>
+  </div>
+</div>
 
               <div class="row">
                 <div class="field">
@@ -544,17 +558,18 @@
               <div class="small" id="resumoVendasHoje">Nenhuma venda ainda.</div>
 
               <div style="max-height: 220px; overflow-y: auto; margin-top: 6px">
-                <table id="tabelaVendas">
-                  <thead>
-                    <tr>
-                      <th>Horário</th>
-                      <th>Cliente</th>
-                      <th>Forma</th>
-                      <th>Valor</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
+               <table id="tabelaVendas">
+  <thead>
+    <tr>
+      <th>Horário</th>
+      <th>Cliente</th>
+      <th>Forma</th>
+      <th>Peças</th>
+      <th>Valor</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table> 
               </div>
             </div>
 
@@ -948,35 +963,62 @@
           });
           const vendas = await resp.json();
 
-          const tbody = document.querySelector("#tabelaVendas tbody");
-          tbody.innerHTML = "";
+const tbody = document.querySelector("#tabelaVendas tbody");
+tbody.innerHTML = "";
 
-          let total = 0;
+let total = 0;
+let totalPecas = 0;
 
-          vendas.forEach((v) => {
-            const tr = document.createElement("tr");
-            const dataVenda = v.data_venda || v.datavenda || v.data;
-            const hora = dataVenda
-              ? new Date(dataVenda).toLocaleTimeString("pt-BR", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : "-";
+vendas.forEach((v) => {
+  const tr = document.createElement("tr");
+  const dataVenda = v.data_venda || v.datavenda || v.data;
+  const hora = dataVenda
+    ? new Date(dataVenda).toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "-";
 
-            const valor = Number(v.valor || 0);
-            total += valor;
+  const pecas = Number(
+    v.quantidade_pecas || v.quantidadePecas || 0
+  );
 
-            tr.innerHTML = `
-              <td>${hora}</td>
-              <td>${v.cliente_nome || v.clienteNome || "-"}</td>
-              <td>${v.forma_pagamento || v.formaPagamento || "-"}</td>
-              <td>R$ ${valor.toFixed(2)}</td>
-            `;
-            tbody.appendChild(tr);
-          });
+  total += Number(v.valor || 0);
+  totalPecas += pecas;
 
-          vendasHojeQtd = vendas.length;
-          vendasHojeTotal = total;
+  tr.innerHTML = `
+    <td>${hora}</td>
+    <td>${v.cliente_nome || v.clienteNome || "-"}</td>
+    <td>${v.forma_pagamento || v.formaPagamento || "-"}</td>
+    <td>${pecas || "-"}</td>
+    <td>R$ ${Number(v.valor || 0).toFixed(2)}</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+vendasHojeQtd = vendas.length;
+vendasHojeTotal = total;
+
+// atualiza resumo textual
+if (vendas.length === 0) {
+  document.getElementById("resumoVendasHoje").textContent =
+    "Nenhuma venda lançada hoje.";
+} else {
+  document.getElementById("resumoVendasHoje").textContent =
+    `${vendas.length} venda(s) • Total R$ ${total.toFixed(2)}`;
+}
+
+// atualiza indicador de peças por venda
+const pecasPorVenda =
+  vendasHojeQtd > 0 ? totalPecas / vendasHojeQtd : 0;
+
+const pecasLinha = document.getElementById("pecasPorVendaLinha");
+if (pecasLinha) {
+  pecasLinha.textContent =
+    "Peças por venda: " + pecasPorVenda.toFixed(1).replace(".", ",");
+}
+
+atualizarIndicadoresVenda();
 
           if (vendas.length === 0) {
             document.getElementById("resumoVendasHoje").textContent =
@@ -1000,11 +1042,14 @@
         if (!token) return;
 
         const valor = Number(
-          (document.getElementById("valorVenda").value || "0").replace(",", ".")
-        );
-        const formaPagamento = document.getElementById("formaPagamento").value;
-        const clienteNome = document.getElementById("clienteNome").value.trim();
-        const observacao = document.getElementById("obsVenda").value.trim();
+  (document.getElementById("valorVenda").value || "0").replace(",", ".")
+);
+const quantidadePecas = Number(
+  document.getElementById("qtdPecasVenda").value || "0"
+);
+const formaPagamento = document.getElementById("formaPagamento").value;
+const clienteNome = document.getElementById("clienteNome").value.trim();
+const observacao = document.getElementById("obsVenda").value.trim();
 
         if (!valor || !formaPagamento) {
           setStatus(
@@ -1018,12 +1063,13 @@
           const resp = await fetch(API + "/vendas", {
             method: "POST",
             headers: authHeaders(),
-            body: JSON.stringify({
-              valor,
-              formaPagamento,
-              clienteNome,
-              observacao,
-            }),
+           body: JSON.stringify({
+  valor,
+  quantidadePecas,
+  formaPagamento,
+  clienteNome,
+  observacao,
+}),
           });
 
           if (!resp.ok) {
@@ -1031,10 +1077,11 @@
             return;
           }
 
-          document.getElementById("valorVenda").value = "";
-          document.getElementById("formaPagamento").value = "";
-          document.getElementById("clienteNome").value = "";
-          document.getElementById("obsVenda").value = "";
+      document.getElementById("valorVenda").value = "";
+document.getElementById("qtdPecasVenda").value = "";
+document.getElementById("formaPagamento").value = "";
+document.getElementById("clienteNome").value = "";
+document.getElementById("obsVenda").value = "";
 
           setStatus("Venda lançada com sucesso.", "sucesso");
           await carregarVendasHoje();
