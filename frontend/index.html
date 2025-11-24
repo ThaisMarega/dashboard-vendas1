@@ -70,6 +70,14 @@
         margin-top: 2px;
       }
 
+      header .perfil {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: #777;
+        margin-top: 4px;
+      }
+
       .status-bar {
         margin-bottom: 16px;
         font-size: 13px;
@@ -223,6 +231,11 @@
         font-size: 11px;
       }
 
+      .btn-small {
+        font-size: 11px;
+        padding: 4px 8px;
+      }
+
       .small {
         font-size: 12px;
         color: #777;
@@ -276,6 +289,16 @@
         letter-spacing: 0.08em;
       }
 
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        background: #f6f3ea;
+        color: #5b4a2a;
+      }
+
       .meta-chip {
         font-size: 11px;
         padding: 4px 9px;
@@ -316,6 +339,7 @@
         <div>
           <div class="marca">IMAGEM MODAS</div>
           <div class="sub">Dashboard de vendas</div>
+          <div class="perfil" id="perfilTexto"></div>
         </div>
       </header>
 
@@ -326,13 +350,13 @@
 
       <!-- LOGIN -->
       <div id="loginCard" class="card">
-        <div class="card-title">Login da vendedora</div>
+        <div class="card-title">Login</div>
         <div class="card-subtitle">
           Acesso exclusivo para vendedoras Imagem Modas.
         </div>
 
         <div class="field">
-          <label for="nome">Nome da vendedora</label>
+          <label for="nome">Nome</label>
           <input id="nome" value="Allane" autocomplete="username" />
         </div>
 
@@ -349,14 +373,14 @@
         <button class="btn-primary" onclick="login()">Entrar</button>
       </div>
 
-      <!-- PAINEL APÓS LOGIN -->
+      <!-- PAINEL -->
       <div id="painel" class="grid">
-        <!-- Coluna esquerda: resumo + meta + atendimentos -->
+        <!-- Esquerda: meta e atendimentos -->
         <div class="card">
           <div class="card-title" id="bemVindaTitulo">Bom dia</div>
           <div class="card-subtitle small" id="infoHoje"></div>
 
-          <!-- Meta de hoje -->
+          <!-- Meta diária -->
           <div class="field">
             <label>Meta de hoje</label>
             <div class="row">
@@ -378,7 +402,7 @@
             </div>
           </div>
 
-          <hr style="border:none;border-top:1px solid #eee;margin:16px 0" />
+          <hr style="border: none; border-top: 1px solid #eee; margin: 16px 0" />
 
           <!-- Atendimentos -->
           <div>
@@ -404,14 +428,13 @@
               </button>
             </div>
 
-            <div class="small" id="indicadoresAtendimento">
-              Ticket médio: R$ 0,00 • Conversão: 0% • Peças/venda: 0,00 •
-              Peças/atendimento: 0,00
+            <div class="small" id="indicadoresLinha">
+              Ticket médio: R$ 0,00 • Conversão: 0% • Peças por venda: 0,0
             </div>
           </div>
         </div>
 
-        <!-- Coluna direita: abas Vendas / Condicionais -->
+        <!-- Direita: vendas / condicionais -->
         <div class="card">
           <div class="tabs">
             <div
@@ -431,148 +454,155 @@
           </div>
 
           <div class="tab-content">
-          <!-- ABA VENDAS -->
-<div id="abaVendas">
-  <div class="card-subtitle">
-    Lance as vendas de hoje e acompanhe ticket médio, conversão e peças por venda.
-  </div>
+            <!-- ABA VENDAS -->
+            <div id="abaVendas">
+              <div class="card-subtitle">
+                Lance as vendas de hoje e acompanhe ticket médio, conversão e
+                peças por venda.
+              </div>
 
-  <div class="row">
-    <div class="field">
-      <label for="valorVenda">Valor (R$)</label>
-      <input
-        id="valorVenda"
-        type="number"
-        min="0"
-        step="0.01"
-        placeholder="0,00"
-      />
-    </div>
+              <div class="row">
+                <div class="field">
+                  <label for="valorVenda">Valor (R$)</label>
+                  <input
+                    id="valorVenda"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0,00"
+                  />
+                </div>
 
-    <div class="field">
-      <label for="qtdPecasVenda">Qtd. peças</label>
-      <input
-        id="qtdPecasVenda"
-        type="number"
-        min="1"
-        step="1"
-        placeholder="0"
-      />
-    </div>
+                <div class="field">
+                  <label for="qtdPecasVenda">Qtd. peças</label>
+                  <input
+                    id="qtdPecasVenda"
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
 
-    <div class="field">
-      <label for="formaPagamento">Forma de pagamento</label>
-      <select id="formaPagamento">
-        <option value="">Selecione</option>
+              <div class="row">
+                <div class="field">
+                  <label for="formaPagamento">Forma de pagamento</label>
+                  <select id="formaPagamento">
+                    <option value="">Selecione</option>
 
-        <optgroup label="À vista">
-          <option value="dinheiro">Dinheiro</option>
-          <option value="pix">PIX</option>
-          <option value="debito">Débito</option>
-        </optgroup>
+                    <optgroup label="À vista">
+                      <option value="dinheiro">Dinheiro</option>
+                      <option value="pix">PIX</option>
+                      <option value="debito">Débito</option>
+                    </optgroup>
 
-        <optgroup label="Crédito">
-          <option value="credito_1x">Crédito 1x</option>
-          <option value="credito_2x">Crédito 2x</option>
-          <option value="credito_3x">Crédito 3x</option>
-          <option value="credito_4x">Crédito 4x</option>
-          <option value="credito_5x">Crédito 5x</option>
-          <option value="credito_6x">Crédito 6x</option>
-          <option value="credito_7x">Crédito 7x</option>
-          <option value="credito_8x">Crédito 8x</option>
-          <option value="credito_9x">Crédito 9x</option>
-          <option value="credito_10x">Crédito 10x</option>
-        </optgroup>
+                    <optgroup label="Crédito">
+                      <option value="credito_1x">Crédito 1x</option>
+                      <option value="credito_2x">Crédito 2x</option>
+                      <option value="credito_3x">Crédito 3x</option>
+                      <option value="credito_4x">Crédito 4x</option>
+                      <option value="credito_5x">Crédito 5x</option>
+                      <option value="credito_6x">Crédito 6x</option>
+                      <option value="credito_7x">Crédito 7x</option>
+                      <option value="credito_8x">Crédito 8x</option>
+                      <option value="credito_9x">Crédito 9x</option>
+                      <option value="credito_10x">Crédito 10x</option>
+                    </optgroup>
 
-        <optgroup label="Crediário">
-          <option value="crediario_1x">Crediário 1x</option>
-          <option value="crediario_2x">Crediário 2x</option>
-          <option value="crediario_3x">Crediário 3x</option>
-          <option value="crediario_4x">Crediário 4x</option>
-          <option value="crediario_5x">Crediário 5x</option>
-          <option value="crediario_6x">Crediário 6x</option>
-        </optgroup>
+                    <optgroup label="Crediário">
+                      <option value="crediario_1x">Crediário 1x</option>
+                      <option value="crediario_2x">Crediário 2x</option>
+                      <option value="crediario_3x">Crediário 3x</option>
+                      <option value="crediario_4x">Crediário 4x</option>
+                      <option value="crediario_5x">Crediário 5x</option>
+                      <option value="crediario_6x">Crediário 6x</option>
+                    </optgroup>
 
-        <optgroup label="Boleto">
-          <option value="boleto_1x">Boleto 1x</option>
-          <option value="boleto_2x">Boleto 2x</option>
-          <option value="boleto_3x">Boleto 3x</option>
-          <option value="boleto_4x">Boleto 4x</option>
-          <option value="boleto_5x">Boleto 5x</option>
-          <option value="boleto_6x">Boleto 6x</option>
-          <option value="boleto_7x">Boleto 7x</option>
-          <option value="boleto_8x">Boleto 8x</option>
-        </optgroup>
+                    <optgroup label="Boleto">
+                      <option value="boleto_1x">Boleto 1x</option>
+                      <option value="boleto_2x">Boleto 2x</option>
+                      <option value="boleto_3x">Boleto 3x</option>
+                      <option value="boleto_4x">Boleto 4x</option>
+                      <option value="boleto_5x">Boleto 5x</option>
+                      <option value="boleto_6x">Boleto 6x</option>
+                      <option value="boleto_7x">Boleto 7x</option>
+                      <option value="boleto_8x">Boleto 8x</option>
+                    </optgroup>
 
-        <optgroup label="Cheque pré">
-          <option value="cheque_1x">Cheque pré 1x</option>
-          <option value="cheque_2x">Cheque pré 2x</option>
-          <option value="cheque_3x">Cheque pré 3x</option>
-          <option value="cheque_4x">Cheque pré 4x</option>
-          <option value="cheque_5x">Cheque pré 5x</option>
-          <option value="cheque_6x">Cheque pré 6x</option>
-        </optgroup>
-      </select>
-    </div>
-  </div>
+                    <optgroup label="Cheque pré">
+                      <option value="cheque_1x">Cheque pré 1x</option>
+                      <option value="cheque_2x">Cheque pré 2x</option>
+                      <option value="cheque_3x">Cheque pré 3x</option>
+                      <option value="cheque_4x">Cheque pré 4x</option>
+                      <option value="cheque_5x">Cheque pré 5x</option>
+                      <option value="cheque_6x">Cheque pré 6x</option>
+                    </optgroup>
+                  </select>
+                </div>
+              </div>
 
-  <div class="row">
-    <div class="field">
-      <label for="clienteNome">Nome da cliente</label>
-      <input id="clienteNome" type="text" placeholder="Opcional" />
-    </div>
-  </div>
+              <div class="row">
+                <div class="field">
+                  <label for="clienteNome">Nome da cliente</label>
+                  <input
+                    id="clienteNome"
+                    type="text"
+                    placeholder="Opcional"
+                  />
+                </div>
+              </div>
 
-  <div class="field">
-    <label for="obsVenda">Observação</label>
-    <textarea
-      id="obsVenda"
-      placeholder="Ex: look completo, quem indicou, peça-chave..."
-    ></textarea>
-  </div>
+              <div class="field">
+                <label for="obsVenda">Observação</label>
+                <textarea
+                  id="obsVenda"
+                  placeholder="Ex: look completo, quem indicou, peça-chave..."
+                ></textarea>
+              </div>
 
-  <button class="btn-primary" onclick="lançarVenda()">
-    Lançar venda
-  </button>
+              <button class="btn-primary" onclick="lancarVenda()">
+                Lançar venda
+              </button>
 
-  <div
-    class="card-subtitle"
-    style="margin-top: 14px; margin-bottom: 6px"
-  >
-    Vendas de hoje
-  </div>
-  <div class="small" id="resumoVendasHoje">Nenhuma venda ainda.</div>
-  <div class="small" id="ticketMedioLinha">Ticket médio: R$ 0,00</div>
-  <div class="small" id="taxaConversaoLinha">Taxa de conversão: 0%</div>
-  <div class="small" id="pecasPorVendaLinha">Peças por venda: 0,0</div>
+              <div
+                class="card-subtitle"
+                style="margin-top: 14px; margin-bottom: 6px"
+              >
+                Vendas de hoje
+              </div>
+              <div class="small" id="resumoVendasHoje">
+                Nenhuma venda ainda.
+              </div>
 
-  <div style="max-height: 220px; overflow-y: auto; margin-top: 6px">
-    <table id="tabelaVendas">
-      <thead>
-        <tr>
-          <th>Horário</th>
-          <th>Cliente</th>
-          <th>Forma</th>
-          <th>Peças</th>
-          <th>Valor</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-</div>
+              <div style="max-height: 220px; overflow-y: auto; margin-top: 6px">
+                <table id="tabelaVendas">
+                  <thead>
+                    <tr>
+                      <th>Horário</th>
+                      <th>Cliente</th>
+                      <th>Forma</th>
+                      <th>Peças</th>
+                      <th>Valor</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
 
             <!-- ABA CONDICIONAIS -->
-            <div id="abaCondicionais" style="display:none">
+            <div id="abaCondicionais" style="display: none">
               <div class="card-subtitle">
                 Controle das peças que saem em condicional.
               </div>
 
               <div class="row">
                 <div class="field">
-                  <label for="qtdPecas">Qtd. de peças</label>
+                  <label for="qtdPecasCond">Qtd. de peças</label>
                   <input
-                    id="qtdPecas"
+                    id="qtdPecasCond"
                     type="number"
                     min="1"
                     step="1"
@@ -622,9 +652,7 @@
                 Condicionais em aberto
               </div>
 
-              <div
-                style="max-height: 220px; overflow-y: auto; margin-top: 6px"
-              >
+              <div style="max-height: 220px; overflow-y: auto; margin-top: 6px">
                 <table id="tabelaCondicionais">
                   <thead>
                     <tr>
@@ -647,12 +675,12 @@
     <script>
       const API = "https://dashboard-vendas1.onrender.com/api";
       let token = null;
-      let nomeVendedora = null;
+      let usuario = null;
 
-      // estado para indicadores
+      // indicadores
       let vendasHojeQtd = 0;
       let vendasHojeTotal = 0;
-      let vendasHojePecas = 0;
+      let pecasHojeTotal = 0;
       let atendimentosHojeQtd = 0;
 
       function hojeISO() {
@@ -688,30 +716,24 @@
       }
 
       function atualizarIndicadores() {
-        const span = document.getElementById("indicadoresAtendimento");
+        const linha = document.getElementById("indicadoresLinha");
 
         const ticket = vendasHojeQtd ? vendasHojeTotal / vendasHojeQtd : 0;
-        const conversao =
-          atendimentosHojeQtd && vendasHojeQtd
-            ? (vendasHojeQtd / atendimentosHojeQtd) * 100
-            : 0;
         const pecasPorVenda = vendasHojeQtd
-          ? vendasHojePecas / vendasHojeQtd
+          ? pecasHojeTotal / vendasHojeQtd
           : 0;
-        const pecasPorAtend =
-          atendimentosHojeQtd && vendasHojePecas
-            ? vendasHojePecas / atendimentosHojeQtd
-            : 0;
+        let taxa = 0;
+        if (atendimentosHojeQtd && vendasHojeQtd) {
+          taxa = (vendasHojeQtd / atendimentosHojeQtd) * 100;
+        }
 
-        span.textContent =
+        linha.textContent =
           "Ticket médio: R$ " +
           ticket.toFixed(2) +
           " • Conversão: " +
-          conversao.toFixed(1).replace(".", ",") +
-          "% • Peças/venda: " +
-          pecasPorVenda.toFixed(2) +
-          " • Peças/atendimento: " +
-          pecasPorAtend.toFixed(2);
+          taxa.toFixed(1).replace(".", ",") +
+          "% • Peças por venda: " +
+          pecasPorVenda.toFixed(1).replace(".", ",");
       }
 
       async function login() {
@@ -739,12 +761,13 @@
 
           const data = await resp.json();
           token = data.token;
-          nomeVendedora = data.vendedora?.nome || nome;
+          usuario = data.vendedora || {};
+          const nomeExibicao = usuario.nome || nome;
 
           document.getElementById("loginCard").style.display = "none";
           document.getElementById("painel").style.display = "grid";
 
-          const hojeBr = new Date().toLocaleDateString("pt-BR", {
+          const hoje = new Date().toLocaleDateString("pt-BR", {
             weekday: "long",
             day: "2-digit",
             month: "long",
@@ -752,11 +775,18 @@
           });
 
           document.getElementById("bemVindaTitulo").textContent =
-            "Bom dia, " + nomeVendedora;
+            "Bom dia, " + nomeExibicao;
           document.getElementById("infoHoje").textContent =
-            hojeBr.charAt(0).toUpperCase() + hojeBr.slice(1);
+            hoje.charAt(0).toUpperCase() + hoje.slice(1);
 
-          setStatus(`Logada como ${nomeVendedora}. Bom trabalho!`, "sucesso");
+          const perfilEl = document.getElementById("perfilTexto");
+          if (usuario.is_gerente || usuario.isGerente) {
+            perfilEl.textContent = "Perfil: Gerente";
+          } else {
+            perfilEl.textContent = "Perfil: Vendedora";
+          }
+
+          setStatus(`Logada como ${nomeExibicao}. Bom trabalho!`, "sucesso");
 
           await Promise.all([
             carregarMetaHoje(),
@@ -781,15 +811,20 @@
       async function carregarMetaHoje() {
         if (!token) return;
         const data = hojeISO();
-        const resp = await fetch(API + "/metas/" + data, {
-          headers: { Authorization: "Bearer " + token },
-        });
-        const meta = await resp.json();
-        const valor = Number(meta.valor_meta || meta.valorMeta || 0);
-        document.getElementById("metaAtual").textContent =
-          "R$ " + valor.toFixed(2);
-        document.getElementById("metaValor").value =
-          valor > 0 ? valor.toString() : "";
+        try {
+          const resp = await fetch(API + "/metas/" + data, {
+            headers: { Authorization: "Bearer " + token },
+          });
+          const meta = await resp.json();
+          const valor = Number(meta.valor_meta || meta.valorMeta || 0);
+          document.getElementById("metaAtual").textContent =
+            "R$ " + valor.toFixed(2);
+          document.getElementById("metaValor").value =
+            valor > 0 ? valor.toString() : "";
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao carregar meta de hoje.", "erro");
+        }
       }
 
       async function salvarMetaHoje() {
@@ -823,14 +858,19 @@
       async function carregarAtendimentosHoje() {
         if (!token) return;
         const data = hojeISO();
-        const resp = await fetch(API + "/atendimentos/" + data, {
-          headers: { Authorization: "Bearer " + token },
-        });
-        const dados = await resp.json();
-        const qtd = Number(dados.quantidade || 0);
-        document.getElementById("atendimentosQtd").value = qtd;
-        atendimentosHojeQtd = qtd;
-        atualizarIndicadores();
+        try {
+          const resp = await fetch(API + "/atendimentos/" + data, {
+            headers: { Authorization: "Bearer " + token },
+          });
+          const dados = await resp.json();
+          const qtd = Number(dados.quantidade || 0);
+          document.getElementById("atendimentosQtd").value = qtd;
+          atendimentosHojeQtd = qtd;
+          atualizarIndicadores();
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao carregar atendimentos.", "erro");
+        }
       }
 
       async function salvarAtendimentosHoje() {
@@ -893,9 +933,8 @@
               : "-";
 
             const valor = Number(v.valor || 0);
-            const pecas = Number(
-              v.quantidade_pecas || v.qtd_pecas || v.qtdPecas || 0
-            );
+            const pecas =
+              Number(v.quantidade_pecas || v.quantidadePecas || 0) || 0;
 
             total += valor;
             totalPecas += pecas;
@@ -906,13 +945,18 @@
               <td>${v.forma_pagamento || v.formaPagamento || "-"}</td>
               <td>${pecas}</td>
               <td>R$ ${valor.toFixed(2)}</td>
+              <td>
+                <button class="btn-danger btn-small" onclick="apagarVenda(${
+                  v.id
+                })">Excluir</button>
+              </td>
             `;
             tbody.appendChild(tr);
           });
 
           vendasHojeQtd = vendas.length;
           vendasHojeTotal = total;
-          vendasHojePecas = totalPecas;
+          pecasHojeTotal = totalPecas;
 
           if (vendas.length === 0) {
             document.getElementById("resumoVendasHoje").textContent =
@@ -920,7 +964,7 @@
           } else {
             document.getElementById(
               "resumoVendasHoje"
-            ).textContent = `${vendas.length} venda(s) • ${totalPecas} peça(s) • Total R$ ${total.toFixed(
+            ).textContent = `${vendas.length} venda(s) • Total R$ ${total.toFixed(
               2
             )}`;
           }
@@ -985,6 +1029,29 @@
         }
       }
 
+      async function apagarVenda(id) {
+        if (!token) return;
+        if (!confirm("Excluir esta venda?")) return;
+
+        try {
+          const resp = await fetch(API + "/vendas/" + id, {
+            method: "DELETE",
+            headers: { Authorization: "Bearer " + token },
+          });
+
+          if (!resp.ok) {
+            setStatus("Não foi possível excluir a venda.", "erro");
+            return;
+          }
+
+          setStatus("Venda excluída.", "sucesso");
+          await carregarVendasHoje();
+        } catch (e) {
+          console.error(e);
+          setStatus("Erro ao excluir venda.", "erro");
+        }
+      }
+
       // CONDICIONAIS
       async function carregarCondicionais() {
         if (!token) return;
@@ -1005,23 +1072,19 @@
               ? new Date(dataReg).toLocaleDateString("pt-BR")
               : "-";
 
-            const valor = Number(c.valor_total || c.valorTotal || 0);
-            const pecas = Number(
-              c.quantidade_pecas || c.quantidadePecas || 0
-            );
+            const pecas =
+              Number(c.quantidade_pecas || c.quantidadePecas || 0) || 0;
 
             tr.innerHTML = `
               <td>${data}</td>
               <td>${c.cliente_nome || c.clienteNome}</td>
               <td>${pecas}</td>
-              <td>R$ ${valor.toFixed(2)}</td>
-              <td>
-                <button class="btn-danger" onclick="deletarCondicional(${
-                  c.id
-                })">
-                  Remover
-                </button>
-              </td>
+              <td>R$ ${Number(
+                c.valor_total || c.valorTotal || 0
+              ).toFixed(2)}</td>
+              <td><button class="btn-danger btn-small" onclick="deletarCondicional(${
+                c.id
+              })">Remover</button></td>
             `;
             tbody.appendChild(tr);
           });
@@ -1035,7 +1098,7 @@
         if (!token) return;
 
         const quantidadePecas = Number(
-          document.getElementById("qtdPecas").value || "0"
+          document.getElementById("qtdPecasCond").value || "0"
         );
         const valorTotal = Number(
           (document.getElementById("valorCondicional").value || "0").replace(
@@ -1075,7 +1138,7 @@
             return;
           }
 
-          document.getElementById("qtdPecas").value = "";
+          document.getElementById("qtdPecasCond").value = "";
           document.getElementById("valorCondicional").value = "";
           document.getElementById("clienteCondicional").value = "";
           document.getElementById("obsCondicional").value = "";
