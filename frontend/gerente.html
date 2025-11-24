@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard – Gerente | Imagem Modas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #f4f1ea;
+      color: #333;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 24px;
+      background: white;
+      border-bottom: 1px solid #ddd;
+    }
+
+    header img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #5b6240;
+    }
+
+    .layout {
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      padding: 18px;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+      margin-bottom: 22px;
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #5b6240;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 8px 6px;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      text-transform: uppercase;
+      font-size: 11px;
+      color: #555;
+      letter-spacing: 0.05em;
+    }
+
+    .badge {
+      background: #f6f1dc;
+      padding: 4px 7px;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    .green {
+      color: #1b873f;
+      font-weight: 600;
+    }
+    .red {
+      color: #c0392b;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <img src="001 LOGO_Prancheta 1 cópia 27.png" />
+  <h1>Dashboard da Gerente</h1>
+</header>
+
+<div class="layout">
+
+  <!-- METAS -->
+  <div class="card">
+    <div class="card-title">Metas do mês</div>
+    <div id="metasInfo">Carregando...</div>
+  </div>
+
+  <!-- RANKING MENSAL -->
+  <div class="card">
+    <div class="card-title">Ranking mensal</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Vendedora</th>
+          <th>Total vendido</th>
+          <th>Ticket médio</th>
+          <th>Peças por venda</th>
+          <th>Conversão</th>
+        </tr>
+      </thead>
+      <tbody id="rankingMensal"></tbody>
+    </table>
+  </div>
+
+  <!-- RANKING DO DIA -->
+  <div class="card">
+    <div class="card-title">Vendas do dia</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Vendedora</th>
+          <th>Total</th>
+          <th>Vendas</th>
+          <th>Ticket</th>
+          <th>Peças/venda</th>
+        </tr>
+      </thead>
+      <tbody id="rankingDia"></tbody>
+    </table>
+  </div>
+
+  <!-- CONDICIONAIS EM ABERTO -->
+  <div class="card">
+    <div class="card-title">Condicionais em aberto</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Peças</th>
+          <th>Valor</th>
+          <th>Vendedora</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody id="listaCondicionais"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const API = "https://dashboard-vendas1.onrender.com/api";
+const token = localStorage.getItem("token_gerente");
+
+// CONFERE LOGIN
+if (!token) {
+  alert("Acesso restrito à gerente. Faça login.");
+  window.location.href = "index.html";
+}
+
+// ======================================================
+// FUNÇÕES UTILITÁRIAS
+// ======================================================
+
+function headers() {
+  return {
+    "Content-Type": "application/json",
+    Authorization: "Bearer " + token
+  };
+}
+
+function hojeISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function primeiroDiaMes() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`;
+}
+
+// ======================================================
+// CARREGAR METAS
+// ======================================================
+
+async function carregarMetas() {
+  const resp = await fetch(API + "/metas/mensal", { headers: headers() });
+  const dados = await resp.json();
+
+  document.getElementById("metasInfo").innerHTML = `
+    Meta mensal: <b>R$ ${dados.metaMensal.toFixed(2)}</b><br>
+    Vendido no mês: <b>R$ ${dados.vendidoMes.toFixed(2)}</b><br>
+    Meta diária ajustada: <b>R$ ${dados.metaAjustada.toFixed(2)}</b>
+  `;
+}
+
+// ======================================================
+// RANKING MENSAL
+// ======================================================
+
+async function carregarRankingMensal() {
+  const inicio = primeiroDiaMes();
+  const fim = hojeISO();
+
+  const resp = await fetch(API + `/relatorio/vendas-mes?inicio=${inicio}&fim=${fim}`, {
+    headers: headers()
+  });
+
+  const lista = await resp.json();
+  const tbody = document.getElementById("rankingMensal");
+  tbody.innerHTML = "";
+
+  lista.forEach(v => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${v.nome}</td>
+      <td>R$ ${v.total.toFixed(2)}</td>
+      <td>R$ ${(v.total / v.qtd).toFixed(2)}</td>
+      <td>${(v.pecas / v.qtd).toFixed(2)}</td>
+      <td>${v.conversao.toFixed(1)}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ======================================================
+// RANKING DO DIA
+// ======================================================
+
+async function carregarRankingDia() {
+  const hoje = hojeISO();
+
+  const resp = await fetch(API + `/relatorio/vendas-dia?data=${hoje}`, {
+    headers: headers()
+  });
+
+  const lista = await resp.json();
+  const tbody = document.getElementById("rankingDia");
+  tbody.innerHTML = "";
+
+  lista.forEach(v => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${v.nome}</td>
+      <td>R$ ${v.total.toFixed(2)}</td>
+      <td>${v.qtd}</td>
+      <td>R$ ${(v.total / v.qtd).toFixed(2)}</td>
+      <td>${(v.pecas / v.qtd).toFixed(2)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ======================================================
+// CONDICIONAIS
+// ======================================================
+
+async function carregarCondicionais() {
+  const resp = await fetch(API + "/condicionais/todas", {
+    headers: headers()
+  });
+
+  const conds = await resp.json();
+  const tbody = document.getElementById("listaCondicionais");
+  tbody.innerHTML = "";
+
+  conds.forEach(c => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${c.cliente}</td>
+      <td>${c.pecas}</td>
+      <td>R$ ${c.valor.toFixed(2)}</td>
+      <td>${c.vendedora}</td>
+      <td>${new Date(c.data).toLocaleDateString("pt-BR")}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ======================================================
+// INICIALIZAÇÃO
+// ======================================================
+
+async function iniciar() {
+  try {
+    await carregarMetas();
+    await carregarRankingMensal();
+    await carregarRankingDia();
+    await carregarCondicionais();
+  } catch (e) {
+    console.error(e);
+    alert("Erro ao carregar painel da gerente.");
+  }
+}
+
+iniciar();
+</script>
+
+</body>
+</html>
