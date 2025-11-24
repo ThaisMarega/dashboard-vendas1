@@ -189,7 +189,10 @@ async function calcularMetaDia(vendedoraId, dataISO) {
   let faltaNoMes = metaMensal - vendidoNoMes;
   if (faltaNoMes < 0) faltaNoMes = 0;
 
-  const diasUteisRestantes = contarDiasUteis(dataISO, fimMes.toISOString().slice(0, 10));
+  const diasUteisRestantes = contarDiasUteis(
+    dataISO,
+    fimMes.toISOString().slice(0, 10)
+  );
   let metaDia = 0;
 
   if (diasUteisRestantes > 0) {
@@ -290,7 +293,7 @@ app.post('/api/login', async (req, res) => {
 // ROTAS DE VENDEDORA (AUTENTICADAS)
 // -----------------------------------------------
 
-// VENDAS
+// VENDAS - listar
 app.get('/api/vendas', autenticar, async (req, res) => {
   try {
     const { dataInicio, dataFim } = req.query;
@@ -298,7 +301,8 @@ app.get('/api/vendas', autenticar, async (req, res) => {
     const params = [req.vendedoraId];
 
     if (dataInicio && dataFim) {
-      query += ' AND data_venda BETWEEN $2 AND ($3::date + INTERVAL \'1 day\')';
+      query +=
+        " AND data_venda BETWEEN $2 AND ($3::date + INTERVAL '1 day')";
       params.push(dataInicio, dataFim);
     }
 
@@ -312,15 +316,16 @@ app.get('/api/vendas', autenticar, async (req, res) => {
   }
 });
 
+// VENDAS - criar
 app.post('/api/vendas', autenticar, async (req, res) => {
   try {
     const { valor, formaPagamento, clienteNome, observacao, quantidadePecas } =
       req.body;
 
     if (!valor || !formaPagamento) {
-      return res
-        .status(400)
-        .json({ erro: 'Valor e forma de pagamento são obrigatórios.' });
+      return res.status(400).json({
+        erro: 'Valor e forma de pagamento são obrigatórios.',
+      });
     }
 
     const result = await pool.query(
@@ -346,6 +351,55 @@ app.post('/api/vendas', autenticar, async (req, res) => {
   }
 });
 
+// VENDAS - atualizar (EDIÇÃO)
+app.put('/api/vendas/:id', autenticar, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      valor,
+      formaPagamento,
+      quantidadePecas,
+      clienteNome,
+      observacao,
+    } = req.body;
+
+    const result = await pool.query(
+      `
+      UPDATE vendas
+      SET
+        valor = COALESCE($1, valor),
+        forma_pagamento = COALESCE($2, forma_pagamento),
+        quantidade_pecas = COALESCE($3, quantidade_pecas),
+        cliente_nome = COALESCE($4, cliente_nome),
+        observacao = COALESCE($5, observacao)
+      WHERE id = $6 AND vendedora_id = $7
+      RETURNING *;
+    `,
+      [
+        valor !== undefined ? valor : null,
+        formaPagamento !== undefined ? formaPagamento : null,
+        quantidadePecas !== undefined ? quantidadePecas : null,
+        clienteNome !== undefined ? clienteNome : null,
+        observacao !== undefined ? observacao : null,
+        id,
+        req.vendedoraId,
+      ]
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ erro: 'Venda não encontrada ou não pertence à vendedora.' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: 'Erro ao atualizar venda' });
+  }
+});
+
+// VENDAS - deletar
 app.delete('/api/vendas/:id', autenticar, async (req, res) => {
   try {
     const { id } = req.params;
@@ -360,7 +414,7 @@ app.delete('/api/vendas/:id', autenticar, async (req, res) => {
   }
 });
 
-// CONDICIONAIS
+// CONDICIONAIS - listar
 app.get('/api/condicionais', autenticar, async (req, res) => {
   try {
     const result = await pool.query(
@@ -378,6 +432,7 @@ app.get('/api/condicionais', autenticar, async (req, res) => {
   }
 });
 
+// CONDICIONAIS - criar
 app.post('/api/condicionais', autenticar, async (req, res) => {
   try {
     const { quantidadePecas, valorTotal, clienteNome, observacao } = req.body;
@@ -410,6 +465,47 @@ app.post('/api/condicionais', autenticar, async (req, res) => {
   }
 });
 
+// CONDICIONAIS - atualizar (EDIÇÃO)
+app.put('/api/condicionais/:id', autenticar, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { quantidadePecas, valorTotal, clienteNome, observacao } = req.body;
+
+    const result = await pool.query(
+      `
+      UPDATE condicionais
+      SET
+        quantidade_pecas = COALESCE($1, quantidade_pecas),
+        valor_total = COALESCE($2, valor_total),
+        cliente_nome = COALESCE($3, cliente_nome),
+        observacao = COALESCE($4, observacao)
+      WHERE id = $5 AND vendedora_id = $6
+      RETURNING *;
+    `,
+      [
+        quantidadePecas !== undefined ? quantidadePecas : null,
+        valorTotal !== undefined ? valorTotal : null,
+        clienteNome !== undefined ? clienteNome : null,
+        observacao !== undefined ? observacao : null,
+        id,
+        req.vendedoraId,
+      ]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        erro: 'Condicional não encontrado ou não pertence à vendedora.',
+      });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: 'Erro ao atualizar condicional' });
+  }
+});
+
+// CONDICIONAIS - deletar
 app.delete('/api/condicionais/:id', autenticar, async (req, res) => {
   try {
     const { id } = req.params;
@@ -530,37 +626,44 @@ app.post('/api/metas', autenticar, async (req, res) => {
 // -----------------------------------------------
 
 // Cadastrar nova vendedora
-app.post('/api/admin/vendedoras', autenticar, exigirGerente, async (req, res) => {
-  try {
-    const { nome, email, senha, metaPadrao, metaMensal, isGerente } = req.body;
+app.post(
+  '/api/admin/vendedoras',
+  autenticar,
+  exigirGerente,
+  async (req, res) => {
+    try {
+      const { nome, email, senha, metaPadrao, metaMensal, isGerente } = req.body;
 
-    const hash = await bcrypt.hash(senha, 10);
+      const hash = await bcrypt.hash(senha, 10);
 
-    const result = await pool.query(
-      `
+      const result = await pool.query(
+        `
       INSERT INTO vendedoras (nome, senha_hash, email, meta_padrao, meta_mensal, is_gerente, ativo)
       VALUES ($1,$2,$3,$4,$5,$6,true)
       RETURNING id, nome, email, meta_padrao, meta_mensal, is_gerente;
     `,
-      [
-        nome,
-        hash,
-        email || null,
-        metaPadrao || 15000,
-        metaMensal || 30000,
-        !!isGerente,
-      ]
-    );
+        [
+          nome,
+          hash,
+          email || null,
+          metaPadrao || 15000,
+          metaMensal || 30000,
+          !!isGerente,
+        ]
+      );
 
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    if (err.code === '23505') {
-      return res.status(400).json({ erro: 'Já existe vendedora com esse nome.' });
+      res.status(201).json(result.rows[0]);
+    } catch (err) {
+      console.error(err);
+      if (err.code === '23505') {
+        return res
+          .status(400)
+          .json({ erro: 'Já existe vendedora com esse nome.' });
+      }
+      res.status(500).json({ erro: 'Erro ao cadastrar vendedora' });
     }
-    res.status(500).json({ erro: 'Erro ao cadastrar vendedora' });
   }
-});
+);
 
 // Resumo geral do dia
 app.get('/api/admin/resumo', autenticar, exigirGerente, async (req, res) => {
