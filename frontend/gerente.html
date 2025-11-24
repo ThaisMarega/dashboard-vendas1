@@ -1,315 +1,372 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <title>Dashboard – Gerente | Imagem Modas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <head>
+    <meta charset="UTF-8" />
+    <title>Painel da Gerente - Imagem Modas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <style>
-    body {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      background: #f4f1ea;
-      color: #333;
-    }
+    <style>
+      :root {
+        --verde: #5b6240;
+        --bege: #f4f1ea;
+        --dourado: #c7a15a;
+        --texto: #333;
+        --erro: #b3261e;
+        --sucesso: #1b873f;
+      }
 
-    header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 16px 24px;
-      background: white;
-      border-bottom: 1px solid #ddd;
-    }
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bege);
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        color: var(--texto);
+        padding: 20px;
+      }
 
-    header img {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
 
-    h1 {
-      font-size: 20px;
-      margin: 0;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #5b6240;
-    }
+      header img {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+      }
 
-    .layout {
-      padding: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+      h1 {
+        font-size: 20px;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
 
-    .card {
-      background: white;
-      padding: 18px;
-      border-radius: 12px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-      margin-bottom: 22px;
-    }
+      .status {
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+      }
 
-    .card-title {
-      font-weight: 700;
-      font-size: 16px;
-      margin-bottom: 10px;
-      color: #5b6240;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
+      .erro {
+        background: #ffe5e5;
+        color: var(--erro);
+      }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
+      .sucesso {
+        background: #e6f4ea;
+        color: var(--sucesso);
+      }
 
-    th, td {
-      padding: 8px 6px;
-      border-bottom: 1px solid #eee;
-    }
+      .card {
+        background: white;
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      }
 
-    th {
-      text-transform: uppercase;
-      font-size: 11px;
-      color: #555;
-      letter-spacing: 0.05em;
-    }
+      table {
+        width: 100%;
+        font-size: 13px;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
 
-    .badge {
-      background: #f6f1dc;
-      padding: 4px 7px;
-      border-radius: 8px;
-      font-size: 12px;
-    }
+      th, td {
+        padding: 8px 6px;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+      }
 
-    .green {
-      color: #1b873f;
-      font-weight: 600;
-    }
-    .red {
-      color: #c0392b;
-      font-weight: 600;
-    }
-  </style>
-</head>
+      th {
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.07em;
+        color: #555;
+      }
 
-<body>
+      input, button {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+      }
 
-<header>
-  <img src="001 LOGO_Prancheta 1 cópia 27.png" />
-  <h1>Dashboard da Gerente</h1>
-</header>
+      button {
+        cursor: pointer;
+        background: var(--verde);
+        color: white;
+        border: none;
+        font-weight: 600;
+      }
 
-<div class="layout">
+      .row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
 
-  <!-- METAS -->
-  <div class="card">
-    <div class="card-title">Metas do mês</div>
-    <div id="metasInfo">Carregando...</div>
-  </div>
+      .row > div {
+        flex: 1;
+      }
+    </style>
+  </head>
 
-  <!-- RANKING MENSAL -->
-  <div class="card">
-    <div class="card-title">Ranking mensal</div>
-    <table>
-      <thead>
-        <tr>
-          <th>Vendedora</th>
-          <th>Total vendido</th>
-          <th>Ticket médio</th>
-          <th>Peças por venda</th>
-          <th>Conversão</th>
-        </tr>
-      </thead>
-      <tbody id="rankingMensal"></tbody>
-    </table>
-  </div>
+  <body>
+    <header>
+      <img src="001 LOGO_Prancheta 1 cópia 27.png" />
+      <div>
+        <h1>Painel da Gerente</h1>
+        <div style="font-size: 12px; color: #666; letter-spacing: 0.1em;">
+          Imagem Modas
+        </div>
+      </div>
+    </header>
 
-  <!-- RANKING DO DIA -->
-  <div class="card">
-    <div class="card-title">Vendas do dia</div>
-    <table>
-      <thead>
-        <tr>
-          <th>Vendedora</th>
-          <th>Total</th>
-          <th>Vendas</th>
-          <th>Ticket</th>
-          <th>Peças/venda</th>
-        </tr>
-      </thead>
-      <tbody id="rankingDia"></tbody>
-    </table>
-  </div>
+    <div id="status" class="status">Faça login para acessar o painel.</div>
 
-  <!-- CONDICIONAIS EM ABERTO -->
-  <div class="card">
-    <div class="card-title">Condicionais em aberto</div>
-    <table>
-      <thead>
-        <tr>
-          <th>Cliente</th>
-          <th>Peças</th>
-          <th>Valor</th>
-          <th>Vendedora</th>
-          <th>Data</th>
-        </tr>
-      </thead>
-      <tbody id="listaCondicionais"></tbody>
-    </table>
-  </div>
+    <!-- LOGIN GERENTE -->
+    <div id="loginCard" class="card">
+      <h3>Login da gerente</h3>
 
-</div>
+      <div class="row">
+        <div>
+          <label>Usuário</label>
+          <input id="gerenteUser" value="gerente" />
+        </div>
+        <div>
+          <label>Senha</label>
+          <input id="gerenteSenha" type="password" value="gerente2025" />
+        </div>
+      </div>
 
-<script>
-const API = "https://dashboard-vendas1.onrender.com/api";
-const token = localStorage.getItem("token_gerente");
+      <button onclick="loginGerente()">Entrar</button>
+    </div>
 
-// CONFERE LOGIN
-if (!token) {
-  alert("Acesso restrito à gerente. Faça login.");
-  window.location.href = "index.html";
-}
+    <!-- PAINEL -->
+    <div id="painel" style="display: none">
+      <!-- CADASTRAR NOVA VENDEDORA -->
+      <div class="card">
+        <h3>Cadastrar nova vendedora</h3>
 
-// ======================================================
-// FUNÇÕES UTILITÁRIAS
-// ======================================================
+        <div class="row">
+          <div><label>Nome</label><input id="novaNome" /></div>
+          <div><label>Email</label><input id="novaEmail" /></div>
+        </div>
 
-function headers() {
-  return {
-    "Content-Type": "application/json",
-    Authorization: "Bearer " + token
-  };
-}
+        <div class="row">
+          <div><label>Senha</label><input id="novaSenha" /></div>
+          <div><label>Meta padrão</label><input id="novaMeta" value="15000" /></div>
+        </div>
 
-function hojeISO() {
-  return new Date().toISOString().slice(0, 10);
-}
+        <button onclick="cadastrarVendedora()">Cadastrar</button>
+      </div>
 
-function primeiroDiaMes() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`;
-}
+      <!-- RESUMO -->
+      <div class="card">
+        <h3>Resumo geral</h3>
+        <div id="resumoGeral">Carregando…</div>
+      </div>
 
-// ======================================================
-// CARREGAR METAS
-// ======================================================
+      <!-- TODAS AS VENDAS -->
+      <div class="card">
+        <h3>Todas as vendas</h3>
+        <table id="tabelaVendas">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Hora</th>
+              <th>Vendedora</th>
+              <th>Cliente</th>
+              <th>Forma</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-async function carregarMetas() {
-  const resp = await fetch(API + "/metas/mensal", { headers: headers() });
-  const dados = await resp.json();
+      <!-- ATENDIMENTOS -->
+      <div class="card">
+        <h3>Atendimentos</h3>
+        <table id="tabelaAtend">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Vendedora</th>
+              <th>Qtd</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-  document.getElementById("metasInfo").innerHTML = `
-    Meta mensal: <b>R$ ${dados.metaMensal.toFixed(2)}</b><br>
-    Vendido no mês: <b>R$ ${dados.vendidoMes.toFixed(2)}</b><br>
-    Meta diária ajustada: <b>R$ ${dados.metaAjustada.toFixed(2)}</b>
-  `;
-}
+      <!-- METAS -->
+      <div class="card">
+        <h3>Metas diárias</h3>
+        <table id="tabelaMetas">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Vendedora</th>
+              <th>Meta</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-// ======================================================
-// RANKING MENSAL
-// ======================================================
+    </div>
 
-async function carregarRankingMensal() {
-  const inicio = primeiroDiaMes();
-  const fim = hojeISO();
+    <script>
+      const API = "https://dashboard-vendas1.onrender.com/api";
+      let token = null;
 
-  const resp = await fetch(API + `/relatorio/vendas-mes?inicio=${inicio}&fim=${fim}`, {
-    headers: headers()
-  });
+      function setStatus(msg, tipo = "") {
+        const el = document.getElementById("status");
+        el.textContent = msg;
+        el.className = "status " + tipo;
+      }
 
-  const lista = await resp.json();
-  const tbody = document.getElementById("rankingMensal");
-  tbody.innerHTML = "";
+      async function loginGerente() {
+        const user = gerenteUser.value.trim();
+        const senha = gerenteSenha.value.trim();
 
-  lista.forEach(v => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${v.nome}</td>
-      <td>R$ ${v.total.toFixed(2)}</td>
-      <td>R$ ${(v.total / v.qtd).toFixed(2)}</td>
-      <td>${(v.pecas / v.qtd).toFixed(2)}</td>
-      <td>${v.conversao.toFixed(1)}%</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+        setStatus("Conectando…");
 
-// ======================================================
-// RANKING DO DIA
-// ======================================================
+        const resp = await fetch(API + "/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nome: user, senha }),
+        });
 
-async function carregarRankingDia() {
-  const hoje = hojeISO();
+        if (!resp.ok) {
+          setStatus("Falha no login.", "erro");
+          return;
+        }
 
-  const resp = await fetch(API + `/relatorio/vendas-dia?data=${hoje}`, {
-    headers: headers()
-  });
+        const data = await resp.json();
 
-  const lista = await resp.json();
-  const tbody = document.getElementById("rankingDia");
-  tbody.innerHTML = "";
+        if (!data.vendedora.isGerente) {
+          setStatus("Acesso negado. Este usuário não é gerente.", "erro");
+          return;
+        }
 
-  lista.forEach(v => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${v.nome}</td>
-      <td>R$ ${v.total.toFixed(2)}</td>
-      <td>${v.qtd}</td>
-      <td>R$ ${(v.total / v.qtd).toFixed(2)}</td>
-      <td>${(v.pecas / v.qtd).toFixed(2)}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+        token = data.token;
 
-// ======================================================
-// CONDICIONAIS
-// ======================================================
+        loginCard.style.display = "none";
+        painel.style.display = "block";
 
-async function carregarCondicionais() {
-  const resp = await fetch(API + "/condicionais/todas", {
-    headers: headers()
-  });
+        setStatus("Gerente logada.", "sucesso");
 
-  const conds = await resp.json();
-  const tbody = document.getElementById("listaCondicionais");
-  tbody.innerHTML = "";
+        carregarTudo();
+      }
 
-  conds.forEach(c => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${c.cliente}</td>
-      <td>${c.pecas}</td>
-      <td>R$ ${c.valor.toFixed(2)}</td>
-      <td>${c.vendedora}</td>
-      <td>${new Date(c.data).toLocaleDateString("pt-BR")}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+      function auth() {
+        return { Authorization: "Bearer " + token };
+      }
 
-// ======================================================
-// INICIALIZAÇÃO
-// ======================================================
+      async function cadastrarVendedora() {
+        const nome = novaNome.value.trim();
+        const email = novaEmail.value.trim();
+        const senha = novaSenha.value.trim();
+        const metaPadrao = Number(novaMeta.value);
 
-async function iniciar() {
-  try {
-    await carregarMetas();
-    await carregarRankingMensal();
-    await carregarRankingDia();
-    await carregarCondicionais();
-  } catch (e) {
-    console.error(e);
-    alert("Erro ao carregar painel da gerente.");
-  }
-}
+        if (!nome || !senha) {
+          setStatus("Preencha nome e senha.", "erro");
+          return;
+        }
 
-iniciar();
-</script>
+        const resp = await fetch(API + "/admin/vendedoras", {
+          method: "POST",
+          headers: {
+            ...auth(),
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ nome, email, senha, metaPadrao }),
+        });
 
-</body>
-</html>
+        if (!resp.ok) {
+          setStatus("Erro ao cadastrar.", "erro");
+          return;
+        }
+
+        novaNome.value = "";
+        novaEmail.value = "";
+        novaSenha.value = "";
+
+        setStatus("Vendedora cadastrada.", "sucesso");
+
+        carregarTudo();
+      }
+
+      async function carregarTudo() {
+        carregarResumo();
+        carregarVendas();
+        carregarAtendimentos();
+        carregarMetas();
+      }
+
+      async function carregarResumo() {
+        const resp = await fetch(API + "/admin/resumo", { headers: auth() });
+        const data = await resp.json();
+        resumoGeral.textContent =
+          `Vendas hoje: ${data.vendasHoje} | ` +
+          `Total R$: ${data.totalHoje.toFixed(2)} | ` +
+          `Atendimentos: ${data.atendimentosHoje}`;
+      }
+
+      async function carregarVendas() {
+        const resp = await fetch(API + "/admin/vendas", { headers: auth() });
+        const dados = await resp.json();
+
+        const tbody = document.querySelector("#tabelaVendas tbody");
+        tbody.innerHTML = "";
+
+        dados.forEach((v) => {
+          const d = new Date(v.data_venda);
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+            <td>${d.toLocaleDateString("pt-BR")}</td>
+            <td>${d.toLocaleTimeString("pt-BR",{hour:'2-digit',minute:'2-digit'})}</td>
+            <td>${v.vendedora}</td>
+            <td>${v.cliente_nome || "-"}</td>
+            <td>${v.forma_pagamento}</td>
+            <td>R$ ${Number(v.valor).toFixed(2)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      async function carregarAtendimentos() {
+        const resp = await fetch(API + "/admin/atendimentos", {
+          headers: auth(),
+        });
+        const dados = await resp.json();
+
+        const tbody = document.querySelector("#tabelaAtend tbody");
+        tbody.innerHTML = "";
+
+        dados.forEach((a) => {
+          const d = new Date(a.data_registro);
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+            <td>${d.toLocaleDateString("pt-BR")}</td>
+            <td>${a.vendedora}</td>
+            <td>${a.quantidade}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      async function carregarMetas() {
+        const resp = await fetch(API + "/admin/metas", { headers: auth() });
+        const dados = await resp.json();
+
+        const tbody = document.querySelector("#t
