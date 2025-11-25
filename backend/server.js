@@ -146,54 +146,56 @@ function contarDiasUteis(startDate, endDate) {
 
 // calcula meta do dia considerando meta mensal, vendas do mês etc.
 async function calcularMetaDia(vendedoraId, dataISO) {
-  try {
-    // se data vier vazia ou em formato estranho, usa hoje
-    if (!dataISO || !/^\d{4}-\d{2}-\d{2}$/.test(dataISO)) {
-      dataISO = new Date().toISOString().slice(0, 10);
-    }
+  const data = new Date(dataISO + "T00:00:00");
+  const ano = data.getFullYear();
+  const mes = data.getMonth();
 
-    const data = new Date(dataISO + 'T00:00:00');
-    if (isNaN(data.getTime())) {
-      throw new Error('Data inválida em calcularMetaDia: ' + dataISO);
-    }
+  const inicioMes = new Date(ano, mes, 1);
+  const fimMes = new Date(ano, mes + 1, 0);
 
-    const ano = data.getFullYear();
-    const mes = data.getMonth(); // 0-11
+  // dados da vendedora
+  const rVend = await pool.query(
+    "SELECT meta_mensal, meta_padrao FROM vendedoras WHERE id = $1",
+    [vendedoraId]
+  );
+  if (rVend.rows.length === 0) {
+    return { metaDia: 0, metaMensal: 0, vendidoNoMes: 0, faltaNoMes: 0 };
+  }
 
-    const inicioMes = new Date(ano, mes, 1);
-    const fimMes = new Date(ano, mes + 1, 0); // último dia do mês
+  const metaMensal = Number(rVend.rows[0].meta_mensal || 0);
+  const metaPadrao = Number(rVend.rows[0].meta_padrao || 0);
 
-    const inicioISO = inicioMes.toISOString().slice(0, 10);
-    const fimISO = fimMes.toISOString().slice(0, 10);
+  // vendas acumuladas no mês até a data
+  const rVendas = await pool.query(
+    `
+      SELECT COALESCE(SUM(valor),0) AS total
+      FROM vendas
+      WHERE vendedora_id = $1
+        AND data_venda >= $2
+        AND data_venda < ($3::date + INTERVAL '1 day')
+    `,
+    [vendedoraId, inicioMes, dataISO]
+  );
+  const vendidoNoMes = Number(rVendas.rows[0].total || 0);
 
-    // dados da vendedora
-    const rVend = await pool.query(
-      'SELECT meta_mensal, meta_padrao FROM vendedoras WHERE id = $1',
-      [vendedoraId]
-    );
-    if (rVend.rows.length === 0) {
-      return { metaDia: 0, metaMensal: 0, vendidoNoMes: 0, faltaNoMes: 0 };
-    }
+  let faltaNoMes = metaMensal - vendidoNoMes;
+  if (faltaNoMes < 0) faltaNoMes = 0;
 
-    const metaMensalRaw = rVend.rows[0].meta_mensal;
-  const metaPadraoRaw = rVend.rows[0].meta_padrao;
+  const diasUteisRestantes = contarDiasUteis(
+    dataISO,
+    fimMes.toISOString().slice(0, 10)
+  );
 
-  // se meta_mensal vier nula, consideramos 0 (sem meta mensal configurada ainda)
-  const metaMensal = metaMensalRaw == null ? 0 : Number(metaMensalRaw);
+  let metaDia = diasUteisRestantes > 0 ? faltaNoMes / diasUteisRestantes : 0;
 
-  // se meta_padrao vier nula, usamos um fallback de 15000
-  const metaPadrao = metaPadraoRaw == null ? 15000 : Number(metaPadraoRaw);
+  // 🔥 CORREÇÃO CRÍTICA:
+  // Nunca retornar metaDia = 0 se ainda falta para o mês.
+  if (metaDia === 0 && faltaNoMes > 0) {
+    metaDia = metaPadrao;
+  }
 
-    // se não tiver meta mensal configurada, usa meta diária padrão fixa
-    if (!metaMensal) {
-      return {
-        metaDia: metaPadrao,
-        metaMensal: 0,
-        vendidoNoMes: 0,
-        faltaNoMes: 0,
-      };
-    }
-
+  return { metaDia, metaMensal, vendidoNoMes, faltaNoMes };
+}
     // vendas acumuladas no mês ATÉ a data informada (inclusive)
     const rVendas = await pool.query(
       `
