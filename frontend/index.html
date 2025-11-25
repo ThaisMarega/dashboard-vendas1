@@ -838,20 +838,92 @@ const API = "https://dashboard-vendas1.onrender.com/api";
   }
 
   // META DIÁRIA + MENSAL (usando /api/metas/:data com fallback para metaPadraoLogin)
+// META DIÁRIA + MENSAL (usando API, mas nunca deixando ficar 0)
 async function carregarMetaHoje(dataRef) {
   if (!token) return;
   const data = dataRef || hojeISO();
 
   try {
     const resp = await fetch(API + "/metas/" + data, {
-      headers: { Authorization: "Bearer " + token }
+      headers: { Authorization: "Bearer " + token },
     });
 
+    // se der erro na API: usa padrões do login
     if (!resp.ok) {
-      setStatus("Não foi possível carregar meta automática (usando padrão).", "erro");
-      document.getElementById("metaAtual").textContent = "R$ " + metaPadraoLogin.toFixed(2);
+      setStatus(
+        "Não foi possível carregar meta automática (usando padrão).",
+        "erro"
+      );
+
+      const metaDiaFallback = metaPadraoLogin || 0;
+      const metaMensalFallback = metaMensalLogin || 0;
+
+      document.getElementById("metaAtual").textContent =
+        "R$ " + metaDiaFallback.toFixed(2);
+      document.getElementById("metaValor").value =
+        metaDiaFallback > 0 ? metaDiaFallback : "";
+
+      document.getElementById("metaMensalChip").textContent =
+        "R$ " + metaMensalFallback.toFixed(2);
+      document.getElementById("faltanteMensalChip").textContent =
+        "R$ " + metaMensalFallback.toFixed(2); // se não tem dado, assume tudo em aberto
+
       return;
     }
+
+    const meta = await resp.json();
+
+    // ---------- META DIÁRIA ----------
+    const metaDiaBackend = Number(meta.valor_meta || 0);
+    // se o backend mandar 0, usamos a meta padrão do login
+    const metaDiaFinal =
+      metaDiaBackend > 0 ? metaDiaBackend : (metaPadraoLogin || 0);
+
+    document.getElementById("metaAtual").textContent =
+      "R$ " + metaDiaFinal.toFixed(2);
+    // no campo editável também já entra com essa meta
+    document.getElementById("metaValor").value =
+      metaDiaFinal > 0 ? metaDiaFinal : "";
+
+    // ---------- META MENSAL ----------
+    const metaMensalBackend = Number(meta.meta_mensal || 0);
+    const metaMensalFinal =
+      metaMensalBackend > 0 ? metaMensalBackend : (metaMensalLogin || 0);
+
+    document.getElementById("metaMensalChip").textContent =
+      "R$ " + metaMensalFinal.toFixed(2);
+
+    // ---------- FALTA PARA O MÊS ----------
+    // se o backend mandou falta_no_mes, usamos; senão calculamos rápido como
+    // metaMensalFinal - vendido_no_mes (mas nunca negativo)
+    const vendido = Number(meta.vendido_no_mes || 0);
+    let falta = Number(meta.falta_no_mes || 0);
+
+    if (!falta && metaMensalFinal) {
+      falta = metaMensalFinal - vendido;
+      if (falta < 0) falta = 0;
+    }
+
+    document.getElementById("faltanteMensalChip").textContent =
+      "R$ " + falta.toFixed(2);
+  } catch (e) {
+    console.error(e);
+    setStatus("Erro ao carregar meta automática (usando padrão).", "erro");
+
+    const metaDiaFallback = metaPadraoLogin || 0;
+    const metaMensalFallback = metaMensalLogin || 0;
+
+    document.getElementById("metaAtual").textContent =
+      "R$ " + metaDiaFallback.toFixed(2);
+    document.getElementById("metaValor").value =
+      metaDiaFallback > 0 ? metaDiaFallback : "";
+
+    document.getElementById("metaMensalChip").textContent =
+      "R$ " + metaMensalFallback.toFixed(2);
+    document.getElementById("faltanteMensalChip").textContent =
+      "R$ " + metaMensalFallback.toFixed(2);
+  }
+}
 
     const meta = await resp.json();
 
