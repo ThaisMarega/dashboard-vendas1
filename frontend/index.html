@@ -674,7 +674,7 @@
       </div>
 
       <script>
-  const API = "https://dashboard-vendas1.onrender.com/api";
+const API = "https://dashboard-vendas1.onrender.com/api";
   let token = null;
   let nomeVendedora = null;
 
@@ -838,84 +838,45 @@
   }
 
   // META DIÁRIA + MENSAL (usando /api/metas/:data com fallback para metaPadraoLogin)
-  async function carregarMetaHoje(dataRef) {
-    if (!token) return;
-    const data = dataRef || hojeISO();
+async function carregarMetaHoje(dataRef) {
+  if (!token) return;
+  const data = dataRef || hojeISO();
 
-    const metaMensalChip = document.getElementById("metaMensalChip");
-    const faltanteMensalChip = document.getElementById("faltanteMensalChip");
-    const metaAtualChip = document.getElementById("metaAtual");
-    const inputMeta = document.getElementById("metaValor");
+  try {
+    const resp = await fetch(API + "/metas/" + data, {
+      headers: { Authorization: "Bearer " + token }
+    });
 
-    try {
-      const resp = await fetch(API + "/metas/" + data, {
-        headers: { Authorization: "Bearer " + token },
-      });
-
-      if (!resp.ok) {
-        // se a rota falhar, usa meta padrão do login (se tiver)
-        if (metaPadraoLogin > 0) {
-          if (metaAtualChip)
-            metaAtualChip.textContent = "R$ " + metaPadraoLogin.toFixed(2);
-          if (inputMeta) inputMeta.value = metaPadraoLogin.toString();
-          if (metaMensalChip && metaMensalLogin > 0)
-            metaMensalChip.textContent = "R$ " + metaMensalLogin.toFixed(2);
-          if (faltanteMensalChip && metaMensalLogin > 0)
-            faltanteMensalChip.textContent = "R$ " + metaMensalLogin.toFixed(2);
-        }
-        setStatus("Não foi possível carregar meta automática (usando padrão).", "erro");
-        return;
-      }
-
-      const meta = await resp.json();
-
-      let valorDia = Number(meta.valor_meta || meta.valorMeta || 0);
-      let metaMensal = Number(meta.meta_mensal || 0);
-      let faltaMes = Number(meta.falta_no_mes || 0);
-
-      // se a API retornar 0 mas temos meta padrão, usamos metaPadraoLogin
-      if ((!valorDia || valorDia === 0) && metaPadraoLogin > 0) {
-        valorDia = metaPadraoLogin;
-      }
-
-      // se meta mensal vier 0 mas temos metaMensalLogin, usamos
-      if ((!metaMensal || metaMensal === 0) && metaMensalLogin > 0) {
-        metaMensal = metaMensalLogin;
-      }
-
-      // se faltar mês não vier, mas temos meta mensal, colocamos igual à meta
-      if (faltaMes === 0 && metaMensal > 0 && meta.vendido_no_mes === 0) {
-        faltaMes = metaMensal;
-      }
-
-      if (metaAtualChip) {
-        metaAtualChip.textContent = "R$ " + valorDia.toFixed(2);
-      }
-      if (inputMeta) {
-        inputMeta.value = valorDia > 0 ? valorDia.toString() : "";
-      }
-
-      if (metaMensalChip) {
-        metaMensalChip.textContent = "R$ " + metaMensal.toFixed(2);
-      }
-      if (faltanteMensalChip) {
-        faltanteMensalChip.textContent = "R$ " + faltaMes.toFixed(2);
-      }
-    } catch (e) {
-      console.error(e);
-      // fallback final se der erro de rede
-      if (metaPadraoLogin > 0) {
-        if (metaAtualChip)
-          metaAtualChip.textContent = "R$ " + metaPadraoLogin.toFixed(2);
-        if (inputMeta) inputMeta.value = metaPadraoLogin.toString();
-        if (metaMensalChip && metaMensalLogin > 0)
-          metaMensalChip.textContent = "R$ " + metaMensalLogin.toFixed(2);
-        if (faltanteMensalChip && metaMensalLogin > 0)
-          faltanteMensalChip.textContent = "R$ " + metaMensalLogin.toFixed(2);
-      }
-      setStatus("Erro ao buscar meta (usando padrão).", "erro");
+    if (!resp.ok) {
+      setStatus("Não foi possível carregar meta automática (usando padrão).", "erro");
+      document.getElementById("metaAtual").textContent = "R$ " + metaPadraoLogin.toFixed(2);
+      return;
     }
+
+    const meta = await resp.json();
+
+    // meta diária
+    const metaDia = Number(meta.valor_meta || 0);
+    document.getElementById("metaAtual").textContent = "R$ " + metaDia.toFixed(2);
+    document.getElementById("metaValor").value = metaDia > 0 ? metaDia : "";
+
+    // meta mensal
+    const metaMensal = Number(meta.meta_mensal || 0);
+    document.getElementById("metaMensalChip").textContent = "R$ " + metaMensal.toFixed(2);
+
+    // vendido no mês
+    const vendido = Number(meta.vendido_no_mes || 0);
+
+    // falta para o mês
+    const falta = Number(meta.falta_no_mes || 0);
+    document.getElementById("faltanteMensalChip").textContent = "R$ " + falta.toFixed(2);
+
+  } catch (e) {
+    console.error(e);
+    setStatus("Erro ao carregar meta automática.", "erro");
+    document.getElementById("metaAtual").textContent = "R$ " + metaPadraoLogin.toFixed(2);
   }
+}
 
   async function salvarMetaHoje() {
     if (!token) return;
