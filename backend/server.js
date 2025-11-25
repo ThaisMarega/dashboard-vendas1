@@ -39,9 +39,10 @@ app.get('/', (_, res) => res.send('API OK'));
 // -----------------------------------------------
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: process.env.NODE_ENV === 'production'
+    ? { rejectUnauthorized: false }
+    : false,
 });
-
 // -----------------------------------------------
 // CRIAÇÃO / AJUSTE DE TABELAS
 // -----------------------------------------------
@@ -55,8 +56,8 @@ async function criarTabelas() {
         senha_hash VARCHAR(255) NOT NULL,
         email VARCHAR(100),
         meta_padrao DECIMAL(10,2) DEFAULT 15000, -- meta diária padrão
-        meta_mensal DECIMAL(10,2) DEFAULT 30000, -- meta mensal padrão
-        is_gerente BOOLEAN DEFAULT false,        -- se é gerente
+        meta_mensal DECIMAL(10,2) DEFAULT 30000, -- meta mensal configurável
+        is_gerente BOOLEAN DEFAULT false,        -- gerente ou não
         ativo BOOLEAN DEFAULT true,
         criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -84,7 +85,7 @@ async function criarTabelas() {
         data_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
-      -- ATENDIMENTOS (1 linha por dia por vendedora)
+      -- ATENDIMENTOS (1 por dia por vendedora)
       CREATE TABLE IF NOT EXISTS atendimentos (
         id SERIAL PRIMARY KEY,
         vendedora_id INTEGER REFERENCES vendedoras(id),
@@ -93,7 +94,7 @@ async function criarTabelas() {
         UNIQUE(vendedora_id, data_registro)
       );
 
-      -- METAS DIÁRIAS (override da meta calculada)
+      -- METAS DIÁRIAS (override manual)
       CREATE TABLE IF NOT EXISTS metas (
         id SERIAL PRIMARY KEY,
         vendedora_id INTEGER REFERENCES vendedoras(id),
@@ -109,21 +110,21 @@ async function criarTabelas() {
     // garante que exista uma gerente padrão
     // usuário: gerente / senha: gerente2025
     const hashGerente = await bcrypt.hash('gerente2025', 10);
+
     await pool.query(
       `
       INSERT INTO vendedoras (nome, senha_hash, email, meta_padrao, meta_mensal, is_gerente, ativo)
       VALUES ($1,$2,$3,$4,$5,true,true)
       ON CONFLICT (nome) DO NOTHING;
     `,
-      ['gerente', hashGerente, 'gerente@imagemmodas.com.br', 15000, 90000]
+      ['gerente', hashGerente, 'gerente@imagemmodas.com', 15000, 90000]
     );
 
-    console.log('✅ Gerente padrão garantida (usuario: gerente).');
+    console.log('✅ Gerente padrão garantida (usuario: gerente)');
   } catch (err) {
     console.error('❌ Erro ao criar tabelas:', err);
   }
 }
-
 // -----------------------------------------------
 // FUNÇÕES AUXILIARES DE DATA / META MENSAL
 // -----------------------------------------------
@@ -141,7 +142,7 @@ function contarDiasUteis(startDate, endDate) {
   return count;
 }
 
-// calcula meta diária dinâmica considerando meta mensal, vendas do mês, etc.
+// calcula meta do dia considerando meta mensal, vendas do mês etc.
 async function calcularMetaDia(vendedoraId, dataISO) {
   // dataISO: "YYYY-MM-DD"
   const data = new Date(dataISO + 'T00:00:00');
@@ -149,7 +150,7 @@ async function calcularMetaDia(vendedoraId, dataISO) {
   const mes = data.getMonth(); // 0-11
 
   const inicioMes = new Date(ano, mes, 1);
-  const fimMes = new Date(ano, mes + 1, 0); // último dia
+  const fimMes = new Date(ano, mes + 1, 0); // último dia do mês
 
   // dados da vendedora
   const rVend = await pool.query(
@@ -163,8 +164,8 @@ async function calcularMetaDia(vendedoraId, dataISO) {
   const metaMensal = Number(rVend.rows[0].meta_mensal || 0);
   const metaPadrao = Number(rVend.rows[0].meta_padrao || 0);
 
+  // se não tiver meta mensal configurada, usa meta diária padrão fixa
   if (!metaMensal) {
-    // se não tiver meta mensal definida, cai na meta diária padrão
     return {
       metaDia: metaPadrao,
       metaMensal: 0,
@@ -173,15 +174,15 @@ async function calcularMetaDia(vendedoraId, dataISO) {
     };
   }
 
-  // vendas acumuladas no mês até a DATA (inclusive)
+  // vendas acumuladas no mês ATÉ a data informada (inclusive)
   const rVendas = await pool.query(
     `
-    SELECT COALESCE(SUM(valor),0) AS total
-    FROM vendas
-    WHERE vendedora_id = $1
-      AND data_venda >= $2
-      AND data_venda < ($3::date + INTERVAL '1 day');
-  `,
+      SELECT COALESCE(SUM(valor),0) AS total
+      FROM vendas
+      WHERE vendedora_id = $1
+        AND data_venda >= $2
+        AND data_venda < ($3::date + INTERVAL '1 day');
+    `,
     [vendedoraId, inicioMes, dataISO]
   );
   const vendidoNoMes = Number(rVendas.rows[0].total || 0);
@@ -189,18 +190,20 @@ async function calcularMetaDia(vendedoraId, dataISO) {
   let faltaNoMes = metaMensal - vendidoNoMes;
   if (faltaNoMes < 0) faltaNoMes = 0;
 
+  // quantos dias úteis (seg a sáb) ainda restam no mês a partir da data
   const diasUteisRestantes = contarDiasUteis(
     dataISO,
     fimMes.toISOString().slice(0, 10)
   );
-  let metaDia = 0;
 
+  let metaDia = 0;
   if (diasUteisRestantes > 0) {
     metaDia = faltaNoMes / diasUteisRestantes;
   }
 
-  // se não sobrou nada, meta zero
-  if (faltaNoMes === 0) metaDia = 0;
+  if (faltaNoMes === 0) {
+    metaDia = 0;
+  }
 
   return { metaDia, metaMensal, vendidoNoMes, faltaNoMes };
 }
@@ -278,22 +281,23 @@ app.post('/api/login', async (req, res) => {
         id: vendedora.id,
         nome: vendedora.nome,
         email: vendedora.email,
-        metaPadrao: parseFloat(vendedora.meta_padrao),
-        metaMensal: parseFloat(vendedora.meta_mensal),
+        metaPadrao: parseFloat(vendedora.meta_padrao || 0),
+        metaMensal: parseFloat(vendedora.meta_mensal || 0),
         isGerente: vendedora.is_gerente,
       },
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ erro: 'Erro no servidor' });
+    res.status(500).json({ erro: 'Erro no servidor de login' });
   }
 });
-
 // -----------------------------------------------
 // ROTAS DE VENDEDORA (AUTENTICADAS)
 // -----------------------------------------------
 
-// VENDAS - listar
+// ------------------------- VENDAS -------------------------
+
+// Listar vendas da vendedora (com filtro por data)
 app.get('/api/vendas', autenticar, async (req, res) => {
   try {
     const { dataInicio, dataFim } = req.query;
@@ -301,8 +305,7 @@ app.get('/api/vendas', autenticar, async (req, res) => {
     const params = [req.vendedoraId];
 
     if (dataInicio && dataFim) {
-      query +=
-        " AND data_venda BETWEEN $2 AND ($3::date + INTERVAL '1 day')";
+      query += ' AND data_venda >= $2 AND data_venda < ($3::date + INTERVAL \'1 day\')';
       params.push(dataInicio, dataFim);
     }
 
@@ -311,16 +314,21 @@ app.get('/api/vendas', autenticar, async (req, res) => {
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao buscar vendas:', err);
     res.status(500).json({ erro: 'Erro ao buscar vendas' });
   }
 });
 
-// VENDAS - criar
+// Criar venda
 app.post('/api/vendas', autenticar, async (req, res) => {
   try {
-    const { valor, formaPagamento, clienteNome, observacao, quantidadePecas } =
-      req.body;
+    const {
+      valor,
+      formaPagamento,
+      clienteNome,
+      observacao,
+      quantidadePecas,
+    } = req.body;
 
     if (!valor || !formaPagamento) {
       return res.status(400).json({
@@ -330,10 +338,12 @@ app.post('/api/vendas', autenticar, async (req, res) => {
 
     const result = await pool.query(
       `
-      INSERT INTO vendas (vendedora_id, valor, forma_pagamento, quantidade_pecas, cliente_nome, observacao)
-      VALUES ($1,$2,$3,$4,$5,$6)
-      RETURNING *;
-    `,
+        INSERT INTO vendas
+          (vendedora_id, valor, forma_pagamento, quantidade_pecas, cliente_nome, observacao)
+        VALUES
+          ($1,$2,$3,$4,$5,$6)
+        RETURNING *;
+      `,
       [
         req.vendedoraId,
         valor,
@@ -346,60 +356,40 @@ app.post('/api/vendas', autenticar, async (req, res) => {
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao adicionar venda:', err);
     res.status(500).json({ erro: 'Erro ao adicionar venda' });
   }
 });
 
-// VENDAS - atualizar (EDIÇÃO)
+// Editar venda (valor / quantidade de peças)
 app.put('/api/vendas/:id', autenticar, async (req, res) => {
   try {
     const { id } = req.params;
-    const {
-      valor,
-      formaPagamento,
-      quantidadePecas,
-      clienteNome,
-      observacao,
-    } = req.body;
+    const { valor, quantidadePecas } = req.body;
 
     const result = await pool.query(
       `
-      UPDATE vendas
-      SET
-        valor = COALESCE($1, valor),
-        forma_pagamento = COALESCE($2, forma_pagamento),
-        quantidade_pecas = COALESCE($3, quantidade_pecas),
-        cliente_nome = COALESCE($4, cliente_nome),
-        observacao = COALESCE($5, observacao)
-      WHERE id = $6 AND vendedora_id = $7
-      RETURNING *;
-    `,
-      [
-        valor !== undefined ? valor : null,
-        formaPagamento !== undefined ? formaPagamento : null,
-        quantidadePecas !== undefined ? quantidadePecas : null,
-        clienteNome !== undefined ? clienteNome : null,
-        observacao !== undefined ? observacao : null,
-        id,
-        req.vendedoraId,
-      ]
+        UPDATE vendas
+        SET valor = COALESCE($1, valor),
+            quantidade_pecas = COALESCE($2, quantidade_pecas)
+        WHERE id = $3 AND vendedora_id = $4
+        RETURNING *;
+      `,
+      [valor, quantidadePecas, id, req.vendedoraId]
     );
 
     if (result.rows.length === 0) {
-      return res
-        .status(404)
-        .json({ erro: 'Venda não encontrada ou não pertence à vendedora.' });
+      return res.status(404).json({ erro: 'Venda não encontrada' });
     }
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ erro: 'Erro ao atualizar venda' });
+    console.error('Erro ao editar venda:', err);
+    res.status(500).json({ erro: 'Erro ao editar venda' });
   }
 });
 
-// VENDAS - deletar
+// Excluir venda
 app.delete('/api/vendas/:id', autenticar, async (req, res) => {
   try {
     const { id } = req.params;
@@ -409,30 +399,32 @@ app.delete('/api/vendas/:id', autenticar, async (req, res) => {
     );
     res.json({ mensagem: 'Venda deletada com sucesso' });
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao deletar venda:', err);
     res.status(500).json({ erro: 'Erro ao deletar venda' });
   }
 });
 
-// CONDICIONAIS - listar
+// ------------------------- CONDICIONAIS -------------------------
+
+// Listar condicionais da vendedora
 app.get('/api/condicionais', autenticar, async (req, res) => {
   try {
     const result = await pool.query(
       `
-      SELECT * FROM condicionais
-      WHERE vendedora_id = $1
-      ORDER BY data_registro DESC;
-    `,
+        SELECT * FROM condicionais
+        WHERE vendedora_id = $1
+        ORDER BY data_registro DESC;
+      `,
       [req.vendedoraId]
     );
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao buscar condicionais:', err);
     res.status(500).json({ erro: 'Erro ao buscar condicionais' });
   }
 });
 
-// CONDICIONAIS - criar
+// Criar condicional
 app.post('/api/condicionais', autenticar, async (req, res) => {
   try {
     const { quantidadePecas, valorTotal, clienteNome, observacao } = req.body;
@@ -445,10 +437,12 @@ app.post('/api/condicionais', autenticar, async (req, res) => {
 
     const result = await pool.query(
       `
-      INSERT INTO condicionais (vendedora_id, quantidade_pecas, valor_total, cliente_nome, observacao)
-      VALUES ($1,$2,$3,$4,$5)
-      RETURNING *;
-    `,
+        INSERT INTO condicionais
+          (vendedora_id, quantidade_pecas, valor_total, cliente_nome, observacao)
+        VALUES
+          ($1,$2,$3,$4,$5)
+        RETURNING *;
+      `,
       [
         req.vendedoraId,
         quantidadePecas,
@@ -460,52 +454,40 @@ app.post('/api/condicionais', autenticar, async (req, res) => {
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao adicionar condicional:', err);
     res.status(500).json({ erro: 'Erro ao adicionar condicional' });
   }
 });
 
-// CONDICIONAIS - atualizar (EDIÇÃO)
+// Editar condicional
 app.put('/api/condicionais/:id', autenticar, async (req, res) => {
   try {
     const { id } = req.params;
-    const { quantidadePecas, valorTotal, clienteNome, observacao } = req.body;
+    const { quantidadePecas, valorTotal } = req.body;
 
     const result = await pool.query(
       `
-      UPDATE condicionais
-      SET
-        quantidade_pecas = COALESCE($1, quantidade_pecas),
-        valor_total = COALESCE($2, valor_total),
-        cliente_nome = COALESCE($3, cliente_nome),
-        observacao = COALESCE($4, observacao)
-      WHERE id = $5 AND vendedora_id = $6
-      RETURNING *;
-    `,
-      [
-        quantidadePecas !== undefined ? quantidadePecas : null,
-        valorTotal !== undefined ? valorTotal : null,
-        clienteNome !== undefined ? clienteNome : null,
-        observacao !== undefined ? observacao : null,
-        id,
-        req.vendedoraId,
-      ]
+        UPDATE condicionais
+        SET quantidade_pecas = COALESCE($1, quantidade_pecas),
+            valor_total = COALESCE($2, valor_total)
+        WHERE id = $3 AND vendedora_id = $4
+        RETURNING *;
+      `,
+      [quantidadePecas, valorTotal, id, req.vendedoraId]
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({
-        erro: 'Condicional não encontrado ou não pertence à vendedora.',
-      });
+      return res.status(404).json({ erro: 'Condicional não encontrado' });
     }
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ erro: 'Erro ao atualizar condicional' });
+    console.error('Erro ao editar condicional:', err);
+    res.status(500).json({ erro: 'Erro ao editar condicional' });
   }
 });
 
-// CONDICIONAIS - deletar
+// Excluir condicional
 app.delete('/api/condicionais/:id', autenticar, async (req, res) => {
   try {
     const { id } = req.params;
@@ -515,55 +497,58 @@ app.delete('/api/condicionais/:id', autenticar, async (req, res) => {
     );
     res.json({ mensagem: 'Condicional deletado com sucesso' });
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao deletar condicional:', err);
     res.status(500).json({ erro: 'Erro ao deletar condicional' });
   }
 });
 
-// ATENDIMENTOS
+// ------------------------- ATENDIMENTOS -------------------------
+
+// Salvar / atualizar atendimentos do dia
 app.post('/api/atendimentos', autenticar, async (req, res) => {
   try {
     const { quantidade, data } = req.body;
 
     const result = await pool.query(
       `
-      INSERT INTO atendimentos (vendedora_id, quantidade, data_registro)
-      VALUES ($1,$2,$3)
-      ON CONFLICT (vendedora_id, data_registro)
-      DO UPDATE SET quantidade = EXCLUDED.quantidade
-      RETURNING *;
-    `,
+        INSERT INTO atendimentos (vendedora_id, quantidade, data_registro)
+        VALUES ($1,$2,$3)
+        ON CONFLICT (vendedora_id, data_registro)
+        DO UPDATE SET quantidade = EXCLUDED.quantidade
+        RETURNING *;
+      `,
       [req.vendedoraId, quantidade, data]
     );
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao salvar atendimentos:', err);
     res.status(500).json({ erro: 'Erro ao salvar atendimentos' });
   }
 });
 
+// Buscar atendimentos de um dia
 app.get('/api/atendimentos/:data', autenticar, async (req, res) => {
   try {
     const { data } = req.params;
     const result = await pool.query(
       `
-      SELECT * FROM atendimentos
-      WHERE vendedora_id = $1 AND data_registro = $2;
-    `,
+        SELECT * FROM atendimentos
+        WHERE vendedora_id = $1 AND data_registro = $2;
+      `,
       [req.vendedoraId, data]
     );
 
     res.json(result.rows[0] || { quantidade: 0 });
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao buscar atendimentos:', err);
     res.status(500).json({ erro: 'Erro ao buscar atendimentos' });
   }
 });
 
-// METAS DIÁRIAS + META MENSAL
+// ------------------------- METAS DIÁRIAS / MENSAL -------------------------
 
-// Retorna meta do dia + informações de meta mensal
+// Retorna meta do dia + meta mensal + vendido no mês + falta
 app.get('/api/metas/:data', autenticar, async (req, res) => {
   try {
     const { data } = req.params;
@@ -574,10 +559,10 @@ app.get('/api/metas/:data', autenticar, async (req, res) => {
     // verifica se há override manual para este dia
     const rMeta = await pool.query(
       `
-      SELECT valor_meta
-      FROM metas
-      WHERE vendedora_id = $1 AND data_meta = $2;
-    `,
+        SELECT valor_meta
+        FROM metas
+        WHERE vendedora_id = $1 AND data_meta = $2;
+      `,
       [req.vendedoraId, data]
     );
 
@@ -593,30 +578,30 @@ app.get('/api/metas/:data', autenticar, async (req, res) => {
       falta_no_mes: calc.faltaNoMes,
     });
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao buscar meta:', err);
     res.status(500).json({ erro: 'Erro ao buscar meta' });
   }
 });
 
-// Salvar/ajustar meta manual de um dia
+// Salvar/ajustar meta manual de um dia (override)
 app.post('/api/metas', autenticar, async (req, res) => {
   try {
     const { valorMeta, data } = req.body;
 
     const result = await pool.query(
       `
-      INSERT INTO metas (vendedora_id, valor_meta, data_meta)
-      VALUES ($1,$2,$3)
-      ON CONFLICT (vendedora_id, data_meta)
-      DO UPDATE SET valor_meta = EXCLUDED.valor_meta
-      RETURNING *;
-    `,
+        INSERT INTO metas (vendedora_id, valor_meta, data_meta)
+        VALUES ($1,$2,$3)
+        ON CONFLICT (vendedora_id, data_meta)
+        DO UPDATE SET valor_meta = EXCLUDED.valor_meta
+        RETURNING *;
+      `,
       [req.vendedoraId, valorMeta, data]
     );
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao salvar meta:', err);
     res.status(500).json({ erro: 'Erro ao salvar meta' });
   }
 });
@@ -626,65 +611,97 @@ app.post('/api/metas', autenticar, async (req, res) => {
 // -----------------------------------------------
 
 // Cadastrar nova vendedora
-app.post(
-  '/api/admin/vendedoras',
-  autenticar,
-  exigirGerente,
-  async (req, res) => {
-    try {
-      const { nome, email, senha, metaPadrao, metaMensal, isGerente } = req.body;
+app.post('/api/admin/vendedoras', autenticar, exigirGerente, async (req, res) => {
+  try {
+    const {
+      nome,
+      email,
+      senha,
+      metaPadrao,
+      metaMensal,
+      isGerente,
+    } = req.body;
 
-      const hash = await bcrypt.hash(senha, 10);
+    const hash = await bcrypt.hash(senha, 10);
 
-      const result = await pool.query(
-        `
-      INSERT INTO vendedoras (nome, senha_hash, email, meta_padrao, meta_mensal, is_gerente, ativo)
-      VALUES ($1,$2,$3,$4,$5,$6,true)
-      RETURNING id, nome, email, meta_padrao, meta_mensal, is_gerente;
-    `,
-        [
-          nome,
-          hash,
-          email || null,
-          metaPadrao || 15000,
-          metaMensal || 30000,
-          !!isGerente,
-        ]
-      );
+    const result = await pool.query(
+      `
+        INSERT INTO vendedoras
+          (nome, senha_hash, email, meta_padrao, meta_mensal, is_gerente, ativo)
+        VALUES
+          ($1,$2,$3,$4,$5,$6,true)
+        RETURNING id, nome, email, meta_padrao, meta_mensal, is_gerente;
+      `,
+      [
+        nome,
+        hash,
+        email || null,
+        metaPadrao || 15000,
+        metaMensal || 30000,
+        !!isGerente,
+      ]
+    );
 
-      res.status(201).json(result.rows[0]);
-    } catch (err) {
-      console.error(err);
-      if (err.code === '23505') {
-        return res
-          .status(400)
-          .json({ erro: 'Já existe vendedora com esse nome.' });
-      }
-      res.status(500).json({ erro: 'Erro ao cadastrar vendedora' });
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('Erro ao cadastrar vendedora:', err);
+    if (err.code === '23505') {
+      return res
+        .status(400)
+        .json({ erro: 'Já existe vendedora com esse nome.' });
     }
+    res.status(500).json({ erro: 'Erro ao cadastrar vendedora' });
   }
-);
+});
 
-// Resumo geral do dia
+// Atualizar meta mensal de uma vendedora (para gerente ajustar quando quiser)
+app.put('/api/admin/vendedoras/:id/meta-mensal', autenticar, exigirGerente, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { metaMensal } = req.body;
+
+    const result = await pool.query(
+      `
+        UPDATE vendedoras
+        SET meta_mensal = $1
+        WHERE id = $2
+        RETURNING id, nome, email, meta_padrao, meta_mensal, is_gerente;
+      `,
+      [metaMensal, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ erro: 'Vendedora não encontrada' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Erro ao atualizar meta mensal:', err);
+    res.status(500).json({ erro: 'Erro ao atualizar meta mensal' });
+  }
+});
+
+// Resumo geral do dia (para gerente)
 app.get('/api/admin/resumo', autenticar, exigirGerente, async (req, res) => {
   try {
     const hojeISO = new Date().toISOString().slice(0, 10);
 
     const rVendas = await pool.query(
       `
-      SELECT COUNT(*) AS qtd, COALESCE(SUM(valor),0) AS total
-      FROM vendas
-      WHERE data_venda >= $1 AND data_venda < ($1::date + INTERVAL '1 day');
-    `,
+        SELECT COUNT(*) AS qtd, COALESCE(SUM(valor),0) AS total
+        FROM vendas
+        WHERE data_venda >= $1
+          AND data_venda < ($1::date + INTERVAL '1 day');
+      `,
       [hojeISO]
     );
 
     const rAtend = await pool.query(
       `
-      SELECT COALESCE(SUM(quantidade),0) AS total
-      FROM atendimentos
-      WHERE data_registro = $1;
-    `,
+        SELECT COALESCE(SUM(quantidade),0) AS total
+        FROM atendimentos
+        WHERE data_registro = $1;
+      `,
       [hojeISO]
     );
 
@@ -694,7 +711,7 @@ app.get('/api/admin/resumo', autenticar, exigirGerente, async (req, res) => {
       atendimentosHoje: Number(rAtend.rows[0].total || 0),
     });
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao buscar resumo admin:', err);
     res.status(500).json({ erro: 'Erro ao buscar resumo' });
   }
 });
@@ -704,61 +721,62 @@ app.get('/api/admin/vendas', autenticar, exigirGerente, async (req, res) => {
   try {
     const r = await pool.query(
       `
-      SELECT v.data_venda, v.valor, v.forma_pagamento, v.cliente_nome,
-             v.quantidade_pecas,
-             vd.nome AS vendedora
-      FROM vendas v
-      JOIN vendedoras vd ON vd.id = v.vendedora_id
-      ORDER BY v.data_venda DESC
-      LIMIT 1000;
-    `
+        SELECT v.id,
+               v.data_venda,
+               v.valor,
+               v.forma_pagamento,
+               v.cliente_nome,
+               v.quantidade_pecas,
+               vd.nome AS vendedora
+        FROM vendas v
+        JOIN vendedoras vd ON vd.id = v.vendedora_id
+        ORDER BY v.data_venda DESC
+        LIMIT 1000;
+      `
     );
     res.json(r.rows);
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao buscar vendas (admin):', err);
     res.status(500).json({ erro: 'Erro ao buscar vendas (admin)' });
   }
 });
 
 // Atendimentos (admin)
-app.get(
-  '/api/admin/atendimentos',
-  autenticar,
-  exigirGerente,
-  async (req, res) => {
-    try {
-      const r = await pool.query(
-        `
-        SELECT a.data_registro, a.quantidade,
+app.get('/api/admin/atendimentos', autenticar, exigirGerente, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `
+        SELECT a.data_registro,
+               a.quantidade,
                v.nome AS vendedora
         FROM atendimentos a
         JOIN vendedoras v ON v.id = a.vendedora_id
         ORDER BY a.data_registro DESC;
       `
-      );
-      res.json(r.rows);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ erro: 'Erro ao buscar atendimentos (admin)' });
-    }
+    );
+    res.json(r.rows);
+  } catch (err) {
+    console.error('Erro ao buscar atendimentos (admin):', err);
+    res.status(500).json({ erro: 'Erro ao buscar atendimentos (admin)' });
   }
-);
+});
 
-// Metas diárias explicitamente ajustadas (admin)
+// Metas diárias cadastradas manualmente (admin)
 app.get('/api/admin/metas', autenticar, exigirGerente, async (req, res) => {
   try {
     const r = await pool.query(
       `
-      SELECT m.data_meta, m.valor_meta,
-             v.nome AS vendedora
-      FROM metas m
-      JOIN vendedoras v ON v.id = m.vendedora_id
-      ORDER BY m.data_meta DESC;
-    `
+        SELECT m.data_meta,
+               m.valor_meta,
+               v.nome AS vendedora
+        FROM metas m
+        JOIN vendedoras v ON v.id = m.vendedora_id
+        ORDER BY m.data_meta DESC;
+      `
     );
     res.json(r.rows);
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao buscar metas (admin):', err);
     res.status(500).json({ erro: 'Erro ao buscar metas (admin)' });
   }
 });
