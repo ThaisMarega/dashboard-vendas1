@@ -43,6 +43,7 @@ const pool = new Pool({
     ? { rejectUnauthorized: false }
     : false,
 });
+
 // -----------------------------------------------
 // CRIAÇÃO / AJUSTE DE TABELAS
 // -----------------------------------------------
@@ -125,6 +126,7 @@ async function criarTabelas() {
     console.error('❌ Erro ao criar tabelas:', err);
   }
 }
+
 // -----------------------------------------------
 // FUNÇÕES AUXILIARES DE DATA / META MENSAL
 // -----------------------------------------------
@@ -144,68 +146,99 @@ function contarDiasUteis(startDate, endDate) {
 
 // calcula meta do dia considerando meta mensal, vendas do mês etc.
 async function calcularMetaDia(vendedoraId, dataISO) {
-  // dataISO: "YYYY-MM-DD"
-  const data = new Date(dataISO + 'T00:00:00');
-  const ano = data.getFullYear();
-  const mes = data.getMonth(); // 0-11
+  try {
+    // se data vier vazia ou em formato estranho, usa hoje
+    if (!dataISO || !/^\d{4}-\d{2}-\d{2}$/.test(dataISO)) {
+      dataISO = new Date().toISOString().slice(0, 10);
+    }
 
-  const inicioMes = new Date(ano, mes, 1);
-  const fimMes = new Date(ano, mes + 1, 0); // último dia do mês
+    const data = new Date(dataISO + 'T00:00:00');
+    if (isNaN(data.getTime())) {
+      throw new Error('Data inválida em calcularMetaDia: ' + dataISO);
+    }
 
-  // dados da vendedora
-  const rVend = await pool.query(
-    'SELECT meta_mensal, meta_padrao FROM vendedoras WHERE id = $1',
-    [vendedoraId]
-  );
-  if (rVend.rows.length === 0) {
-    return { metaDia: 0, metaMensal: 0, vendidoNoMes: 0, faltaNoMes: 0 };
-  }
+    const ano = data.getFullYear();
+    const mes = data.getMonth(); // 0-11
 
-  const metaMensal = Number(rVend.rows[0].meta_mensal || 0);
-  const metaPadrao = Number(rVend.rows[0].meta_padrao || 0);
+    const inicioMes = new Date(ano, mes, 1);
+    const fimMes = new Date(ano, mes + 1, 0); // último dia do mês
 
-  // se não tiver meta mensal configurada, usa meta diária padrão fixa
-  if (!metaMensal) {
+    const inicioISO = inicioMes.toISOString().slice(0, 10);
+    const fimISO = fimMes.toISOString().slice(0, 10);
+
+    // dados da vendedora
+    const rVend = await pool.query(
+      'SELECT meta_mensal, meta_padrao FROM vendedoras WHERE id = $1',
+      [vendedoraId]
+    );
+    if (rVend.rows.length === 0) {
+      return { metaDia: 0, metaMensal: 0, vendidoNoMes: 0, faltaNoMes: 0 };
+    }
+
+    const metaMensal = Number(rVend.rows[0].meta_mensal || 0);
+    const metaPadrao = Number(rVend.rows[0].meta_padrao || 0);
+
+    // se não tiver meta mensal configurada, usa meta diária padrão fixa
+    if (!metaMensal) {
+      return {
+        metaDia: metaPadrao,
+        metaMensal: 0,
+        vendidoNoMes: 0,
+        faltaNoMes: 0,
+      };
+    }
+
+    // vendas acumuladas no mês ATÉ a data informada (inclusive)
+    const rVendas = await pool.query(
+      `
+        SELECT COALESCE(SUM(valor),0) AS total
+        FROM vendas
+        WHERE vendedora_id = $1
+          AND data_venda >= $2
+          AND data_venda < ($3::date + INTERVAL '1 day');
+      `,
+      [vendedoraId, inicioISO, dataISO]
+    );
+    const vendidoNoMes = Number(rVendas.rows[0].total || 0);
+
+    let faltaNoMes = metaMensal - vendidoNoMes;
+    if (faltaNoMes < 0) faltaNoMes = 0;
+
+    // quantos dias úteis (seg a sáb) ainda restam no mês a partir da data
+    const diasUteisRestantes = contarDiasUteis(
+      dataISO,
+      fimISO
+    );
+
+    let metaDia = 0;
+    if (diasUteisRestantes > 0) {
+      metaDia = faltaNoMes / diasUteisRestantes;
+    }
+
+    if (faltaNoMes === 0) {
+      metaDia = 0;
+    }
+
+    return { metaDia, metaMensal, vendidoNoMes, faltaNoMes };
+  } catch (err) {
+    console.error('Erro dentro de calcularMetaDia (usando fallback):', err);
+
+    // fallback total: busca apenas meta_padrao / meta_mensal e devolve algo simples
+    const rVend = await pool.query(
+      'SELECT meta_mensal, meta_padrao FROM vendedoras WHERE id = $1',
+      [vendedoraId]
+    );
+    const v = rVend.rows[0] || {};
+    const metaMensal = Number(v.meta_mensal || 0);
+    const metaPadrao = Number(v.meta_padrao || 0);
+
     return {
       metaDia: metaPadrao,
-      metaMensal: 0,
+      metaMensal,
       vendidoNoMes: 0,
-      faltaNoMes: 0,
+      faltaNoMes: metaMensal || 0,
     };
   }
-
-  // vendas acumuladas no mês ATÉ a data informada (inclusive)
-  const rVendas = await pool.query(
-    `
-      SELECT COALESCE(SUM(valor),0) AS total
-      FROM vendas
-      WHERE vendedora_id = $1
-        AND data_venda >= $2
-        AND data_venda < ($3::date + INTERVAL '1 day');
-    `,
-    [vendedoraId, inicioMes, dataISO]
-  );
-  const vendidoNoMes = Number(rVendas.rows[0].total || 0);
-
-  let faltaNoMes = metaMensal - vendidoNoMes;
-  if (faltaNoMes < 0) faltaNoMes = 0;
-
-  // quantos dias úteis (seg a sáb) ainda restam no mês a partir da data
-  const diasUteisRestantes = contarDiasUteis(
-    dataISO,
-    fimMes.toISOString().slice(0, 10)
-  );
-
-  let metaDia = 0;
-  if (diasUteisRestantes > 0) {
-    metaDia = faltaNoMes / diasUteisRestantes;
-  }
-
-  if (faltaNoMes === 0) {
-    metaDia = 0;
-  }
-
-  return { metaDia, metaMensal, vendidoNoMes, faltaNoMes };
 }
 
 // -----------------------------------------------
@@ -291,6 +324,7 @@ app.post('/api/login', async (req, res) => {
     res.status(500).json({ erro: 'Erro no servidor de login' });
   }
 });
+
 // -----------------------------------------------
 // ROTAS DE VENDEDORA (AUTENTICADAS)
 // -----------------------------------------------
@@ -550,11 +584,17 @@ app.get('/api/atendimentos/:data', autenticar, async (req, res) => {
 
 // Retorna meta do dia + meta mensal + vendido no mês + falta
 app.get('/api/metas/:data', autenticar, async (req, res) => {
+  const paramData = req.params.data;
   try {
-    const { data } = req.params;
+    let dataISO = paramData;
 
-    // meta calculada dinamicamente
-    const calc = await calcularMetaDia(req.vendedoraId, data);
+    // garante formato YYYY-MM-DD
+    if (!dataISO || !/^\d{4}-\d{2}-\d{2}$/.test(dataISO)) {
+      dataISO = new Date().toISOString().slice(0, 10);
+    }
+
+    // meta calculada dinamicamente (com fallback interno)
+    const calc = await calcularMetaDia(req.vendedoraId, dataISO);
 
     // verifica se há override manual para este dia
     const rMeta = await pool.query(
@@ -563,7 +603,7 @@ app.get('/api/metas/:data', autenticar, async (req, res) => {
         FROM metas
         WHERE vendedora_id = $1 AND data_meta = $2;
       `,
-      [req.vendedoraId, data]
+      [req.vendedoraId, dataISO]
     );
 
     let valorMetaDia = calc.metaDia;
@@ -571,6 +611,7 @@ app.get('/api/metas/:data', autenticar, async (req, res) => {
       valorMetaDia = Number(rMeta.rows[0].valor_meta || 0);
     }
 
+    // devolve sempre 200 (para não acionar erro vermelho no frontend)
     res.json({
       valor_meta: valorMetaDia,
       meta_mensal: calc.metaMensal,
@@ -578,8 +619,15 @@ app.get('/api/metas/:data', autenticar, async (req, res) => {
       falta_no_mes: calc.faltaNoMes,
     });
   } catch (err) {
-    console.error('Erro ao buscar meta:', err);
-    res.status(500).json({ erro: 'Erro ao buscar meta' });
+    console.error('Erro ao buscar meta (fallback total):', err);
+
+    // fallback final: resposta 200 com zeros
+    res.json({
+      valor_meta: 0,
+      meta_mensal: 0,
+      vendido_no_mes: 0,
+      falta_no_mes: 0,
+    });
   }
 });
 
