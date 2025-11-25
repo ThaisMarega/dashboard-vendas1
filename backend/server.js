@@ -175,8 +175,14 @@ async function calcularMetaDia(vendedoraId, dataISO) {
       return { metaDia: 0, metaMensal: 0, vendidoNoMes: 0, faltaNoMes: 0 };
     }
 
-    const metaMensal = Number(rVend.rows[0].meta_mensal || 0);
-    const metaPadrao = Number(rVend.rows[0].meta_padrao || 0);
+    const metaMensalRaw = rVend.rows[0].meta_mensal;
+  const metaPadraoRaw = rVend.rows[0].meta_padrao;
+
+  // se meta_mensal vier nula, consideramos 0 (sem meta mensal configurada ainda)
+  const metaMensal = metaMensalRaw == null ? 0 : Number(metaMensalRaw);
+
+  // se meta_padrao vier nula, usamos um fallback de 15000
+  const metaPadrao = metaPadraoRaw == null ? 15000 : Number(metaPadraoRaw);
 
     // se não tiver meta mensal configurada, usa meta diária padrão fixa
     if (!metaMensal) {
