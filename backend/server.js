@@ -602,19 +602,24 @@ app.get('/api/metas/:data', autenticar, async (req, res) => {
     // meta calculada dinamicamente (com fallback interno)
     const calc = await calcularMetaDia(req.vendedoraId, dataISO);
 
-    // verifica se há override manual para este dia
+   // verifica se há override manual para este dia
     const rMeta = await pool.query(
       `
         SELECT valor_meta
         FROM metas
         WHERE vendedora_id = $1 AND data_meta = $2;
       `,
-      [req.vendedoraId, dataISO]
+      [req.vendedoraId, data]
     );
 
     let valorMetaDia = calc.metaDia;
+
     if (rMeta.rows.length > 0) {
-      valorMetaDia = Number(rMeta.rows[0].valor_meta || 0);
+      const override = Number(rMeta.rows[0].valor_meta);
+      // só usa override se for > 0
+      if (override > 0) {
+        valorMetaDia = override;
+      }
     }
 
     // devolve sempre 200 (para não acionar erro vermelho no frontend)
@@ -641,7 +646,25 @@ app.get('/api/metas/:data', autenticar, async (req, res) => {
 app.post('/api/metas', autenticar, async (req, res) => {
   try {
     const { valorMeta, data } = req.body;
+    const valorNum = Number(valorMeta || 0);
 
+    // Se valorMeta <= 0: removemos o override e voltamos a usar a meta automática
+    if (!valorNum || valorNum <= 0) {
+      await pool.query(
+        `
+          DELETE FROM metas
+          WHERE vendedora_id = $1 AND data_meta = $2;
+        `,
+        [req.vendedoraId, data]
+      );
+
+      return res.json({
+        mensagem:
+          'Override removido. A meta automática voltará a ser usada para este dia.',
+      });
+    }
+
+    // Se valorMeta > 0: salvamos/atualizamos override normalmente
     const result = await pool.query(
       `
         INSERT INTO metas (vendedora_id, valor_meta, data_meta)
@@ -650,7 +673,7 @@ app.post('/api/metas', autenticar, async (req, res) => {
         DO UPDATE SET valor_meta = EXCLUDED.valor_meta
         RETURNING *;
       `,
-      [req.vendedoraId, valorMeta, data]
+      [req.vendedoraId, valorNum, data]
     );
 
     res.json(result.rows[0]);
